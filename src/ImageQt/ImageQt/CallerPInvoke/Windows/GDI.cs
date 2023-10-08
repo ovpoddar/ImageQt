@@ -20,7 +20,7 @@ internal static partial class GDI
     public static partial bool DeleteObject(nint hwnd);
 
     [LibraryImport("gdi32.dll")]
-    public static partial nint CreateCompatibleDC(nint hdc);
+    public static partial nint CreateCompatibleDC(IntPtr hdc);
 
     [LibraryImport("gdi32.dll")]
     public static partial nint SelectObject(nint hdc, nint hgdiobj);
@@ -32,5 +32,7 @@ internal static partial class GDI
     [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
     public static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out Bitmap lpvObject);
 
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr CreateDIBitmap(IntPtr hdc, IntPtr pbmih, uint flInit, IntPtr pjBits, BitmapInfoHeader pbmi, uint iUsage);
 
 }
