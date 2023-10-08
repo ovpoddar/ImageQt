@@ -7,4 +7,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Reference Include="ImageQt">
+      <HintPath>..\..\src\ImageQt\ImageQt\bin\Debug\net7.0\ImageQt.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
