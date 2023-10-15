@@ -6,8 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQt.CallerPInvoke.Windows;
-internal static  class Kernel
+internal static partial class Kernel
 {
-    [DllImport("kernel32.dll")]
-    public static extern nint GetModuleHandle(string? lpModuleName);
+    [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf16, EntryPoint = "GetModuleHandleA")]
+    public static partial nint GetModuleHandle(char[] lpModuleName);
 }
