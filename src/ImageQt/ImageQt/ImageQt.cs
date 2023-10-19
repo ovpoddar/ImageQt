@@ -140,7 +140,8 @@ public class ImageQt : IDisposable
             ref _imageData,
             ColorUsage.DIB_RGB_COLORS,
             DropType.SrcCopy);
-        //Marshal.FreeHGlobal(arrayPointer);
+        Marshal.FreeHGlobal(arrayPointer);
+        Win.ReleaseDC(hWnd, currentDeviceContext);
     }
 
     public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
