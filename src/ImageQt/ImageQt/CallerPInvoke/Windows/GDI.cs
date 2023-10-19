@@ -10,19 +10,19 @@ using System.Threading.Tasks;
 namespace ImageQt.CallerPInvoke.Windows;
 internal static partial class GDI
 {
-    [DllImport("gdi32.dll")]
-    public static extern IntPtr StretchDIBits(IntPtr hdc,
-        int xDestination, 
-        int yDestination, 
-        int destinationWidth,
-        int destinationHeight, 
-        int xSource,
-        int ySource,
-        int sourceWidth, 
-        int sourceHeight, 
-        IntPtr memory, 
-        ref BitmapInfo bitmap, 
-        ColorUsage usage, 
-        DropType dropType);
+    [DllImport(dllName: "gdi32.dll", EntryPoint = "StretchDIBits")]
+    public static extern IntPtr StretchDIBits([In] IntPtr hdc,
+        [In] int xDestination,
+        [In] int yDestination,
+        [In] int destinationWidth,
+        [In] int destinationHeight,
+        [In] int xSource,
+        [In] int ySource,
+        [In] int sourceWidth,
+        [In] int sourceHeight,
+        [In] IntPtr memory,
+        [In] ref BitmapInfo bitmap,
+        [In] ColorUsage usage,
+        [In] DropType dropType);
 
 }

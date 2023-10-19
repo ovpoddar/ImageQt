@@ -13,7 +13,7 @@
 
   <ItemGroup>
     <Reference Include="ImageQt">
-      <HintPath>..\..\src\ImageQt\ImageQt\bin\Debug\net7.0\ImageQt.dll</HintPath>
+      <HintPath>..\..\src\ImageQt\ImageQt\bin\Release\net7.0\ImageQt.dll</HintPath>
     </Reference>
   </ItemGroup>
 
