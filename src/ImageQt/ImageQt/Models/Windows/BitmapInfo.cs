@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQt.Models.Windows;
+
 [StructLayout(LayoutKind.Sequential)]
 public struct BitmapInfo
 {

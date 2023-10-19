@@ -11,7 +11,7 @@ public class ImageQt : IDisposable
     private WndProc.WndProcDelegate _wndProcDelegate;
     private IntPtr _window;
     private BitmapInfo _imageData;
-    private byte[] _imagePixelData;
+    private Array _imagePixelData;
 #endif
 
 
@@ -79,10 +79,10 @@ public class ImageQt : IDisposable
 
     private void DeclarWindow(string windowTitle)
     {
-        var instance = Kernel.GetModuleHandle(null);
+        IntPtr instance = Kernel.GetModuleHandle(null);
 
         _wndProcDelegate = CustomWndProc;
-        var wc = new WindowStruct
+        WindowStruct wc = new()
         {
             hInstance = instance,
             lpszClassName = windowTitle,
@@ -124,9 +124,9 @@ public class ImageQt : IDisposable
 
     private void LoadImageFromData(IntPtr hWnd)
     {
-        if (!_imagePixelData.Any()) return;
-        var currentDeviceContext = Win.GetDC(hWnd);
-        var arrayPointer = Marshal.UnsafeAddrOfPinnedArrayElement(_imagePixelData, 0);
+        if (_imagePixelData.Length <= 4) return;
+        IntPtr currentDeviceContext = Win.GetDC(hWnd);
+        IntPtr arrayPointer = Marshal.UnsafeAddrOfPinnedArrayElement(_imagePixelData, 0);
         GDI.StretchDIBits(currentDeviceContext,
             0,
             0,
@@ -140,13 +140,26 @@ public class ImageQt : IDisposable
             ref _imageData,
             ColorUsage.DIB_RGB_COLORS,
             DropType.SrcCopy);
-        Marshal.FreeHGlobal(arrayPointer);
         Win.ReleaseDC(hWnd, currentDeviceContext);
+        Marshal.FreeHGlobal(arrayPointer);
     }
 
     public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
     {
         NormalizeData(ref bytes);
+        BitmapInfo bitmapInfo = new();
+        bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
+        bitmapInfo.biWidth = width;
+        bitmapInfo.biHeight = -height;
+        bitmapInfo.biPlanes = 1;
+        bitmapInfo.biBitCount = 32;
+        bitmapInfo.biCompression = 0;
+        _imageData = bitmapInfo;
+        _imagePixelData = bytes;
+    }
+
+    public void GenerateTheBitMap(int width, int height, ref int[] bytes)
+    {
         BitmapInfo bitmapInfo = new();
         bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
         bitmapInfo.biWidth = width;
@@ -191,7 +204,6 @@ public class ImageQt : IDisposable
             if (_window != IntPtr.Zero)
             {
                 Win.DestroyWindow(_window);
-                Marshal.FreeHGlobal(_window);
                 _window = IntPtr.Zero;
             }
 
