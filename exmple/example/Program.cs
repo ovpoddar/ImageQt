@@ -1,16 +1,23 @@
-﻿var qt = new ImageQt.ImageQt("Open window.");
+﻿using System.Drawing;
+using System.IO;
+using System.Text;
 
-//await qt.LoadImage(@"C:\Users\ayanp\Downloads\peakpxbmp.bmp");
+var qt = new ImageQt.ImageQt("Open window.");
 
-var bytes = new int[50 * 50];
-
-for (var i = 0; i < 50 * 50; i++)
+var bim = new Bitmap(@"side-view-smiley-woman-holding-hen.jpg");
+var fs = new MemoryStream();
+fs.Seek(0, SeekOrigin.Begin);
+for (var y = 0; y < bim.Height; y++)
 {
-    int value = 0xFF00FF;
-    bytes[i] = value;
-
+    for (var x = 0; x < bim.Width; x++)
+    {
+        var color = bim.GetPixel(x, y).ToArgb();
+        fs.Write(BitConverter.GetBytes(color));
+    }
 }
+fs.Close();
+var by = fs.ToArray();
 
-qt.GenerateTheBitMap(50, 50, ref bytes);
+qt.GenerateTheBitMap(bim.Width, bim.Height, ref by);
 await qt.Run(true);
 Console.ReadLine();
