@@ -35,4 +35,8 @@ internal static partial class GDI
     [DllImport("gdi32.dll")]
     public static extern IntPtr CreateDIBitmap(IntPtr hdc, IntPtr pbmih, uint flInit, IntPtr pjBits, BitmapInfoHeader pbmi, uint iUsage);
 
+
+    [DllImport("gdi32.dll")]
+    public static extern IntPtr StretchDIBits(IntPtr hdc, int xDest, int yDest, int destWidth, int destHeight, int xSrc, int ySrc, int srcWidth, int srcHeight, IntPtr memory, ref BitmapInfo bitmap, ColorUsage usage, DropType dwRop);
+
 }

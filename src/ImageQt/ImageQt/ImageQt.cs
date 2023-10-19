@@ -1,9 +1,6 @@
 ﻿using ImageQt.CallerPInvoke.Windows;
 using ImageQt.Models.Windows;
-using System.Net.NetworkInformation;
-using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace ImageQt;
 
@@ -13,7 +10,8 @@ public class ImageQt : IDisposable
     private bool _disposed;
     private WndProc.WndProcDelegate _wndProcDelegate;
     private IntPtr _window;
-    private IntPtr _image;
+    private BitmapInfo _imageData;
+    private byte[] _imagePixelData;
 #endif
 
 
@@ -116,7 +114,7 @@ public class ImageQt : IDisposable
                 return 0;
 
             case ProcessesMessage.WM_PAINT:
-                LoadAndDisplayBMP(hWnd);
+                LoadImageFromData(hWnd);
                 return 0;
         }
 
@@ -124,39 +122,44 @@ public class ImageQt : IDisposable
         return Win.DefWindowProcW(hWnd, (uint)msg, wParam, lParam);
     }
 
-    private void LoadAndDisplayBMP(nint hWnd)
+    private void LoadImageFromData(IntPtr hWnd)
     {
-        if (_image == IntPtr.Zero)
-            return;
-
+        if (!_imagePixelData.Any()) return;
         var currentDeviceContext = Win.GetDC(hWnd);
-        var memory = GDI.CreateCompatibleDC(currentDeviceContext);
-        var bitmap = GDI.SelectObject(memory, _image);
-        Bitmap newBitmap = new();
-        GDI.GetObject(_image, Marshal.SizeOf<Bitmap>(), out newBitmap);
-        GDI.BitBlt(currentDeviceContext,
+        var arrayPointer = Marshal.UnsafeAddrOfPinnedArrayElement(_imagePixelData, 0);
+        GDI.StretchDIBits(currentDeviceContext,
             0,
             0,
-            newBitmap.bmWidth,
-            newBitmap.bmHeight, 
-            memory,
+            _imageData.biWidth,
+            -1 * _imageData.biHeight,
             0,
             0,
-            13369376);
-        GDI.SelectObject(memory, bitmap);
-        GDI.DeleteDC(memory);
-        Win.ReleaseDC(hWnd, currentDeviceContext);
+            _imageData.biWidth,
+            -1 * _imageData.biHeight,
+            arrayPointer,
+            ref _imageData,
+            ColorUsage.DIB_RGB_COLORS,
+            DropType.SrcCopy);
+        //Marshal.FreeHGlobal(arrayPointer);
     }
 
-    // support bmp file only.
-    public Task LoadImage(string path)
+    public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
     {
-        _image = Win.LoadImage(IntPtr.Zero, path, 0, 0, 0, 16);
+        NormalizeData(ref bytes);
+        BitmapInfo bitmapInfo = new();
+        bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
+        bitmapInfo.biWidth = width;
+        bitmapInfo.biHeight = -height;
+        bitmapInfo.biPlanes = 1;
+        bitmapInfo.biBitCount = 32;
+        bitmapInfo.biCompression = 0;
+        _imageData = bitmapInfo;
+        _imagePixelData = bytes;
+    }
 
-        if (_image == IntPtr.Zero)
-            throw new Exception("could not load the image");
+    private void NormalizeData(ref byte[] bytes)
+    {
 
-        return Task.CompletedTask;
     }
 
     private void ShowWindow()
@@ -187,14 +190,10 @@ public class ImageQt : IDisposable
             if (_window != IntPtr.Zero)
             {
                 Win.DestroyWindow(_window);
+                Marshal.FreeHGlobal(_window);
                 _window = IntPtr.Zero;
             }
-            
-            if (_image != IntPtr.Zero)
-            {
-                GDI.DeleteObject(_image);
-                _image = IntPtr.Zero;
-            }
+
         }
 #endif
     }
