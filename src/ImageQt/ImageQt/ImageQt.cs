@@ -10,8 +10,8 @@ public class ImageQt : IDisposable
     private bool _disposed;
     private WndProc.WndProcDelegate _wndProcDelegate;
     private IntPtr _window;
+    private IntPtr _imagePixeldata;
     private BitmapInfo _imageData;
-    private Array _imagePixelData;
 #endif
 
 
@@ -124,9 +124,8 @@ public class ImageQt : IDisposable
 
     private void LoadImageFromData(IntPtr hWnd)
     {
-        if (_imagePixelData.Length <= 4) return;
+        if (_imagePixeldata == IntPtr.Zero) return;
         IntPtr currentDeviceContext = Win.GetDC(hWnd);
-        IntPtr arrayPointer = Marshal.UnsafeAddrOfPinnedArrayElement(_imagePixelData, 0);
         GDI.StretchDIBits(currentDeviceContext,
             0,
             0,
@@ -136,17 +135,15 @@ public class ImageQt : IDisposable
             0,
             _imageData.biWidth,
             -1 * _imageData.biHeight,
-            arrayPointer,
+            _imagePixeldata,
             ref _imageData,
             ColorUsage.DIB_RGB_COLORS,
             DropType.SrcCopy);
         Win.ReleaseDC(hWnd, currentDeviceContext);
-        Marshal.FreeHGlobal(arrayPointer);
     }
 
     public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
     {
-        NormalizeData(ref bytes);
         BitmapInfo bitmapInfo = new();
         bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
         bitmapInfo.biWidth = width;
@@ -155,7 +152,7 @@ public class ImageQt : IDisposable
         bitmapInfo.biBitCount = 32;
         bitmapInfo.biCompression = 0;
         _imageData = bitmapInfo;
-        _imagePixelData = bytes;
+        _imagePixeldata = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
     }
 
     public void GenerateTheBitMap(int width, int height, ref int[] bytes)
@@ -168,12 +165,7 @@ public class ImageQt : IDisposable
         bitmapInfo.biBitCount = 32;
         bitmapInfo.biCompression = 0;
         _imageData = bitmapInfo;
-        _imagePixelData = bytes;
-    }
-
-    private void NormalizeData(ref byte[] bytes)
-    {
-
+        _imagePixeldata = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
     }
 
     private void ShowWindow()
@@ -206,7 +198,12 @@ public class ImageQt : IDisposable
                 Win.DestroyWindow(_window);
                 _window = IntPtr.Zero;
             }
-
+            
+            if (_imagePixeldata != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(_imagePixeldata);
+                _imagePixeldata = IntPtr.Zero;
+            }
         }
 #endif
     }
