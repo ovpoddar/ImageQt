@@ -18,6 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="bytes">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="side-view-smiley-woman-holding-hen.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
