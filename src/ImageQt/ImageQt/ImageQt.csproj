@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
@@ -19,4 +19,17 @@
 	<PropertyGroup Condition="'$(IsLinux)'=='true'">
 		<DefineConstants>Linux</DefineConstants>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<None Condition="'$(IsLinux)'=='true'" Include="PlatformDll\X11.os">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<PackagePath>build\</PackagePath>
+			<Pack>true</Pack>
+		</None>
+		
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Models\Linux\" />
+	</ItemGroup>
 </Project>
