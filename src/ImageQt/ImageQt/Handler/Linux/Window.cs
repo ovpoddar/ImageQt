@@ -3,7 +3,7 @@ using ImageQt.Models.Linux;
 
 namespace ImageQt.Handler.Linux;
 
-internal class Window
+internal class Window : IWindow
 {
     private ulong _x11Window;
 

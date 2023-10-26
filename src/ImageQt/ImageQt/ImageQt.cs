@@ -1,4 +1,5 @@
 ﻿using ImageQt.CallerPInvoke.Windows;
+using ImageQt.Handler;
 using ImageQt.Models.Windows;
 using System;
 using System.Runtime.InteropServices;
@@ -12,7 +13,7 @@ public class ImageQt : IDisposable
     private IntPtr _window;
     private IntPtr _imagePixeldata;
     private BitmapInfo _imageData;
-    private Windows _display;
+    private IWindow _display;
 
 
     public ImageQt(string windowTitle)

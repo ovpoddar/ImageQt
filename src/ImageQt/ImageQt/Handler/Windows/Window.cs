@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Windows;
 
-internal class Window
+internal class Window : IWindow
 {
     private WndProc.WndProcDelegate _wndProcDelegate;
 
