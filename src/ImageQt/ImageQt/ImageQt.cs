@@ -62,30 +62,26 @@ public class ImageQt : IDisposable
 
     public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
     {
-        BitmapInfo bitmapInfo = new()
-        {
-            biSize = Marshal.SizeOf<BitmapInfo>(),
-            biWidth = width,
-            biHeight = -height,
-            biPlanes = 1,
-            biBitCount = 32,
-            biCompression = 0
-        };
+        BitmapInfo bitmapInfo = new();
+        bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
+        bitmapInfo.biWidth = width;
+        bitmapInfo.biHeight = -height;
+        bitmapInfo.biPlanes = 1;
+        bitmapInfo.biBitCount = 32;
+        bitmapInfo.biCompression = 0;
         _imageData = bitmapInfo;
         _imagePixeldata = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
     }
 
     public void GenerateTheBitMap(int width, int height, ref int[] bytes)
     {
-        BitmapInfo bitmapInfo = new()
-        {
-            biSize = Marshal.SizeOf<BitmapInfo>(),
-            biWidth = width,
-            biHeight = -height,
-            biPlanes = 1,
-            biBitCount = 32,
-            biCompression = 0
-        };
+        BitmapInfo bitmapInfo = new();
+        bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
+        bitmapInfo.biWidth = width;
+        bitmapInfo.biHeight = -height;
+        bitmapInfo.biPlanes = 1;
+        bitmapInfo.biBitCount = 32;
+        bitmapInfo.biCompression = 0;
         _imageData = bitmapInfo;
         _imagePixeldata = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
     }

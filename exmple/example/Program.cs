@@ -21,8 +21,8 @@ var qt = new ImageQt.ImageQt("Open window.");
  */
 
 
-int width = 1000, 
-   height = 667;
+int width = 1000,
+    height = 667;
 var bytes = File.ReadAllBytes("bytes");
 
 qt.GenerateTheBitMap(width, height, ref bytes);
