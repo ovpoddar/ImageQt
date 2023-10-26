@@ -1,11 +1,9 @@
 ﻿using ImageQt.CallerPInvoke.Linux;
-using ImageQt.CallerPInvoke.Windows;
 using ImageQt.Models.Linux;
-using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Linux;
 
-internal class Window : IWindow
+internal class Window
 {
     private ulong _x11Window;
 
@@ -44,13 +42,13 @@ internal class Window : IWindow
         }
     }
 
-    public void CleanUpResources(GCHandle window)
+
+    public void CleanUpResources(ref IntPtr window)
     {
-        if (!window.IsAllocated)
+        if (window == IntPtr.Zero)
             return;
 
-        var ptr = window.AddrOfPinnedObject();
-        XLib.XCloseDisplay(ptr);
-        window.Free();
+        XLib.XCloseDisplay(window);
+        window = IntPtr.Zero;
     }
 }

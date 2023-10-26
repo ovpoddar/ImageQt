@@ -4,13 +4,13 @@ using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Windows;
 
-internal class Window : IWindow
+internal class Window
 {
     private WndProc.WndProcDelegate _wndProcDelegate;
 
-    public nint DeclareWindow(string windowTitle, uint height, uint width)
+    public IntPtr DeclareWindow(string windowTitle, uint height, uint width)
     {
-        nint instance = Kernel.GetModuleHandle(null);
+        IntPtr instance = Kernel.GetModuleHandle(null);
 
         _wndProcDelegate = CustomWndProc;
         WindowStruct wc = new()
@@ -30,20 +30,20 @@ internal class Window : IWindow
             -2147483648,
             (int)height,
             (int)width,
-            nint.Zero,
-            nint.Zero,
+            IntPtr.Zero,
+            IntPtr.Zero,
             instance,
-            nint.Zero);
+            IntPtr.Zero);
     }
-
-    public void ShowWindow(nint window)
+    
+    public void ShowWindow(IntPtr window)
     {
-        if (window == nint.Zero)
+        if (window == IntPtr.Zero)
             throw new Exception("Could not Initilized.");
         Win.ShowWindow(window, 5);
     }
 
-    public void ProcessEvent(nint window)
+    public void ProcessEvent(IntPtr window)
     {
         var message = new Message();
 
@@ -69,22 +69,21 @@ internal class Window : IWindow
             case ProcessesMessage.WM_DESTROY:
                 Win.PostQuitMessage(0);
                 return 0;
-                //case ProcessesMessage.WM_PAINT:
-                //    LoadImageFromData(hWnd);
-                //    return 0;
+            //case ProcessesMessage.WM_PAINT:
+            //    LoadImageFromData(hWnd);
+            //    return 0;
         }
 
 
         return Win.DefWindowProcW(hWnd, (uint)msg, wParam, lParam);
     }
 
-    public void CleanUpResources(GCHandle window)
+    public void CleanUpResources(ref IntPtr window)
     {
-        if (!window.IsAllocated)
+        if (window == IntPtr.Zero)
             return;
 
-        var ptr = window.AddrOfPinnedObject();
-        Win.DestroyWindow(ptr);
-        window.Free();
+        Win.DestroyWindow(window);
+        window = IntPtr.Zero;
     }
 }
