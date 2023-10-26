@@ -1,39 +1,40 @@
 ﻿using ImageQt.CallerPInvoke.Windows;
 using ImageQt.Models.Windows;
-using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using ImageQt.Handler;
 
 namespace ImageQt;
 
 public class ImageQt : IDisposable
 {
     private bool _disposed;
-    private IntPtr _window;
+    private GCHandle _window;
     private IntPtr _imagePixeldata;
     private BitmapInfo _imageData;
-    private Windows _display;
+    private IWindow _display;
 
 
     public ImageQt(string windowTitle)
     {
         _display = new Windows();
-        _window = _display.DeclareWindow(windowTitle, 200, 200);
-        _display.ShowWindow(_window);
+        var window = _display.DeclareWindow(windowTitle, 200, 200);
+        _window = GCHandle.Alloc(window, GCHandleType.Pinned);
+        _display.ShowWindow(window);
     }
 
     public Task Run(bool isBlockCurrentThread = false)
     {
-        if (_window == IntPtr.Zero)
+        var window = _window.AddrOfPinnedObject();
+        if (window == IntPtr.Zero)
             return Task.CompletedTask;
 
         if (isBlockCurrentThread)
         {
-            _display.ProcessEvent(_window);
+            _display.ProcessEvent(window);
         }
         else
         {
-            _ = Task.Run(() => _display.ProcessEvent(_window));
+            _ = Task.Run(() => _display.ProcessEvent(window));
         }
 
         return Task.CompletedTask;
@@ -61,26 +62,30 @@ public class ImageQt : IDisposable
 
     public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
     {
-        BitmapInfo bitmapInfo = new();
-        bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
-        bitmapInfo.biWidth = width;
-        bitmapInfo.biHeight = -height;
-        bitmapInfo.biPlanes = 1;
-        bitmapInfo.biBitCount = 32;
-        bitmapInfo.biCompression = 0;
+        BitmapInfo bitmapInfo = new()
+        {
+            biSize = Marshal.SizeOf<BitmapInfo>(),
+            biWidth = width,
+            biHeight = -height,
+            biPlanes = 1,
+            biBitCount = 32,
+            biCompression = 0
+        };
         _imageData = bitmapInfo;
         _imagePixeldata = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
     }
 
     public void GenerateTheBitMap(int width, int height, ref int[] bytes)
     {
-        BitmapInfo bitmapInfo = new();
-        bitmapInfo.biSize = Marshal.SizeOf<BitmapInfo>();
-        bitmapInfo.biWidth = width;
-        bitmapInfo.biHeight = -height;
-        bitmapInfo.biPlanes = 1;
-        bitmapInfo.biBitCount = 32;
-        bitmapInfo.biCompression = 0;
+        BitmapInfo bitmapInfo = new()
+        {
+            biSize = Marshal.SizeOf<BitmapInfo>(),
+            biWidth = width,
+            biHeight = -height,
+            biPlanes = 1,
+            biBitCount = 32,
+            biCompression = 0
+        };
         _imageData = bitmapInfo;
         _imagePixeldata = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
     }
@@ -102,7 +107,7 @@ public class ImageQt : IDisposable
             }
 
             // Dispose unmanaged resources
-            _display.CleanUpResources(ref _window);
+            _display.CleanUpResources(_window);
 
             if (_imagePixeldata != IntPtr.Zero)
             {
