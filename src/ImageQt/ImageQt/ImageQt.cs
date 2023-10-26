@@ -8,19 +8,18 @@ namespace ImageQt;
 
 public class ImageQt : IDisposable
 {
-#if Windows
     private bool _disposed;
     private IntPtr _window;
     private IntPtr _imagePixeldata;
     private BitmapInfo _imageData;
-#endif
+    private Windows _display;
 
 
     public ImageQt(string windowTitle)
     {
-        var window = new Windows();
-        _window = window.DeclareWindow(windowTitle, 200, 200);
-        window.ShowWindow(_window);
+        _display = new Windows();
+        _window = _display.DeclareWindow(windowTitle, 200, 200);
+        _display.ShowWindow(_window);
     }
 
     public Task Run(bool isBlockCurrentThread = false)
@@ -30,42 +29,11 @@ public class ImageQt : IDisposable
 
         if (isBlockCurrentThread)
         {
-            var message = new Message();
-
-            int ret;
-            while ((ret = Win.GetMessage(out message, 0, 0, 0)) != 0)
-            {
-                if (ret == -1)
-                {
-                    //-1 indicates an error
-                }
-                else
-                {
-                    Win.TranslateMessage(ref message);
-                    Win.DispatchMessage(ref message);
-                }
-            }
+            _display.ProcessEvent(_window);
         }
         else
         {
-            _ = Task.Run(() =>
-            {
-                var message = new Message();
-
-                int ret;
-                while ((ret = Win.GetMessage(out message, 0, 0, 0)) != 0)
-                {
-                    if (ret == -1)
-                    {
-                        //-1 indicates an error
-                    }
-                    else
-                    {
-                        Win.TranslateMessage(ref message);
-                        Win.DispatchMessage(ref message);
-                    }
-                }
-            });
+            _ = Task.Run(() => _display.ProcessEvent(_window));
         }
 
         return Task.CompletedTask;
@@ -134,11 +102,7 @@ public class ImageQt : IDisposable
             }
 
             // Dispose unmanaged resources
-            if (_window != IntPtr.Zero)
-            {
-                Win.DestroyWindow(_window);
-                _window = IntPtr.Zero;
-            }
+            _display.CleanUpResources(ref _window);
 
             if (_imagePixeldata != IntPtr.Zero)
             {

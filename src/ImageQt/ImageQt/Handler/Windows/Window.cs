@@ -6,7 +6,6 @@ namespace ImageQt.Handler.Windows;
 
 internal class Window
 {
-
     private WndProc.WndProcDelegate _wndProcDelegate;
 
     public IntPtr DeclareWindow(string windowTitle, uint height, uint width)
@@ -44,6 +43,25 @@ internal class Window
         Win.ShowWindow(window, 5);
     }
 
+    public void ProcessEvent(IntPtr window)
+    {
+        var message = new Message();
+
+        int ret;
+        while ((ret = Win.GetMessage(out message, 0, 0, 0)) != 0)
+        {
+            if (ret == -1)
+            {
+                //-1 indicates an error
+            }
+            else
+            {
+                Win.TranslateMessage(ref message);
+                Win.DispatchMessage(ref message);
+            }
+        }
+    }
+
     private nint CustomWndProc(nint hWnd, ProcessesMessage msg, nint wParam, nint lParam)
     {
         switch (msg)
@@ -58,5 +76,14 @@ internal class Window
 
 
         return Win.DefWindowProcW(hWnd, (uint)msg, wParam, lParam);
+    }
+
+    public void CleanUpResources(ref IntPtr window)
+    {
+        if (window == IntPtr.Zero)
+            return;
+
+        Win.DestroyWindow(window);
+        window = IntPtr.Zero;
     }
 }

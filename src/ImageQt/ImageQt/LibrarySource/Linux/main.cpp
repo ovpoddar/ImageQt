@@ -54,4 +54,9 @@ extern "C"
     {
         return XNextEvent(display, event);
     }
+
+    int XCloseDisplayX(Display* display)
+    {
+        return XCloseDisplay(display);
+    }
 }
