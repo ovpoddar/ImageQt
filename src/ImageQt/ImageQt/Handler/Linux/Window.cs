@@ -1,5 +1,6 @@
 ﻿using ImageQt.CallerPInvoke.Linux;
 using ImageQt.Models.Linux;
+using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Linux;
 
@@ -34,11 +35,17 @@ internal class Window : IWindow
 
     public void ProcessEvent(IntPtr window)
     {
-        var @event = IntPtr.Zero;
+        //var @event = IntPtr.Zero;
+        IntPtr ev = Marshal.AllocHGlobal(24 * sizeof(long));
 
         while (true)
         {
-            XLib.XNextEvent(window, ref @event);
+            XLib.XNextEvent(window, ref ev);
+            var xevent = Marshal.PtrToStructure<XEvent>(ev);
+            if(xevent.type==4)
+            {
+                return;
+            }
         }
     }
 
