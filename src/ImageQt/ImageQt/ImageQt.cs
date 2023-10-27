@@ -116,4 +116,8 @@ public class ImageQt : IDisposable
             }
         }
     }
+    ~ImageQt()
+    {
+        Dispose(false);
+    }
 }
