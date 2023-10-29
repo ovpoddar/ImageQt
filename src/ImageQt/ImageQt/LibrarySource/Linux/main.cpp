@@ -50,9 +50,9 @@ extern "C"
         return XMapWindow(display, window);
     }
 
-    int XNextEventX(Display* display, XEvent* event)
+    int XNextEventX(Display* display, XEvent event)
     {
-        return XNextEvent(display, event);
+        return XNextEvent(display, &event);
     }
 
     int XCloseDisplayX(Display* display)
