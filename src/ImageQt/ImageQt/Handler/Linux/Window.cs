@@ -35,9 +35,7 @@ internal class Window : IWindow
 
     public void ProcessEvent(IntPtr window)
     {
-        //var @event = IntPtr.Zero;
-        IntPtr ev = Marshal.AllocHGlobal(192);
-
+        var ev = IntPtr.Zero;
         while (true)
         {
             XLib.XNextEvent(window, ev);
