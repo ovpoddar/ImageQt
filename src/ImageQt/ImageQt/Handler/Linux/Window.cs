@@ -38,7 +38,7 @@ internal class Window : IWindow
         var ev = IntPtr.Zero;
         while (true)
         {
-            XLib.XNextEvent(window, ev);
+            XLib.XNextEvent(window, ref ev);
             var xevent = Marshal.PtrToStructure<XEvent>(ev);
             if(xevent.type==4)
             {

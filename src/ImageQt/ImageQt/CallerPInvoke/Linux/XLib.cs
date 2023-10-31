@@ -40,7 +40,7 @@ public static partial class XLib
     public static partial int XMapWindow(IntPtr display, ulong window);
 
     [LibraryImport("PlatformDll/X11.os", EntryPoint = "XNextEventX")]
-    public static partial int XNextEvent(IntPtr display, IntPtr XEvent);
+    public static partial int XNextEvent(IntPtr display, ref IntPtr XEvent);
 
     [LibraryImport("PlatformDll/X11.os", EntryPoint = "XCloseDisplayX")]
     public static partial int XCloseDisplay(IntPtr display);
