@@ -39,11 +39,11 @@ internal class Window : IWindow
         while (true)
         {
             XLib.XNextEvent(window, ref ev);
-            var xevent = Marshal.PtrToStructure<XEvent>(ev);
-            if(xevent.type==4)
+            var @event = new XEvent(ref ev);
+            if (@event.type == Event.DestroyNotify)
             {
                 Marshal.FreeHGlobal(ev);
-                return;
+                break;
             }
         }
 
