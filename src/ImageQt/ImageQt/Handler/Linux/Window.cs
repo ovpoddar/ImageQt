@@ -35,10 +35,11 @@ internal class Window : IWindow
 
     public void ProcessEvent(IntPtr window)
     {
-        var ev = IntPtr.Zero;
-        while (true)
+        var ev = Marshal.AllocHGlobal(192);
+        while(true)
         {
-            XLib.XNextEvent(window, ref ev);
+            XLib.XNextEvent(window, ev);
+
             var @event = new XEvent(ref ev);
             if (@event.type == Event.DestroyNotify)
             {
