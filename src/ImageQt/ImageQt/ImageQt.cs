@@ -15,7 +15,6 @@ public class ImageQt : IDisposable
     private BitmapInfo _imageData;
     private IWindow _display;
 
-
     public ImageQt(string windowTitle)
     {
         _display = new Windows();
@@ -36,7 +35,7 @@ public class ImageQt : IDisposable
         {
             _ = Task.Run(() => _display.ProcessEvent(_window));
         }
-
+        Dispose();
         return Task.CompletedTask;
     }
 
@@ -114,6 +113,7 @@ public class ImageQt : IDisposable
                 Marshal.FreeHGlobal(_imagePixeldata);
                 _imagePixeldata = IntPtr.Zero;
             }
+            _disposed = true;
         }
     }
     ~ImageQt()

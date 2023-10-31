@@ -24,7 +24,7 @@ internal class Window : IWindow
         return Win.CreateWindowExW(
             0,
             windowTitle,
-            "Some Name",
+            windowTitle,
             13565952,
             -2147483648,
             -2147483648,
