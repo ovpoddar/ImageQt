@@ -8,11 +8,13 @@ internal class Window : IWindow
 {
     private WndProc.WndProcDelegate _wndProcDelegate;
 
+    public Window() =>
+        _wndProcDelegate = CustomWndProc;
+    
     public IntPtr DeclareWindow(string windowTitle, uint height, uint width)
     {
         IntPtr instance = Kernel.GetModuleHandle(null);
 
-        _wndProcDelegate = CustomWndProc;
         WindowStruct wc = new()
         {
             hInstance = instance,
