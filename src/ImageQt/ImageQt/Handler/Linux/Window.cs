@@ -1,5 +1,6 @@
 ﻿using ImageQt.CallerPInvoke.Linux;
 using ImageQt.Models.Linux;
+using ImageQt.Models.Windows;
 using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Linux;
@@ -50,7 +51,6 @@ internal class Window : IWindow
 
     }
 
-
     public void CleanUpResources(ref IntPtr window)
     {
         if (window == IntPtr.Zero)
@@ -58,5 +58,10 @@ internal class Window : IWindow
 
         XLib.XCloseDisplay(window);
         window = IntPtr.Zero;
+    }
+
+    public void LoadBitMap(int width, int height, ref nint ImageData)
+    {
+        throw new NotImplementedException();
     }
 }

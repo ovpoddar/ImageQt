@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageQt.Models.Windows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,4 +13,5 @@ internal interface IWindow
     nint DeclareWindow(string windowTitle, uint height, uint width);
     void ProcessEvent(nint window);
     void ShowWindow(nint window);
+    void LoadBitMap(int width, int height, ref IntPtr ImageData);
 }

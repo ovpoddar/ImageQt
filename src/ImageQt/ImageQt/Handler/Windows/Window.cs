@@ -6,11 +6,14 @@ namespace ImageQt.Handler.Windows;
 
 internal class Window : IWindow
 {
-    private WndProc.WndProcDelegate _wndProcDelegate;
+    private readonly WndProc.WndProcDelegate _wndProcDelegate;
 
-    public Window() =>
+    private IntPtr _imagePixelData;
+    private BitmapInfo _imageData;
+
+    public Window() => 
         _wndProcDelegate = CustomWndProc;
-    
+
     public IntPtr DeclareWindow(string windowTitle, uint height, uint width)
     {
         IntPtr instance = Kernel.GetModuleHandle(null);
@@ -37,7 +40,7 @@ internal class Window : IWindow
             instance,
             IntPtr.Zero);
     }
-    
+
     public void ShowWindow(IntPtr window)
     {
         if (window == IntPtr.Zero)
@@ -71,9 +74,9 @@ internal class Window : IWindow
             case ProcessesMessage.WM_DESTROY:
                 Win.PostQuitMessage(0);
                 return 0;
-            //case ProcessesMessage.WM_PAINT:
-            //    LoadImageFromData(hWnd);
-            //    return 0;
+            case ProcessesMessage.WM_PAINT:
+                DrawImageFromPointer(hWnd);
+                return 0;
         }
 
 
@@ -82,10 +85,50 @@ internal class Window : IWindow
 
     public void CleanUpResources(ref IntPtr window)
     {
-        if (window == IntPtr.Zero)
-            return;
+        if (window != IntPtr.Zero)
+        {
+            Win.DestroyWindow(window);
+            window = IntPtr.Zero;
+        }
 
-        Win.DestroyWindow(window);
-        window = IntPtr.Zero;
+        if (_imagePixelData != IntPtr.Zero)
+        {
+            Marshal.FreeHGlobal(_imagePixelData);
+            _imagePixelData = IntPtr.Zero;
+        }
+    }
+
+    private void DrawImageFromPointer(IntPtr hWnd)
+    {
+        if (_imagePixelData == IntPtr.Zero) return;
+        IntPtr currentDeviceContext = Win.GetDC(hWnd);
+        GDI.StretchDIBits(currentDeviceContext,
+            0,
+            0,
+            _imageData.biWidth,
+            -1 * _imageData.biHeight,
+            0,
+            0,
+            _imageData.biWidth,
+            -1 * _imageData.biHeight,
+            _imagePixelData,
+            ref _imageData,
+            ColorUsage.DIB_RGB_COLORS,
+            DropType.SrcCopy);
+        Win.ReleaseDC(hWnd, currentDeviceContext);
+    }
+
+    public void LoadBitMap(int width, int height, ref IntPtr ImageData)
+    {
+        _imageData = new()
+        {
+            biSize = Marshal.SizeOf<BitmapInfo>(),
+            biWidth = width,
+            biHeight = -height,
+            biPlanes = 1,
+            biBitCount = 32,
+            biCompression = 0
+        };
+        _imagePixelData = ImageData;
     }
 }

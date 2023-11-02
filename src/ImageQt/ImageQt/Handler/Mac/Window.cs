@@ -12,6 +12,11 @@ internal class Window : IWindow
         throw new NotImplementedException();
     }
 
+    public void LoadBitMap(int width, int height, ref nint ImageData)
+    {
+        throw new NotImplementedException();
+    }
+
     public void ProcessEvent(nint window)
     {
         throw new NotImplementedException();
