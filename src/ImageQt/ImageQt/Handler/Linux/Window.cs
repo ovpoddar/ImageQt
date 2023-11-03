@@ -30,7 +30,7 @@ internal class Window : IWindow
     public void ShowWindow(IntPtr window)
     {
         if (window == IntPtr.Zero)
-            throw new Exception("Could not Initilized.");
+            throw new Exception("Could not Initialize.");
         XLib.XMapWindow(window, _x11Window);
     }
 
@@ -60,8 +60,22 @@ internal class Window : IWindow
         window = IntPtr.Zero;
     }
 
-    public void LoadBitMap(int width, int height, ref nint ImageData)
+    public void LoadBitMap(int width, int height, ref nint imageData)
     {
-        throw new NotImplementedException();
+        var graphicsContext = XLib.XCreateGC()
+        /*
+            GC gc = XCreateGC(display, window, 0, NULL);
+           // Create an XImage from the pixel data
+           XImage *image = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen),
+                ZPixmap, 0, memory.get(), width, height, 32, 0);
+           Pixmap pixmap = XCreatePixmap(display, window, width, height, DefaultDepth(display, screen));
+           
+           XPutImage(display, pixmap, gc, image, 0, 0, 0, 0, width, height);
+           
+           XCopyArea(display, pixmap, window, gc, 0, 0, width, height, 0, 0);
+           XFreePixmap(display, pixmap);
+           // XDestroyImage(image);
+           XFreeGC(display, gc);
+         */
     }
 }
