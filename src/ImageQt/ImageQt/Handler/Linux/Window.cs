@@ -1,6 +1,5 @@
 ﻿using ImageQt.CallerPInvoke.Linux;
 using ImageQt.Models.Linux;
-using ImageQt.Models.Windows;
 using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Linux;
