@@ -29,7 +29,7 @@ internal class Window : IWindow
         _graphicsContext = XLib.XCreateGC(display, _x11Window, 0, 0);
         _visual = XLib.DefaultVisual(display, screen);
         _depth = XLib.DefaultDepth(display, screen);
-        XLib.XSelectInput(display, _x11Window, EventMask.EnterWindowMask); // update the select
+        XLib.XSelectInput(display, _x11Window, EventMask.ButtonPressMask | EventMask.ExposureMask);
         return display;
     }
 
@@ -48,14 +48,14 @@ internal class Window : IWindow
             XLib.XNextEvent(window, ev);
 
             var @event = new XEvent(ref ev);
-            if (@event.type == Event.DestroyNotify)
+            if (@event.type == Event.ButtonPress)
             {
                 XLib.XCloseDisplay(window);
                 Marshal.FreeHGlobal(ev);
                 break;
             }
 
-            if (@event.type == Event.CreateNotify)
+            if (@event.type == Event.Expose)
             {
                 DrawImageFromPointer(window);
             }

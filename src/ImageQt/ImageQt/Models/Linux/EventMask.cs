@@ -1,5 +1,6 @@
 ﻿namespace ImageQt.Models.Linux;
 
+[Flags]
 public enum EventMask : long
 {
     NoEventMask = 0L,
