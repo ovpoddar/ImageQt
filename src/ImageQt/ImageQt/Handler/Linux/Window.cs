@@ -8,6 +8,11 @@ namespace ImageQt.Handler.Linux;
 internal class Window : IWindow
 {
     private ulong _x11Window;
+    private IntPtr _graphicsContext;
+    private IntPtr _image;
+    private ulong _pixmap;
+    private IntPtr _visual;
+    private uint _depth;
 
     public IntPtr DeclareWindow(string windowTitle, uint height, uint width)
     {
@@ -22,8 +27,10 @@ internal class Window : IWindow
             0,
             XLib.XBlackPixel(display, screen),
             XLib.XWhitePixel(display, screen));
-
-        XLib.XSelectInput(display, _x11Window, EventMask.EnterWindowMask);
+        _graphicsContext = XLib.XCreateGC(display, _x11Window, 0, 0);
+        _visual = XLib.DefaultVisual(display, screen);
+        _depth = XLib.DefaultDepth(display, screen);
+        XLib.XSelectInput(display, _x11Window, EventMask.EnterWindowMask); // update the select
         return display;
     }
 
@@ -37,15 +44,21 @@ internal class Window : IWindow
     public void ProcessEvent(IntPtr window)
     {
         var ev = Marshal.AllocHGlobal(192);
-        while(true)
+        while (true)
         {
             XLib.XNextEvent(window, ev);
 
             var @event = new XEvent(ref ev);
             if (@event.type == Event.DestroyNotify)
             {
+                XLib.XCloseDisplay(window);
                 Marshal.FreeHGlobal(ev);
                 break;
+            }
+
+            if (@event.type == Event.CreateNotify)
+            {
+                DrawImageFromPointer(window);
             }
         }
 
@@ -53,29 +66,32 @@ internal class Window : IWindow
 
     public void CleanUpResources(ref IntPtr window)
     {
-        if (window == IntPtr.Zero)
-            return;
+        if (_pixmap != default)
+            XLib.XFreePixmap(window, _pixmap);
+        
+        if (_graphicsContext != default)
+            XLib.XFreeGC(window, _graphicsContext);
 
-        XLib.XCloseDisplay(window);
-        window = IntPtr.Zero;
+        if (window != IntPtr.Zero)
+            XLib.XDestroyWindow(window, _x11Window);
+
     }
 
-    public void LoadBitMap(int width, int height, ref nint imageData)
+    void DrawImageFromPointer(IntPtr display)
     {
-        var graphicsContext = XLib.XCreateGC()
-        /*
-            GC gc = XCreateGC(display, window, 0, NULL);
-           // Create an XImage from the pixel data
-           XImage *image = XCreateImage(display, DefaultVisual(display, screen), DefaultDepth(display, screen),
-                ZPixmap, 0, memory.get(), width, height, 32, 0);
-           Pixmap pixmap = XCreatePixmap(display, window, width, height, DefaultDepth(display, screen));
-           
-           XPutImage(display, pixmap, gc, image, 0, 0, 0, 0, width, height);
-           
-           XCopyArea(display, pixmap, window, gc, 0, 0, width, height, 0, 0);
-           XFreePixmap(display, pixmap);
-           // XDestroyImage(image);
-           XFreeGC(display, gc);
-         */
+        if (_image == IntPtr.Zero 
+            || _pixmap == default 
+            || display == IntPtr.Zero) 
+            return;
+        var image = Marshal.PtrToStructure<XImage>(_image);
+
+        XLib.XPutImage(display, _pixmap, _graphicsContext, _image, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
+        XLib.XCopyArea(display, _pixmap, _x11Window, _graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
+    }
+
+    public void LoadBitMap(int width, int height, ref nint imageData, IntPtr display)
+    {
+        _image = XLib.XCreateImage(display, _visual, _depth, ImageFormat.ZPixmap, 0, imageData, (uint)width, (uint)height, 32, 0);
+        _pixmap = XLib.XCreatePixmap(display, _x11Window, (uint)width, (uint)height, _depth);
     }
 }

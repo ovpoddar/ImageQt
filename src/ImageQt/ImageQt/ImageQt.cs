@@ -36,13 +36,13 @@ public class ImageQt : IDisposable
     public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
     {
         var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-        _display.LoadBitMap(width, height, ref imageData);
+        _display.LoadBitMap(width, height, ref imageData, _window);
     }
 
     public void GenerateTheBitMap(int width, int height, ref int[] bytes)
     {
         var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-        _display.LoadBitMap(width, height, ref imageData);
+        _display.LoadBitMap(width, height, ref imageData, _window);
     }
 
 

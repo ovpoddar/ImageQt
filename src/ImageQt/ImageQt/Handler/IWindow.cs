@@ -13,5 +13,5 @@ internal interface IWindow
     nint DeclareWindow(string windowTitle, uint height, uint width);
     void ProcessEvent(nint window);
     void ShowWindow(nint window);
-    void LoadBitMap(int width, int height, ref IntPtr imageData);
+    void LoadBitMap(int width, int height, ref IntPtr imageData, IntPtr display);
 }

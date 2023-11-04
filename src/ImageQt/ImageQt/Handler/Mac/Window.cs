@@ -12,7 +12,7 @@ internal class Window : IWindow
         throw new NotImplementedException();
     }
 
-    public void LoadBitMap(int width, int height, ref nint ImageData)
+    public void LoadBitMap(int width, int height, ref nint ImageData, IntPtr display)
     {
         throw new NotImplementedException();
     }

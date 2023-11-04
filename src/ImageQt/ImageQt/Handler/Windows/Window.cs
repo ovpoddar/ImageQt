@@ -118,7 +118,7 @@ internal class Window : IWindow
         Win.ReleaseDC(hWnd, currentDeviceContext);
     }
 
-    public void LoadBitMap(int width, int height, ref IntPtr ImageData)
+    public void LoadBitMap(int width, int height, ref IntPtr ImageData, IntPtr _)
     {
         _imageData = new()
         {
