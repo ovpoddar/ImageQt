@@ -30,6 +30,9 @@ public static partial class XLib
     [LibraryImport("PlatformDll/X11.os", EntryPoint = "XBlackPixelX")]
     public static partial ulong XBlackPixel(IntPtr display, int screen);
 
+    [LibraryImport("PlatformDll/X11.os", EntryPoint = "XStoreNameX")]
+    public static partial int XStoreName(IntPtr display, ulong window, [MarshalAs(UnmanagedType.LPStr)] string name);
+
     [LibraryImport("PlatformDll/X11.os", EntryPoint = "XWhitePixelX")]
     public static partial ulong XWhitePixel(IntPtr display, int screen);
 

@@ -29,6 +29,7 @@ internal class Window : IWindow
         _graphicsContext = XLib.XCreateGC(display, _x11Window, 0, 0);
         _visual = XLib.DefaultVisual(display, screen);
         _depth = XLib.DefaultDepth(display, screen);
+        XLib.XStoreName(display, _x11Window, windowTitle);
         XLib.XSelectInput(display, _x11Window, EventMask.ButtonPressMask | EventMask.ExposureMask);
         return display;
     }

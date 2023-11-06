@@ -40,6 +40,11 @@ extern "C"
         return XWhitePixel(display, screen);
     }
 
+    int XStoreNameX(Display* display, unsigned long window, const char* window_name)
+    {
+        return XStoreName(display, window, window_name);
+    }
+
     unsigned int DefaultDepthX(Display* display, int screen)
     {
         return DefaultDepth(display, screen);
