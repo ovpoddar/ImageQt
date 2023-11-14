@@ -4,11 +4,12 @@ using System.Runtime.InteropServices;
 namespace ImageQt.CallerPInvoke.Windows;
 internal static partial class Win
 {
+    private const string UserNativeDll = "user32.dll";
 
-    [DllImport("user32.dll", SetLastError = true)]
+    [DllImport(UserNativeDll, SetLastError = true)]
     public static extern ushort RegisterClassW([In] ref WindowStruct lpWndClass);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [LibraryImport(UserNativeDll, SetLastError = true)]
     public static partial nint CreateWindowExW(uint dwExStyle,
         [MarshalAs(UnmanagedType.LPWStr)] string lpClassName,
         [MarshalAs(UnmanagedType.LPWStr)] string lpWindowName,
@@ -23,32 +24,32 @@ internal static partial class Win
         nint lpParam
     );
 
-    [LibraryImport("user32.dll")]
+    [LibraryImport(UserNativeDll)]
     public static partial int ShowWindow(nint hwnd, int nCmdShow);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [LibraryImport(UserNativeDll, SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool DestroyWindow(nint hWnd);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [LibraryImport(UserNativeDll, SetLastError = true)]
     public static partial nint DefWindowProcW(nint hWnd, uint msg, nint wParam, nint lParam);
 
-    [LibraryImport("user32.dll", SetLastError = true)]
+    [LibraryImport(UserNativeDll, SetLastError = true)]
     public static partial void PostQuitMessage(int exitcode);
 
-    [DllImport("user32.dll")]
+    [DllImport(UserNativeDll)]
     public static extern bool TranslateMessage([In] ref Message lpMsg);
 
-    [DllImport("user32.dll")]
+    [DllImport(UserNativeDll)]
     public static extern nint DispatchMessage([In] ref Message lpmsg);
 
-    [DllImport("user32.dll")]
+    [DllImport(UserNativeDll)]
     public static extern int GetMessage(out Message lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
-    [LibraryImport("user32.dll")]
+    [LibraryImport(UserNativeDll)]
     public static partial nint GetDC(nint hWnd);
 
-    [LibraryImport("user32.dll")]
+    [LibraryImport(UserNativeDll)]
     public static partial int ReleaseDC(nint hwnd, nint hdc);
 
 }
