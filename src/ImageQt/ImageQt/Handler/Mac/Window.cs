@@ -31,7 +31,7 @@ internal class Window : IWindow
     {
         InitilizedApplication();
 
-        var setActivationPolicy = ObjectCRuntime.SelGetUid("setActivationPolicy");
+        var setActivationPolicy = ObjectCRuntime.SelGetUid("setActivationPolicy:");
         ObjectCRuntime.ObjCMsgSend(_app, setActivationPolicy, 0);
 
         var nsWindow = ObjectCRuntime.ObjCGetClass("NSWindow");
