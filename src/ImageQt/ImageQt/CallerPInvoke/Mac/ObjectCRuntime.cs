@@ -7,15 +7,30 @@ public partial class ObjectCRuntime
 
     private const string _dllName = "libobjc";
 
+
+    [LibraryImport(_dllName, EntryPoint = "sel_registerName")]
+    public static partial IntPtr SelRegisterName([MarshalAs(UnmanagedType.LPStr)] string name);
+
+
     [LibraryImport(_dllName, EntryPoint = "objc_getClass")]
     public static partial IntPtr ObjCGetClass([MarshalAs(UnmanagedType.LPStr)] string name);
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial void Void_ObjCMsgSend(IntPtr receiver, IntPtr selector);
+    public static partial void VoidObjCMsgSend(IntPtr receiver, IntPtr selector);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial void VoidObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1);
+
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, int arg1);
+
+    [LibraryImport("/usr/lib/libobjc.dylib", EntryPoint = "objc_msgSend")]
+    public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1);
@@ -25,9 +40,6 @@ public partial class ObjectCRuntime
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.LPStr)] string arg1);
-
-    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, int arg1);
 
     [LibraryImport("/usr/lib/libobjc.dylib", EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1, NSWindowStyleMask arg2, NSBackingStore arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);

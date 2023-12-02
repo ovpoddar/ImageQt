@@ -7,6 +7,7 @@ namespace ImageQt.Handler.Mac;
 internal class Window : IWindow
 {
     private IntPtr _app;
+    private IntPtr _imageView;
     public void CleanUpResources(ref nint window)
     {
         var terminate = ObjectCRuntime.SelGetUid("terminate:");
@@ -15,14 +16,14 @@ internal class Window : IWindow
         if (window != IntPtr.Zero)
         {
             var release = ObjectCRuntime.SelGetUid("release");
-            ObjectCRuntime.Void_ObjCMsgSend(window, release);
+            ObjectCRuntime.VoidObjCMsgSend(window, release);
             window = IntPtr.Zero;
         }
 
         if (_app != IntPtr.Zero)
         {
             var release = ObjectCRuntime.SelGetUid("release");
-            ObjectCRuntime.Void_ObjCMsgSend(_app, release);
+            ObjectCRuntime.VoidObjCMsgSend(_app, release);
             _app = IntPtr.Zero;
         }
     }
@@ -48,10 +49,29 @@ internal class Window : IWindow
         var setTitle = ObjectCRuntime.SelGetUid("setTitle:");
         ObjectCRuntime.ObjCMsgSend(window, setTitle, title);
 
+        var nsImageView = Appkit.ObjCGetClass("NSImageView");
+        _ = ObjectCRuntime.ObjCMsgSend(nsImageView, alloc);
+        var selInitWithFrame_Handle = ObjectCRuntime.SelRegisterName("initWithFrame:");
+        _imageView = ObjectCRuntime.ObjCMsgSend(nsImageView, selInitWithFrame_Handle, cGRect);
+
         return window;
     }
 
     public void LoadBitMap(int width, int height, ref nint ImageData, IntPtr display)
+    {
+        var nsImage = CreateNSImage(width, height, ImageData);
+
+        var selContentViewHandle = ObjectCRuntime.SelRegisterName("contentView");
+        var contentView = ObjectCRuntime.ObjCMsgSend(display, selContentViewHandle);
+
+        var selAddSubview_Handle = ObjectCRuntime.SelRegisterName("addSubview:");
+        ObjectCRuntime.VoidObjCMsgSend(contentView, selAddSubview_Handle, _imageView);
+
+        var selSetImage_Handle = ObjectCRuntime.SelRegisterName("setImage:");
+        ObjectCRuntime.VoidObjCMsgSend(_imageView, selSetImage_Handle, nsImage);
+    }
+
+    private nint CreateNSImage(int width, int height, nint imageData)
     {
         throw new NotImplementedException();
     }
