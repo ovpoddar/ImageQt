@@ -50,7 +50,7 @@ internal class Window : IWindow
         ObjectCRuntime.ObjCMsgSend(window, setTitle, title);
 
         var nsImageView = Appkit.ObjCGetClass("NSImageView");
-        _ = ObjectCRuntime.ObjCMsgSend(nsImageView, alloc);
+        nsImageView = ObjectCRuntime.ObjCMsgSend(nsImageView, alloc);
         var selInitWithFrame_Handle = ObjectCRuntime.SelRegisterName("initWithFrame:");
         _imageView = ObjectCRuntime.ObjCMsgSend(nsImageView, selInitWithFrame_Handle, cGRect);
 

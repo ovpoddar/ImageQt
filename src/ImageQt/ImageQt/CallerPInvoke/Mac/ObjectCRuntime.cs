@@ -29,7 +29,7 @@ public partial class ObjectCRuntime
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, int arg1);
 
-    [LibraryImport("/usr/lib/libobjc.dylib", EntryPoint = "objc_msgSend")]
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
@@ -41,7 +41,7 @@ public partial class ObjectCRuntime
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.LPStr)] string arg1);
 
-    [LibraryImport("/usr/lib/libobjc.dylib", EntryPoint = "objc_msgSend")]
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1, NSWindowStyleMask arg2, NSBackingStore arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
 
     
