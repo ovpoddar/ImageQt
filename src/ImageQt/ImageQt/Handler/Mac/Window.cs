@@ -61,14 +61,14 @@ internal class Window : IWindow
     {
         var nsImage = CreateNSImage(width, height, ImageData);
 
+        var selSetImage_Handle = ObjectCRuntime.SelRegisterName("setImage:");
+        ObjectCRuntime.VoidObjCMsgSend(_imageView, selSetImage_Handle, nsImage);
+
         var selContentViewHandle = ObjectCRuntime.SelRegisterName("contentView");
         var contentView = ObjectCRuntime.ObjCMsgSend(display, selContentViewHandle);
 
         var selAddSubview_Handle = ObjectCRuntime.SelRegisterName("addSubview:");
         ObjectCRuntime.VoidObjCMsgSend(contentView, selAddSubview_Handle, _imageView);
-
-        var selSetImage_Handle = ObjectCRuntime.SelRegisterName("setImage:");
-        ObjectCRuntime.VoidObjCMsgSend(_imageView, selSetImage_Handle, nsImage);
     }
 
     private nint CreateNSImage(int width, int height, nint imageData)
