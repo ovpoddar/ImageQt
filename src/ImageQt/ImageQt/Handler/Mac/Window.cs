@@ -83,7 +83,7 @@ internal class Window : IWindow
         var alloc = ObjectCRuntime.SelGetUid("alloc");
         var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
 
-        bitmapImageRep = TestOP(width, height, imageData, bitmapImageRepClass, profileName);
+        bitmapImageRep = TestOP(width, height, imageData, bitmapImageRep, profileName);
         //var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
         //bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRep,
         //    planes,
