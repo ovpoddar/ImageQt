@@ -1,6 +1,7 @@
 ﻿
 using ImageQt.CallerPInvoke.Mac;
 using ImageQt.Models.Mac;
+using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Mac;
 
@@ -60,7 +61,7 @@ internal class Window : IWindow
     public void LoadBitMap(int width, int height, ref nint ImageData, IntPtr display)
     {
         var nsImage = CreateNSImage(width, height, ImageData);
-
+         
         var selSetImage_Handle = ObjectCRuntime.SelRegisterName("setImage:");
         ObjectCRuntime.VoidObjCMsgSend(_imageView, selSetImage_Handle, nsImage);
 
@@ -71,9 +72,40 @@ internal class Window : IWindow
         ObjectCRuntime.VoidObjCMsgSend(contentView, selAddSubview_Handle, _imageView);
     }
 
-    private nint CreateNSImage(int width, int height, nint imageData)
+    private IntPtr CreateNSImage(int width, int height, nint imageData)
     {
-        throw new NotImplementedException();
+        var profileNameString = ObjectCRuntime.ObjCGetClass("NSString");
+        var utfString = ObjectCRuntime.SelGetUid("stringWithUTF8String:");
+        var profileName = ObjectCRuntime.ObjCMsgSend(profileNameString, utfString, "NSDeviceRGBColorSpace");
+
+        //Test With appkit
+        var bitmapImageRepClass = ObjectCRuntime.ObjCGetClass("NSBitmapImageRep");
+        var alloc = ObjectCRuntime.SelGetUid("alloc");
+        var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
+
+        bitmapImageRep = TestOP(width, height, imageData, bitmapImageRepClass, profileName);
+        //var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
+        //bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRep,
+        //    planes,
+        //    imageData,
+        //    width,
+        //    height,
+        //    8,
+        //    4,
+        //    true,
+        //    false,
+        //    profileName,
+        //    width * 4,
+        //    32);
+
+        var nsImage = ObjectCRuntime.ObjCGetClass("NSImage");
+        nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, alloc);
+        var sizeInit = ObjectCRuntime.SelGetUid("initWithSize:");
+        nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, sizeInit, new CGSize(width, height));
+        var represention = ObjectCRuntime.SelGetUid("addRepresentation:");
+        ObjectCRuntime.VoidObjCMsgSend(nsImage, represention, bitmapImageRep);
+
+        return nsImage;
     }
 
     public void ProcessEvent(nint window)
@@ -90,6 +122,11 @@ internal class Window : IWindow
         var makeitTop = ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:");
         ObjectCRuntime.ObjCMsgSend(_app, makeitTop, true);
     }
+
+
+    [DllImport("/Users/ayan/Desktop/MacNoDi/ConsoleApp1/ConsoleApp1/DLLS/arm.dylib", EntryPoint = "CreateImageWithHeightWidth")]
+    public static extern IntPtr TestOP(int width, int height, IntPtr data, IntPtr obj, IntPtr name);
+
 
     private void InitilizedApplication()
     {

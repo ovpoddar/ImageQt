@@ -33,6 +33,9 @@ public partial class ObjectCRuntime
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGSize arg1);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
@@ -44,7 +47,10 @@ public partial class ObjectCRuntime
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1, NSWindowStyleMask arg2, NSBackingStore arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
 
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr ObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1, int arg2, int arg3, int arg4, int arg5, [MarshalAs(UnmanagedType.Bool)] bool arg6, [MarshalAs(UnmanagedType.Bool)] bool arg7, IntPtr arg8, int arg9, int arg10);
     
+   
     [LibraryImport(_dllName, EntryPoint = "sel_getUid")]
     public static partial IntPtr SelGetUid([MarshalAs(UnmanagedType.LPStr)] string selectorName);
 
