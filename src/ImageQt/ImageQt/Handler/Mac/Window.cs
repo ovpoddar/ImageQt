@@ -36,7 +36,7 @@ internal class Window : IWindow
         var setActivationPolicy = ObjectCRuntime.SelGetUid("setActivationPolicy:");
         ObjectCRuntime.ObjCMsgSend(_app, setActivationPolicy, 0);
 
-        var nsWindow = ObjectCRuntime.ObjCGetClass("NSWindow");
+        var nsWindow = Appkit.ObjCGetClass("NSWindow");
         var alloc = ObjectCRuntime.SelGetUid("alloc");
         var nsWindowObject = ObjectCRuntime.ObjCMsgSend(nsWindow, alloc);
         var defer = ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:");
@@ -78,8 +78,7 @@ internal class Window : IWindow
         var utfString = ObjectCRuntime.SelGetUid("stringWithUTF8String:");
         var profileName = ObjectCRuntime.ObjCMsgSend(profileNameString, utfString, "NSDeviceRGBColorSpace");
 
-        //Test With appkit
-        var bitmapImageRepClass = ObjectCRuntime.ObjCGetClass("NSBitmapImageRep");
+        var bitmapImageRepClass = Appkit.ObjCGetClass("NSBitmapImageRep");
         var alloc = ObjectCRuntime.SelGetUid("alloc");
         var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
 
@@ -98,7 +97,7 @@ internal class Window : IWindow
         //    width * 4,
         //    32);
 
-        var nsImage = ObjectCRuntime.ObjCGetClass("NSImage");
+        var nsImage = Appkit.ObjCGetClass("NSImage");
         nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, alloc);
         var sizeInit = ObjectCRuntime.SelGetUid("initWithSize:");
         nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, sizeInit, new CGSize(width, height));
