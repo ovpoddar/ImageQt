@@ -82,19 +82,20 @@ internal class Window : IWindow
         var alloc = ObjectCRuntime.SelGetUid("alloc");
         var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
 
-        var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
-        bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRep,
-            planes,
-            imageData,
-            width,
-            height,
-            8,
-            4,
-            true,
-            false,
-            profileName,
-            width * 4,
-            32);
+        bitmapImageRep = TestOP(width, height, imageData, bitmapImageRep, profileName);
+        //var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
+        //bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRep,
+        //    planes,
+        //    imageData,
+        //    width,
+        //    height,
+        //    8,
+        //    4,
+        //    true,
+        //    false,
+        //    profileName,
+        //    width * 4,
+        //    32);
 
         var nsImage = Appkit.ObjCGetClass("NSImage");
         nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, alloc);
@@ -120,6 +121,11 @@ internal class Window : IWindow
         var makeitTop = ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:");
         ObjectCRuntime.ObjCMsgSend(_app, makeitTop, true);
     }
+
+
+    [DllImport("/Users/ayan/Desktop/MacNoDi/ConsoleApp1/ConsoleApp1/DLLS/arm.dylib", EntryPoint = "CreateImageWithHeightWidth")]
+    public static extern IntPtr TestOP(int width, int height, IntPtr data, IntPtr obj, IntPtr name);
+
 
     private void InitilizedApplication()
     {
