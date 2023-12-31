@@ -12,18 +12,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ImageQt">
-      <HintPath>..\..\src\ImageQt\ImageQt\bin\Release\net7.0\ImageQt.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="bytes">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="side-view-smiley-woman-holding-hen.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ImageQt\ImageQt.csproj" />
   </ItemGroup>
 
 </Project>
