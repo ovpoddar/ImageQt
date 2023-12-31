@@ -82,20 +82,21 @@ internal class Window : IWindow
         var alloc = ObjectCRuntime.SelGetUid("alloc");
         var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
 
-        bitmapImageRep = TestOP(width, height, imageData, bitmapImageRep, profileName);
-        //var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
-        //bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRep,
-        //    planes,
-        //    imageData,
-        //    width,
-        //    height,
-        //    8,
-        //    4,
-        //    true,
-        //    false,
-        //    profileName,
-        //    width * 4,
-        //    32);
+        var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
+        //bitmapImageRep = ObjectCRuntime.ObjCMsgSend(
+        bitmapImageRep = TestOP(
+            bitmapImageRep,
+            planes,
+            imageData,
+            width,
+            height,
+            8,
+            4,
+            true,
+            false,
+            profileName,
+            width * 4,
+            32);
 
         var nsImage = Appkit.ObjCGetClass("NSImage");
         nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, alloc);
@@ -124,7 +125,7 @@ internal class Window : IWindow
 
 
     [DllImport("/Users/ayan/Desktop/MacNoDi/ConsoleApp1/ConsoleApp1/DLLS/arm.dylib", EntryPoint = "CreateImageWithHeightWidth")]
-    public static extern IntPtr TestOP(int width, int height, IntPtr data, IntPtr obj, IntPtr name);
+    public static extern IntPtr TestOP(IntPtr receiver, IntPtr selector, IntPtr arg1, long arg2, long arg3, long arg4, long arg5, [MarshalAs(UnmanagedType.Bool)] bool arg6, [MarshalAs(UnmanagedType.Bool)] bool arg7, IntPtr arg8, long arg9, long arg10);
 
 
     private void InitilizedApplication()
