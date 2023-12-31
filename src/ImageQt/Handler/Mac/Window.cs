@@ -124,9 +124,13 @@ internal class Window : IWindow
     }
 
 
-    [DllImport("/Users/ayan/Desktop/MacNoDi/ConsoleApp1/ConsoleApp1/DLLS/arm.dylib", EntryPoint = "CreateImageWithHeightWidth")]
+    [DllImport("/Users/ayan/Desktop/ImageQt/src/ImageQt/LibrarySource/Mac/arm.dylib", EntryPoint = "CreateImageWithHeightWidth")]
     public static extern IntPtr TestOP(IntPtr receiver, IntPtr selector, IntPtr arg1, long arg2, long arg3, long arg4, long arg5, [MarshalAs(UnmanagedType.Bool)] bool arg6, [MarshalAs(UnmanagedType.Bool)] bool arg7, IntPtr arg8, long arg9, long arg10);
 
+
+
+    [DllImport("/Users/ayan/Desktop/ImageQt/src/ImageQt/LibrarySource/Mac/arm.dylib", EntryPoint = "CreateImageWithHeightWidth1")]
+    public static extern IntPtr TestOPFinal(IntPtr receiver, IntPtr selector, IntPtr arg1, long arg2, long arg3, long arg4, long arg5, [MarshalAs(UnmanagedType.Bool)] bool arg6, [MarshalAs(UnmanagedType.Bool)] bool arg7, IntPtr arg8, long arg9, long arg10);
 
     private void InitilizedApplication()
     {
