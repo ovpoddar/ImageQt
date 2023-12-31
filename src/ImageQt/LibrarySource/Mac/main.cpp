@@ -1,7 +1,7 @@
-#include "AppKit/AppKit.h"
+#include "objc/message.h"
 
 extern "C" {
-     id CreateImageWithHeightWidth1(id arg1, SEL arg2, unsigned char* arg3,
+     id CreateImageWithHeightWidth(id arg1, SEL arg2, unsigned char* arg3,
         long arg4, long arg5, long arg6, long arg7,
         BOOL arg8, BOOL arg9, id arg10, long arg11,
         long arg12) {
