@@ -1,7 +1,6 @@
 ﻿
 using ImageQt.CallerPInvoke.Mac;
 using ImageQt.Models.Mac;
-using System.Runtime.InteropServices;
 
 namespace ImageQt.Handler.Mac;
 
@@ -9,9 +8,6 @@ internal class Window : IWindow
 {
     private IntPtr _app;
     private IntPtr _imageView;
-
-    private IntPtr _alloc = ObjectCRuntime.SelGetUid("alloc");
-
     public void CleanUpResources(ref nint window)
     {
         var terminate = ObjectCRuntime.SelGetUid("terminate:");
@@ -40,7 +36,8 @@ internal class Window : IWindow
         ObjectCRuntime.ObjCMsgSend(_app, setActivationPolicy, 0);
 
         var nsWindow = Appkit.ObjCGetClass("NSWindow");
-        var nsWindowObject = ObjectCRuntime.ObjCMsgSend(nsWindow, _alloc);
+        var alloc = ObjectCRuntime.SelGetUid("alloc");
+        var nsWindowObject = ObjectCRuntime.ObjCMsgSend(nsWindow, alloc);
         var defer = ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:");
         CGRect cGRect = new(0, 0, width, height);
         var window = ObjectCRuntime.ObjCMsgSend(nsWindowObject, defer, cGRect, NSWindowStyleMask.Titled | NSWindowStyleMask.Closable | NSWindowStyleMask.Resizable, NSBackingStore.Buffered, false);
@@ -52,16 +49,16 @@ internal class Window : IWindow
         var setTitle = ObjectCRuntime.SelGetUid("setTitle:");
         ObjectCRuntime.ObjCMsgSend(window, setTitle, title);
 
+        var nsImageView = Appkit.ObjCGetClass("NSImageView");
+        nsImageView = ObjectCRuntime.ObjCMsgSend(nsImageView, alloc);
+        var selInitWithFrame_Handle = ObjectCRuntime.SelRegisterName("initWithFrame:");
+        _imageView = ObjectCRuntime.ObjCMsgSend(nsImageView, selInitWithFrame_Handle, cGRect);
 
         return window;
     }
 
     public void LoadBitMap(int width, int height, ref nint ImageData, IntPtr display)
     {
-        var nsImageView = Appkit.ObjCGetClass("NSImageView");
-        nsImageView = ObjectCRuntime.ObjCMsgSend(nsImageView, _alloc);
-        var selInitWithFrame_Handle = ObjectCRuntime.SelRegisterName("initWithFrame:");
-        _imageView = ObjectCRuntime.ObjCMsgSend(nsImageView, selInitWithFrame_Handle, new CGRect(0, 0, width, height));
         var nsImage = CreateNSImage(width, height, ImageData);
 
         var selSetImage_Handle = ObjectCRuntime.SelRegisterName("setImage:");
@@ -81,7 +78,8 @@ internal class Window : IWindow
         var profileName = ObjectCRuntime.ObjCMsgSend(profileNameString, utfString, "NSDeviceRGBColorSpace");
 
         var bitmapImageRepClass = Appkit.ObjCGetClass("NSBitmapImageRep");
-        var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, _alloc);
+        var alloc = ObjectCRuntime.SelGetUid("alloc");
+        var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
 
         var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
         bitmapImageRep = ObjectCRuntime.ObjCMsgSend(
@@ -99,7 +97,7 @@ internal class Window : IWindow
             32);
 
         var nsImage = Appkit.ObjCGetClass("NSImage");
-        nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, _alloc);
+        nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, alloc);
         var sizeInit = ObjectCRuntime.SelGetUid("initWithSize:");
         nsImage = ObjectCRuntime.ObjCMsgSend(nsImage, sizeInit, new CGSize(width, height));
         var represention = ObjectCRuntime.SelGetUid("addRepresentation:");

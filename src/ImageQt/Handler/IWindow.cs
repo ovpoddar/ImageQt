@@ -1,12 +1,4 @@
-﻿using ImageQt.Models.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ImageQt.Handler;
+﻿namespace ImageQt.Handler;
 internal interface IWindow
 {
     void CleanUpResources(ref IntPtr window);

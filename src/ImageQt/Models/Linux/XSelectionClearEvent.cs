@@ -12,6 +12,6 @@ public struct XSelectionClearEvent
     public bool send_event;    /* true if this came from a SendEvent request */
     public IntPtr display;   /* Display the event was read from */
     public ulong window;
-    public ulong  selection;
-    public ulong  time;
+    public ulong selection;
+    public ulong time;
 }

@@ -1,10 +1,4 @@
-﻿using ImageQt.CallerPInvoke.Linux;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace ImageQt.Models.Linux;
 
@@ -54,7 +48,7 @@ public struct XEvent
             this.xcreatewindow = Marshal.PtrToStructure<XCreateWindowEvent>(eventPtr);
         else if (this.type == Event.MapNotify)
             this.xmap = Marshal.PtrToStructure<XMapEvent>(eventPtr);
-        else if(this.type == Event.MapRequest)
+        else if (this.type == Event.MapRequest)
             this.xmaprequest = Marshal.PtrToStructure<XMapRequestEvent>(eventPtr);
         else if (this.type == Event.ConfigureRequest)
             this.xconfigurerequest = Marshal.PtrToStructure<XConfigureRequestEvent>(eventPtr);

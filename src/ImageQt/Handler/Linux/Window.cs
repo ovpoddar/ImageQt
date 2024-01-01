@@ -68,7 +68,7 @@ internal class Window : IWindow
     {
         if (_pixmap != default)
             XLib.XFreePixmap(window, _pixmap);
-        
+
         if (_graphicsContext != default)
             XLib.XFreeGC(window, _graphicsContext);
 
@@ -79,9 +79,9 @@ internal class Window : IWindow
 
     void DrawImageFromPointer(IntPtr display)
     {
-        if (_image == IntPtr.Zero 
-            || _pixmap == default 
-            || display == IntPtr.Zero) 
+        if (_image == IntPtr.Zero
+            || _pixmap == default
+            || display == IntPtr.Zero)
             return;
         var image = Marshal.PtrToStructure<XImage>(_image);
 

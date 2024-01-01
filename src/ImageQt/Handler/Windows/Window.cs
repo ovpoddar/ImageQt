@@ -11,7 +11,7 @@ internal class Window : IWindow
     private IntPtr _imagePixelData;
     private BitmapInfo _imageData;
 
-    public Window() => 
+    public Window() =>
         _wndProcDelegate = CustomWndProc;
 
     public IntPtr DeclareWindow(string windowTitle, uint height, uint width)

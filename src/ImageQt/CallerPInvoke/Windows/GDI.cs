@@ -1,5 +1,4 @@
 ﻿using ImageQt.Models.Windows;
-using System;
 using System.Runtime.InteropServices;
 
 namespace ImageQt.CallerPInvoke.Windows;
