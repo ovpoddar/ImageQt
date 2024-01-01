@@ -61,7 +61,7 @@ internal class Window : IWindow
     public void LoadBitMap(int width, int height, ref nint ImageData, IntPtr display)
     {
         var nsImage = CreateNSImage(width, height, ImageData);
-         
+
         var selSetImage_Handle = ObjectCRuntime.SelRegisterName("setImage:");
         ObjectCRuntime.VoidObjCMsgSend(_imageView, selSetImage_Handle, nsImage);
 
@@ -83,11 +83,10 @@ internal class Window : IWindow
         var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, alloc);
 
         var planes = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
-        //bitmapImageRep = ObjectCRuntime.ObjCMsgSend(
-        bitmapImageRep = TestOP(
+        bitmapImageRep = ObjectCRuntime.ObjCMsgSend(
             bitmapImageRep,
             planes,
-            imageData,
+            new IntPtr[] { imageData },
             width,
             height,
             8,
