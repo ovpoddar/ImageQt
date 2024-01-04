@@ -77,7 +77,7 @@ internal class Window : IWindow
     {
         var profileNameString = ObjectCRuntime.ObjCGetClass("NSString");
         var utfString = ObjectCRuntime.SelGetUid("stringWithUTF8String:");
-        var profileName = ObjectCRuntime.ObjCMsgSend(profileNameString, utfString, "NSDeviceRGBColorSpace");
+        var profileName = ObjectCRuntime.ObjCMsgSend(profileNameString, utfString, "NSCalibratedRGBColorSpace");
 
         var bitmapImageRepClass = Appkit.ObjCGetClass("NSBitmapImageRep");
         var bitmapImageRep = ObjectCRuntime.ObjCMsgSend(bitmapImageRepClass, _alloc);
