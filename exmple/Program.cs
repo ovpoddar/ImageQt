@@ -1,5 +1,5 @@
 ﻿
-var qt = new ImageQt.ImageQt("Open window.");
+using var qt = new ImageQt.ImageQt("Open window.");
 
 /* generate bytes
  * var bim = new Bitmap(@"side-view-smiley-woman-holding-hen.jpg");
