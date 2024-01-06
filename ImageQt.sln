@@ -5,11 +5,11 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{36CE14CE-3439-4021-B80E-486DCC851E31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageQt", "src\ImageQt\ImageQt.csproj", "{DDAC192D-72FF-4B75-A27F-FAA64FE949CD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageQt", "src\ImageQt.csproj", "{DDAC192D-72FF-4B75-A27F-FAA64FE949CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "exmple", "exmple", "{45F2D299-749D-4935-8CB7-732FC54BE957}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exmple", "exmple\example\exmple.csproj", "{988A3887-895B-40D7-BA56-55344D14B6D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "exmple", "exmple\exmple.csproj", "{988A3887-895B-40D7-BA56-55344D14B6D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

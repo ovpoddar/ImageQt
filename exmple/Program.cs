@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.IO;
-using System.Text;
-
+﻿
 var qt = new ImageQt.ImageQt("Open window.");
 
 /* generate bytes
