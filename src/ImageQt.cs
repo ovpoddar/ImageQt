@@ -9,11 +9,14 @@ public class ImageQt : IDisposable
     private IntPtr _window;
     private readonly IWindow _display;
 
-    public ImageQt(string windowTitle)
+    public ImageQt(string windowTitle, Image image)
     {
         _display = new Windows();
-        _window = _display.DeclareWindow(windowTitle, 200, 200);
+        _window = _display.DeclareWindow(windowTitle, image.height, image.width);
         _display.ShowWindow(_window);
+        if (!image.hasPath)
+            _display.LoadBitMap((int)image.width, (int)image.height, ref image.imageData, _window);
+        // TODO: Load it from file
     }
 
     public Task Run(bool isBlockCurrentThread = false)
@@ -33,19 +36,6 @@ public class ImageQt : IDisposable
         return Task.CompletedTask;
     }
 
-    public void GenerateTheBitMap(int width, int height, ref byte[] bytes)
-    {
-        var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-        _display.LoadBitMap(width, height, ref imageData, _window);
-    }
-
-    public void GenerateTheBitMap(int width, int height, ref int[] bytes)
-    {
-        var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-        _display.LoadBitMap(width, height, ref imageData, _window);
-    }
-
-
     public void Dispose()
     {
         Dispose(true);
@@ -60,9 +50,5 @@ public class ImageQt : IDisposable
             _display.CleanUpResources(ref _window);
             _disposed = true;
         }
-    }
-    ~ImageQt()
-    {
-        Dispose(false);
     }
 }

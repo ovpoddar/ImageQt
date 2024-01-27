@@ -1,5 +1,11 @@
 ﻿
-using var qt = new ImageQt.ImageQt("Open window.");
+int width = 1000,
+    height = 667;
+var bytes = File.ReadAllBytes("bytes");
+
+var image = new ImageQt.Image(width, height, ref bytes);
+
+using var qt = new ImageQt.ImageQt("Open window.", image);
 
 /* generate bytes
  * var bim = new Bitmap(@"side-view-smiley-woman-holding-hen.jpg");
@@ -17,12 +23,6 @@ using var qt = new ImageQt.ImageQt("Open window.");
  *  var by = fs.ToArray(); 
  */
 
-
-int width = 1000,
-    height = 667;
-var bytes = File.ReadAllBytes("bytes");
-
-qt.GenerateTheBitMap(width, height, ref bytes);
 
 await qt.Run(true);
 Console.ReadLine();
