@@ -38,9 +38,6 @@ internal static partial class Win
     public static partial void PostQuitMessage(int exitcode);
 
     [DllImport(UserNativeDll)]
-    public static extern bool TranslateMessage([In] ref Message lpMsg);
-
-    [DllImport(UserNativeDll)]
     public static extern nint DispatchMessage([In] ref Message lpmsg);
 
     [DllImport(UserNativeDll)]
