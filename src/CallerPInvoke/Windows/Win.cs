@@ -7,7 +7,7 @@ internal static partial class Win
     private const string UserNativeDll = "user32.dll";
 
     [DllImport(UserNativeDll, SetLastError = true)]
-    public static extern ushort RegisterClassW([In] ref WindowStruct lpWndClass);
+    public static extern ushort RegisterClassExW([In] ref WndClassExW lpWndClass);
 
     [LibraryImport(UserNativeDll, SetLastError = true)]
     public static partial nint CreateWindowExW(uint dwExStyle,

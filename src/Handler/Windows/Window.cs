@@ -18,21 +18,30 @@ internal class Window : IWindow
     {
         IntPtr instance = Kernel.GetModuleHandle(null);
 
-        WindowStruct wc = new()
+        WndClassExW wc = new()
         {
+            ClassSize = (uint)Marshal.SizeOf<WndClassExW>(),
+            style = WindowStyle.DBLCLKS,
+            lpfnWndProc = Marshal.GetFunctionPointerForDelegate(_wndProcDelegate),
+            cbClsExtra = 0,
+            cbWndExtra = 0,
             hInstance = instance,
+            hCursor = IntPtr.Zero,
+            hIcon = IntPtr.Zero,
+            hbrBackground = GDI.CreateSolidBrush(0xffffff),
+            lpszMenuName = windowTitle,
             lpszClassName = windowTitle,
-            lpfnWndProc = Marshal.GetFunctionPointerForDelegate(_wndProcDelegate)
+            hIconSm = IntPtr.Zero,
         };
 
-        Win.RegisterClassW(ref wc);
+        Win.RegisterClassExW(ref wc);
         return Win.CreateWindowExW(
             0,
             windowTitle,
             windowTitle,
             13565952,
-            -2147483648,
-            -2147483648,
+            0,
+            0,
             (int)width,
             (int)height,
             IntPtr.Zero,
@@ -52,18 +61,10 @@ internal class Window : IWindow
     {
         var message = new Message();
 
-        int ret;
-        while ((ret = Win.GetMessage(out message, 0, 0, 0)) != 0)
+        while (Win.GetMessage(out message, 0, 0, 0) >= 0)
         {
-            if (ret == -1)
-            {
-                //-1 indicates an error
-            }
-            else
-            {
-                Win.TranslateMessage(ref message);
-                Win.DispatchMessage(ref message);
-            }
+            Win.DispatchMessage(ref message);
+            DrawImageFromPointer(window);
         }
     }
 
@@ -74,11 +75,7 @@ internal class Window : IWindow
             case ProcessesMessage.WM_DESTROY:
                 Win.PostQuitMessage(0);
                 return 0;
-            case ProcessesMessage.WM_PAINT:
-                DrawImageFromPointer(hWnd);
-                return 0;
         }
-
 
         return Win.DefWindowProcW(hWnd, (uint)msg, wParam, lParam);
     }

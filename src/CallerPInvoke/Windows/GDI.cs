@@ -4,7 +4,10 @@ using System.Runtime.InteropServices;
 namespace ImageQt.CallerPInvoke.Windows;
 internal static partial class GDI
 {
-    [DllImport(dllName: "gdi32.dll", EntryPoint = "StretchDIBits")]
+
+    private const string UserNativeDll = "gdi32.dll";
+
+    [DllImport(UserNativeDll)]
     public static extern IntPtr StretchDIBits([In] IntPtr hdc,
         [In] int xDestination,
         [In] int yDestination,
@@ -19,4 +22,6 @@ internal static partial class GDI
         [In] ColorUsage usage,
         [In] DropType dropType);
 
+    [LibraryImport(UserNativeDll)]
+    public static partial IntPtr CreateSolidBrush(int color);
 }
