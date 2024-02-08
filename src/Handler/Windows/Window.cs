@@ -34,7 +34,10 @@ internal class Window : IWindow
             hIconSm = IntPtr.Zero,
         };
 
-        Win.RegisterClassExW(ref wc);
+        var atom = Win.RegisterClassExW(ref wc);
+
+        if (atom == 0) throw new Exception("Could not register the window");
+
         return Win.CreateWindowExW(
             0,
             windowTitle,
