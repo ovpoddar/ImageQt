@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 using static ImageQT.Models.Windows.WindowDelegate;
 
 namespace ImageQT.Handlers.Window;
-internal sealed class WindowManager : INativeWindowManager, IDisposable
+internal sealed class WindowManager : INativeWindowManager
 {
     private const string _hiddenClass = "CSPOP.Window";
     private WindowWrapper? _window;
