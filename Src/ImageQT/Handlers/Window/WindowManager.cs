@@ -6,11 +6,12 @@ using static ImageQT.Models.Windows.WindowDelegate;
 namespace ImageQT.Handlers.Window;
 internal sealed class WindowManager : INativeWindowManager
 {
-    private const string _hiddenClass = "CSPOP.Window";
+    private string _hiddenClass;
     private WindowWrapper? _window;
 
     public nint CreateWindow(uint height, uint width)
     {
+        _hiddenClass = Guid.NewGuid().ToString();
         var module = Kernel32.GetModuleHandleA(null);
         WndClassExW wc = new()
         {
