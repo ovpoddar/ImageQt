@@ -1,6 +1,5 @@
 ﻿using ImageQT.DllInterop.Mac;
 using ImageQT.Models.Mac;
-using static ImageQT.Models.Mac.WindowDelegate;
 
 namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager
