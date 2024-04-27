@@ -9,7 +9,7 @@ internal class NSWindowDelegateImplementation : SafeHandleBaseZeroInvalid
     public NSWindowDelegateImplementation(windowWillClose actionDelegate) : base(true)
     {
         var nsObjectClass = ObjectCRuntime.ObjCGetClass("NSObject");
-        _customeClassPointer = ObjectCRuntime.ObjCAllocateClassPair(nsObjectClass, nameof(NSWindowDelegateImplementation), 0);
+        _customeClassPointer = ObjectCRuntime.ObjCAllocateClassPair(nsObjectClass, Guid.NewGuid().ToString(), 0);
         if (nsObjectClass == IntPtr.Zero)
         {
             Debug.WriteLine("fail to create class.find a unique name for this class");

@@ -40,13 +40,14 @@ internal partial class ObjectCRuntime
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.LPStr)] string arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1, int arg2, int arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
+
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(NSApplication receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(NSApplication receiver, IntPtr selector, ulong arg1, NSDate arg2, NSString arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
-
-    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial NSWindow NSWindowObjCMsgSend(NSWindow receiver, IntPtr selector, CGRect arg1, int arg2, int arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]

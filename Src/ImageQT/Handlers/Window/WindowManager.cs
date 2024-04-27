@@ -45,14 +45,13 @@ internal sealed class WindowManager : INativeWindowManager
             IntPtr.Zero,
             module,
             IntPtr.Zero);
-        User32.ShowWindow(_window, 5);
         return default;
 
     }
 
     public void Dispose()
     {
-        if (_window is null)
+        if (_window is null) 
             return;
 
         if (!_window.IsInvalid)
@@ -65,6 +64,7 @@ internal sealed class WindowManager : INativeWindowManager
 
     public Task Show()
     {
+        User32.ShowWindow(_window, 5);
         var message = new LpMsg();
 
         while (User32.GetMessage(out message, 0, 0, 0) != 0)

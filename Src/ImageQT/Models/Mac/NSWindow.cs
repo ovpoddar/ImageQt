@@ -8,9 +8,13 @@ using System.Threading.Tasks;
 namespace ImageQT.Models.Mac;
 internal class NSWindow : SafeHandleBaseZeroInvalid
 {
-    public NSWindow() : base(true)
+    public NSWindow(CGRect cgRect) : base(true)
     {
         var nsWindow = Appkit.ObjCGetClass("NSWindow");
-        SetHandle(ObjectCRuntime.PointerObjCMsgSend(nsWindow, PreSelector.Alloc));
+        var window = ObjectCRuntime.PointerObjCMsgSend(nsWindow, PreSelector.Alloc);
+
+        var selector = ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:");
+        SetHandle(ObjectCRuntime.PointerObjCMsgSend(window, selector, cgRect, 15, 2, false));
     }
+
 }
