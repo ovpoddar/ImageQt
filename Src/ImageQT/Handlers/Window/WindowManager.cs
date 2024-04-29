@@ -24,7 +24,7 @@ internal sealed class WindowManager : INativeWindowManager
             hCursor = IntPtr.Zero,
             hIcon = IntPtr.Zero,
             hBrBackground = IntPtr.Zero,
-            lpszMenuName = "",
+            lpszMenuName = string.Empty,
             lpszClassName = _hiddenClass,
             hIconSm = IntPtr.Zero,
         };
@@ -35,7 +35,7 @@ internal sealed class WindowManager : INativeWindowManager
         _window = User32.CreateWindowExW(
             0,
             wc.lpszClassName,
-            "",
+            string.Empty,
             13565952,
             0,
             0,
