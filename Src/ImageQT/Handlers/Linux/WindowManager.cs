@@ -12,6 +12,7 @@ internal class WindowManager : INativeWindowManager
 {
     private ulong _window;
     private IntPtr _display;
+    private ulong _atomDelete;
     public nint CreateWindow(uint height, uint width)
     {
         _display = LibX11.XOpenDisplay(null);
@@ -27,18 +28,18 @@ internal class WindowManager : INativeWindowManager
            LibX11.XWhitePixel(_display, screen));
 
         LibX11.XSelectInput(_display, _window, EventMask.ExposureMask);
-        var atomDelete = LibX11.XInternAtom(_display, "WM_DELETE_WINDOW", false);
-        
-        IntPtr protocolsPtr = Marshal.AllocHGlobal(IntPtr.Size);
-        Marshal.WriteIntPtr(protocolsPtr, (IntPtr)atomDelete);
-        LibX11.XSetWMProtocols(_display, _window, protocolsPtr, 1);
-        Marshal.FreeHGlobal(protocolsPtr);
+        _atomDelete = LibX11.XInternAtom(_display, "WM_DELETE_WINDOW", false);
+
+        var atomPointer = Marshal.AllocHGlobal(IntPtr.Size);
+        Marshal.WriteIntPtr(atomPointer, (IntPtr)_atomDelete);
+        LibX11.XSetWMProtocols(_display, _window, atomPointer, 1);
+
+        Marshal.FreeHGlobal(atomPointer);
         return IntPtr.Zero;
     }
 
     public void Dispose()
     {
-
     }
 
     public Task Show()
@@ -46,18 +47,14 @@ internal class WindowManager : INativeWindowManager
         LibX11.XMapWindow(_display, _window);
 
         var ev = Marshal.AllocHGlobal(192);
-        // var message = LibX11.XInternAtom(_display, "WM_PROTOCOLS", true);
 
         while (true)
         {
-           LibX11.XNextEvent(_display, ev);
-           var @event = new XEvent(ref ev);
-           if (@event.type == Event.ClientMessage
-            //    && @event.xclient.message_type == message
-               )
-           {
-               break;
-           }
+            LibX11.XNextEvent(_display, ev);
+            var @event = new XEvent(ref ev);
+            if (@event.type == Event.ClientMessage
+                 && @event.xclient.data.l == (int)_atomDelete)
+                break;
         }
         Marshal.FreeHGlobal(ev);
         return Task.CompletedTask;

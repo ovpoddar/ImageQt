@@ -42,29 +42,14 @@ public struct XEvent
     public XEvent(ref IntPtr eventPtr)
     {
         this.type = Marshal.PtrToStructure<XAnyEvent>(eventPtr).type;
-        if (this.type == Event.DestroyNotify)
-            this.xdestroywindow = Marshal.PtrToStructure<XDestroyWindowEvent>(eventPtr);
-        else if (this.type == Event.CreateNotify)
-            this.xcreatewindow = Marshal.PtrToStructure<XCreateWindowEvent>(eventPtr);
-        else if (this.type == Event.MapNotify)
-            this.xmap = Marshal.PtrToStructure<XMapEvent>(eventPtr);
-        else if (this.type == Event.MapRequest)
-            this.xmaprequest = Marshal.PtrToStructure<XMapRequestEvent>(eventPtr);
-        else if (this.type == Event.ConfigureRequest)
-            this.xconfigurerequest = Marshal.PtrToStructure<XConfigureRequestEvent>(eventPtr);
-        else if (this.type == Event.UnmapNotify)
-            this.xunmap = Marshal.PtrToStructure<XUnmapEvent>(eventPtr);
-        else if (this.type == Event.ReparentNotify)
-            this.xreparent = Marshal.PtrToStructure<XReparentEvent>(eventPtr);
-        else if (this.type == Event.ButtonPress)
-            this.xbutton = Marshal.PtrToStructure<XButtonEvent>(eventPtr);
-        else if (this.type == Event.MotionNotify)
-            this.xmotion = Marshal.PtrToStructure<XMotionEvent>(eventPtr);
-        else if (this.type == Event.FocusOut)
-            this.xfocus = Marshal.PtrToStructure<XFocusChangeEvent>(eventPtr);
-        else if (this.type == Event.FocusIn)
-            this.xfocus = Marshal.PtrToStructure<XFocusChangeEvent>(eventPtr);
-        else if (this.type == Event.Expose)
-            this.xexpose = Marshal.PtrToStructure<XExposeEvent>(eventPtr);
+        switch (type)
+        {
+            case Event.Expose:
+                xexpose = Marshal.PtrToStructure<XExposeEvent>(eventPtr);
+                break;
+            case Event.ClientMessage:
+                xclient = Marshal.PtrToStructure<XClientMessageEvent>(eventPtr);
+                break;
+        }
     }
 }
