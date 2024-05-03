@@ -55,4 +55,10 @@ internal partial class LibX11
     [LibraryImport(_dllName)]
     public static partial int XSetWMProtocols(IntPtr display, ulong window, IntPtr atom, int count);
 
+    [LibraryImport(_dllName)]
+    public static partial int XDestroyWindow(IntPtr display, ulong window);
+
+    [LibraryImport(_dllName)]
+    public static partial int XCloseDisplay(IntPtr display);
+
 }

@@ -33,13 +33,15 @@ internal class WindowManager : INativeWindowManager
         var atomPointer = Marshal.AllocHGlobal(IntPtr.Size);
         Marshal.WriteIntPtr(atomPointer, (IntPtr)_atomDelete);
         LibX11.XSetWMProtocols(_display, _window, atomPointer, 1);
-
         Marshal.FreeHGlobal(atomPointer);
+
         return IntPtr.Zero;
     }
 
     public void Dispose()
     {
+        LibX11.XCloseDisplay(_display);
+        LibX11.XDestroyWindow(_display, _window);
     }
 
     public Task Show()
