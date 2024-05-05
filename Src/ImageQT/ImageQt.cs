@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
 
 namespace ImageQT;
-public class ImageQt : IDisposable
+public class ImageQt
 {
     private bool _disposed;
     private INativeWindowManager _windowManager;
@@ -19,32 +20,12 @@ public class ImageQt : IDisposable
 
     public async Task Show(uint time = 0)
     {
+        if(_disposed)
+            throw new AlreadyExecutedException();
+
         await _windowManager.Show();
-    }
-
-    public void Dispose()
-    {
-        // Dispose of unmanaged resources.
-        Dispose(true);
-        // Suppress finalization.
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (_disposed)
-        {
-            return;
-        }
-
-        if (disposing)
-        {
-            // TODO: dispose managed state (managed objects).
-        }
-
-        // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-        // TODO: set large fields to null.
         _windowManager.Dispose();
         _disposed = true;
     }
+
 }
