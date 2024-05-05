@@ -40,7 +40,6 @@ internal class WindowManager : INativeWindowManager
 
     public void Dispose()
     {
-        LibX11.XCloseDisplay(_display);
         LibX11.XDestroyWindow(_display, _window);
     }
 
@@ -56,7 +55,10 @@ internal class WindowManager : INativeWindowManager
             var @event = new XEvent(ref ev);
             if (@event.type == Event.ClientMessage
                  && @event.xclient.data.l == (int)_atomDelete)
+            {
+                LibX11.XCloseDisplay(_display);
                 break;
+            }
         }
         Marshal.FreeHGlobal(ev);
         return Task.CompletedTask;
