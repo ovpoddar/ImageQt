@@ -120,4 +120,7 @@ internal partial class LibX11
 
     [LibraryImport(_dllName)]
     public static partial void XFreeGC(IntPtr display, IntPtr gc);
+
+    [LibraryImport(_dllName)]
+    public static partial void XDestroyImage(IntPtr xImage);
 }

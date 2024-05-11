@@ -52,10 +52,13 @@ internal class WindowManager : INativeWindowManager
         if (!_window.HasValue)
             return;
 
-        if (_pixmap.HasValue)
-            LibX11.XFreePixmap(_display, _pixmap.Value);
-
         LibX11.XDestroyWindow(_display, _window.Value);
+
+        //if (_image.HasValue)
+        //    LibX11.XDestroyImage(_image.Value);
+
+        //if (_pixmap.HasValue)
+        //    LibX11.XFreePixmap(_display, _pixmap.Value);
     }
 
     public Task Show()
