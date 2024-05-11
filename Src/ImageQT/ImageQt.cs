@@ -16,6 +16,7 @@ public class ImageQt
     {
         _windowManager = new Handlers.Window.WindowManager();
         _windowManager.CreateWindow((uint)image.Height, (uint)image.Width);
+        _windowManager.SetUpImage(image);
     }
 
     public async Task Show(uint time = 0)

@@ -41,6 +41,12 @@ internal partial class LibX11
     public static partial ulong XWhitePixel(IntPtr display, int screen);
 
     [LibraryImport(_dllName)]
+    public static partial IntPtr XDefaultVisual(IntPtr display, int screen);
+
+    [LibraryImport(_dllName)]
+    public static partial uint XDefaultDepth(IntPtr display, int screen);
+
+    [LibraryImport(_dllName)]
     public static partial int XSelectInput(IntPtr display, ulong window, EventMask eventMask);
 
     [LibraryImport(_dllName)]
@@ -59,6 +65,55 @@ internal partial class LibX11
     public static partial int XDestroyWindow(IntPtr display, ulong window);
 
     [LibraryImport(_dllName)]
+    public static partial IntPtr XCreateGC(IntPtr display, ulong window, ulong valueMask, IntPtr values);
+
+    [LibraryImport(_dllName)]
     public static partial int XCloseDisplay(IntPtr display);
+
+    [LibraryImport(_dllName)]
+    public static partial IntPtr XCreateImage(
+       IntPtr display,
+       IntPtr visual,
+       uint depth,
+       ImageFormat format,
+       int offset,
+       IntPtr data,
+       uint width,
+       uint height,
+       int bitmapPad,
+       int bytesPerLine);
+
+    [LibraryImport(_dllName)]
+    public static partial ulong XCreatePixmap(
+       IntPtr display,
+       ulong window,
+       uint width,
+       uint height,
+       uint depth);
+
+    [LibraryImport(_dllName)]
+    public static partial void XPutImage(IntPtr display,
+       ulong drawable,
+       IntPtr gc,
+       IntPtr imageData,
+       int srcX,
+       int srcY,
+       int destX,
+       int destY,
+       uint width,
+       uint height);
+
+    [LibraryImport(_dllName)]
+    public static partial void XCopyArea(IntPtr display,
+      ulong src,
+      ulong dest,
+      IntPtr graphicsContext,
+      int srcX,
+      int srcY,
+      uint width,
+      uint height,
+      int destX,
+      int destY);
+
 
 }

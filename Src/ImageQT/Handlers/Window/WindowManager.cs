@@ -1,4 +1,5 @@
 ﻿using ImageQT.DllInterop.Windows;
+using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Windows;
 using System.Runtime.InteropServices;
 using static ImageQT.Models.Windows.WindowDelegate;
@@ -6,12 +7,19 @@ using static ImageQT.Models.Windows.WindowDelegate;
 namespace ImageQT.Handlers.Window;
 internal sealed class WindowManager : INativeWindowManager
 {
-    private string _hiddenClass;
+    private readonly string _hiddenClass;
     private WindowWrapper? _window;
+
+    private IntPtr _imagePixelData;
+    private BitmapInfo _imageData;
+
+    public WindowManager()
+    {
+        _hiddenClass = Guid.NewGuid().ToString();
+    }
 
     public nint CreateWindow(uint height, uint width)
     {
-        _hiddenClass = Guid.NewGuid().ToString();
         var module = Kernel32.GetModuleHandleA(null);
         WndClassExW wc = new()
         {
@@ -51,7 +59,7 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void Dispose()
     {
-        if (_window is null) 
+        if (_window is null)
             return;
 
         if (!_window.IsInvalid)
@@ -62,13 +70,49 @@ internal sealed class WindowManager : INativeWindowManager
 
     }
 
+    public void SetUpImage(Image image)
+    {
+        _imageData = new()
+        {
+            biSize = Marshal.SizeOf<BitmapInfo>(),
+            biWidth = image.Width,
+            biHeight = image.Height * -1,
+            biPlanes = 1,
+            biBitCount = image.BitCount,
+            biCompression = 0
+        };
+        _imagePixelData = image.Id;
+    }
+
     public Task Show()
     {
+        if (_window is null)
+            return Task.CompletedTask;
+
         User32.ShowWindow(_window, 5);
         var message = new LpMsg();
 
         while (User32.GetMessage(out message, 0, 0, 0) != 0)
         {
+            if (_imagePixelData == IntPtr.Zero)
+                return Task.CompletedTask;
+
+            IntPtr currentDeviceContext = User32.GetDC(_window);
+            GDI32.StretchDIBits(currentDeviceContext,
+                0,
+                0,
+                _imageData.biWidth,
+                -1 * _imageData.biHeight,
+                0,
+                0,
+                _imageData.biWidth,
+                -1 * _imageData.biHeight,
+                _imagePixelData,
+                ref _imageData,
+                ColorUsage.DIB_RGB_COLORS,
+                DropType.SrcCopy);
+            User32.ReleaseDC(_window, currentDeviceContext);
+
             User32.DispatchMessage(ref message);
         }
         return Task.CompletedTask;
@@ -78,11 +122,10 @@ internal sealed class WindowManager : INativeWindowManager
     {
         switch (msg)
         {
-            case ProcessesMessage.WM_DESTROY:
+            case ProcessesMessage.Destroy:
                 User32.PostQuitMessage(0);
                 return 0;
         }
-
         return User32.DefWindowProcW(hWnd, (uint)msg, wParam, lParam);
     }
 }

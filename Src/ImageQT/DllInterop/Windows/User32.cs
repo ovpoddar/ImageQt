@@ -44,10 +44,10 @@ internal static partial class User32
     public static extern int GetMessage(out LpMsg lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
     [LibraryImport(_dllName)]
-    public static partial IntPtr GetDC(IntPtr hWnd);
+    public static partial IntPtr GetDC(WindowWrapper hWnd);
 
     [LibraryImport(_dllName)]
-    public static partial int ReleaseDC(IntPtr hwnd, IntPtr hdc);
+    public static partial int ReleaseDC(WindowWrapper hwnd, IntPtr hdc);
 
     [LibraryImport(_dllName)]
     public static partial int UnregisterClassW([MarshalAs(UnmanagedType.LPWStr)] string hwnd, IntPtr hInstance);
