@@ -1,18 +1,22 @@
 ﻿using ImageQT.DllInterop.Mac;
+using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Mac;
 
 namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager
 {
     private bool _isRunning;
-    private NSApplication? _application;
-    private CGRect _cGRect;
-    public nint CreateWindow(uint height, uint width)
+    private readonly NSApplication _application;
+    private CGRect? _cGRect;
+    public WindowManager()
     {
         _isRunning = true;
-
-        _cGRect = new(0, 0, width, height);
         _application = new NSApplication();
+    }
+
+    public nint CreateWindow(uint height, uint width)
+    {
+        _cGRect = new(0, 0, width, height);
         var setActivationPolicy = ObjectCRuntime.SelGetUid("setActivationPolicy:");
         ObjectCRuntime.BoolObjCMsgSend(_application, setActivationPolicy, 0);
         var makeitTop = ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:");
@@ -23,8 +27,6 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void Dispose()
     {
-        if (_application == null) 
-            return;
 
         if (!_application.IsInvalid)
         {
@@ -34,7 +36,10 @@ internal sealed class WindowManager : INativeWindowManager
 
     public Task Show()
     {
-        using var window = new NSWindow(_cGRect);
+        if (!_cGRect.HasValue)
+            return Task.CompletedTask;
+
+        using var window = new NSWindow(_cGRect.Value);
         using var methodDelegate = new NSWindowDelegateImplementation(windowWillClose);
         var selector = ObjectCRuntime.SelGetUid("setDelegate:");
         ObjectCRuntime.ObjCMsgSend(window, selector, methodDelegate);
@@ -69,5 +74,10 @@ internal sealed class WindowManager : INativeWindowManager
         {
             _isRunning = false;
         }
+    }
+
+    public void SetUpImage(Image image)
+    {
+        throw new NotImplementedException();
     }
 }
