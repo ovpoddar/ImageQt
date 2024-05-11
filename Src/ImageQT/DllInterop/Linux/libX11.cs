@@ -115,5 +115,9 @@ internal partial class LibX11
       int destX,
       int destY);
 
+    [LibraryImport(_dllName)]
+    public static partial void XFreePixmap(IntPtr display, ulong pixmap);
 
+    [LibraryImport(_dllName)]
+    public static partial void XFreeGC(IntPtr display, IntPtr gc);
 }

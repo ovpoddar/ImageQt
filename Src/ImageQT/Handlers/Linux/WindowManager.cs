@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 namespace ImageQT.Handlers.Linux;
 internal class WindowManager : INativeWindowManager
 {
-    private ulong? _window;
     private readonly IntPtr _display;
     private readonly int _screen;
     private readonly ulong _atomDelete;
-    private IntPtr _image;
-    private ulong _pixmap;
+    private ulong? _window;
+    private IntPtr? _image;
+    private ulong? _pixmap;
 
     public WindowManager()
     {
@@ -52,17 +52,20 @@ internal class WindowManager : INativeWindowManager
         if (!_window.HasValue)
             return;
 
+        if (_pixmap.HasValue)
+            LibX11.XFreePixmap(_display, _pixmap.Value);
+
         LibX11.XDestroyWindow(_display, _window.Value);
     }
 
     public Task Show()
     {
-        if (!_window.HasValue)
+        if (!_window.HasValue || !_image.HasValue|| !_pixmap.HasValue)
             return Task.CompletedTask;
 
         LibX11.XMapWindow(_display, _window.Value);
 
-        var image = Marshal.PtrToStructure<XImage>(_image);
+        var image = Marshal.PtrToStructure<XImage>(_image.Value);
         var ev = Marshal.AllocHGlobal(192);
         var graphicsContext = LibX11.XCreateGC(_display, _window.Value, 0, 0);
 
@@ -78,10 +81,12 @@ internal class WindowManager : INativeWindowManager
             }
             else
             {
-                LibX11.XPutImage(_display, _pixmap, graphicsContext, _image, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
-                LibX11.XCopyArea(_display, _pixmap, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
+                LibX11.XPutImage(_display, _pixmap.Value, graphicsContext, _image.Value, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
+                LibX11.XCopyArea(_display, _pixmap.Value, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
             }
         }
+
+        LibX11.XFreeGC(_display, graphicsContext);
         Marshal.FreeHGlobal(ev);
         return Task.CompletedTask;
     }
@@ -102,7 +107,7 @@ internal class WindowManager : INativeWindowManager
             image.Id,
             (uint)image.Width, 
             (uint)image.Height,
-            image.BitCount, 
+            image.BitCount,
             0);
         _pixmap = LibX11.XCreatePixmap(_display,
             _window.Value, 

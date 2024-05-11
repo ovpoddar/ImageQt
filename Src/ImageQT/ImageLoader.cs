@@ -40,4 +40,11 @@ public static class ImageLoader
         return default;
     }
 
+    public static void ReleaseImage(Image image)
+    {
+        if (image.Id != IntPtr.Zero)
+        {
+            Marshal.FreeHGlobal(image.Id);
+        }
+    }
 }
