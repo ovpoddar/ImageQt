@@ -67,6 +67,8 @@ internal class WindowManager : INativeWindowManager
 
         var image = Marshal.PtrToStructure<XImage>(_image.Value);
         var ev = Marshal.AllocHGlobal(192);
+        //TODO: create a smart graphicsContext
+        // which auto dispose its self
         var graphicsContext = LibX11.XCreateGC(_display, _window.Value, 0, 0);
 
         while (true)
