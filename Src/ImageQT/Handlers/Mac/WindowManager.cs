@@ -8,6 +8,8 @@ internal sealed class WindowManager : INativeWindowManager
     private bool _isRunning;
     private readonly NSApplication _application;
     private CGRect? _cGRect;
+    private NSImage? _image;
+
     public WindowManager()
     {
         _isRunning = true;
@@ -78,6 +80,19 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void SetUpImage(Image image)
     {
-        throw new NotImplementedException();
+        using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
+        using var imageRep = new NSBitmapImageRep(
+            [image.Id],
+            image.Width,
+            image.Height,
+            8,4,
+            true, false,
+            colorSpace,
+            image.Width * 4,
+            32);
+        _image = new NSImage(new(image.Width, image.Height));
+
+        var selector = ObjectCRuntime.SelGetUid("addRepresentation:");
+        ObjectCRuntime.ObjCMsgSend(_image, selector, imageRep);
     }
 }

@@ -23,6 +23,9 @@ internal partial class ObjectCRuntime
     public static partial void ObjCMsgSend(NSWindow receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial void ObjCMsgSend(NSImage receiver, IntPtr selector, NSBitmapImageRep arg1);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial void ObjCMsgSend(NSApplication receiver, IntPtr selector, [MarshalAs(UnmanagedType.Bool)] bool arg1);
             
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
@@ -37,10 +40,16 @@ internal partial class ObjectCRuntime
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, CGSize arg1);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.LPStr)] string arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1, int arg2, int arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr[] arg1, long arg2, long arg3, long arg4, long arg5, [MarshalAs(UnmanagedType.Bool)] bool arg6, [MarshalAs(UnmanagedType.Bool)] bool arg7, NSString arg8, long arg9, long arg10);
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
@@ -50,25 +59,31 @@ internal partial class ObjectCRuntime
     public static partial IntPtr PointerObjCMsgSend(NSApplication receiver, IntPtr selector, ulong arg1, NSDate arg2, NSString arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
 
 
+
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool BoolObjCMsgSend(NSApplication receiver, IntPtr selector, int arg1);
+
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_getClass")]
     public static partial IntPtr ObjCGetClass([MarshalAs(UnmanagedType.LPStr)] string name);
 
 
+
     [LibraryImport(_dllName, EntryPoint = "objc_allocateClassPair")]
     public static partial IntPtr ObjCAllocateClassPair(IntPtr classSelector, [MarshalAs(UnmanagedType.LPStr)] string selectorName, ulong extraAllocate);
+
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_registerClassPair")]
     public static partial void ObjCRegisterClassPair(IntPtr customClass);
 
 
+
     [LibraryImport(_dllName, EntryPoint = "objc_disposeClassPair")]
     public static partial void ObjCDisposeClassPair(IntPtr customClass);
+
 
 
     [LibraryImport(_dllName, EntryPoint = "class_addMethod")]
