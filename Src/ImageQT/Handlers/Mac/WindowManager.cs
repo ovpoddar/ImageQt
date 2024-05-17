@@ -38,7 +38,7 @@ internal sealed class WindowManager : INativeWindowManager
 
     public Task Show()
     {
-        if (!_cGRect.HasValue)
+        if (!_cGRect.HasValue || _image is null)
             return Task.CompletedTask;
 
         using var window = new NSWindow(_cGRect.Value);
@@ -50,6 +50,11 @@ internal sealed class WindowManager : INativeWindowManager
 
         using var time = new NSDate().DistantPast;
         using var mode = new NSString("kCFRunLoopDefaultMode");
+
+        var color = new NSColor(_image);
+        selector = ObjectCRuntime.SelGetUid("setBackgroundColor:");
+        ObjectCRuntime.ObjCMsgSend(window, selector, color);
+
         while (_isRunning)
         {
             for (; ; )
