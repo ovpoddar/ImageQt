@@ -61,7 +61,7 @@ internal sealed class WindowManager : INativeWindowManager
             {
                 var @event = ObjectCRuntime.PointerObjCMsgSend(_application,
                     ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
-                    18446744073709551615U,
+                    NSEventMask.AnyEvent,
                     time,
                     mode,
                     true);
