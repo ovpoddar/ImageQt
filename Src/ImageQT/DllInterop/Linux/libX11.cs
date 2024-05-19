@@ -94,7 +94,7 @@ internal partial class LibX11
     [LibraryImport(_dllName)]
     public static partial void XPutImage(IntPtr display,
        ulong drawable,
-       IntPtr gc,
+       GraphicsContext gc,
        IntPtr imageData,
        int srcX,
        int srcY,
@@ -107,7 +107,7 @@ internal partial class LibX11
     public static partial void XCopyArea(IntPtr display,
       ulong src,
       ulong dest,
-      IntPtr graphicsContext,
+      GraphicsContext graphicsContext,
       int srcX,
       int srcY,
       uint width,

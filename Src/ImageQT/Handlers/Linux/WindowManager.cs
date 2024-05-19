@@ -63,16 +63,14 @@ internal class WindowManager : INativeWindowManager
 
     public Task Show()
     {
-        if (!_window.HasValue || !_image.HasValue|| !_pixmap.HasValue)
+        if (!_window.HasValue || !_image.HasValue || !_pixmap.HasValue)
             return Task.CompletedTask;
 
         LibX11.XMapWindow(_display, _window.Value);
 
         var image = Marshal.PtrToStructure<XImage>(_image.Value);
         var ev = Marshal.AllocHGlobal(192);
-        //TODO: create a smart graphicsContext
-        // which auto dispose its self
-        var graphicsContext = LibX11.XCreateGC(_display, _window.Value, 0, 0);
+        using var graphicsContext = new GraphicsContext(_display, _window.Value);
 
         while (true)
         {
@@ -90,8 +88,6 @@ internal class WindowManager : INativeWindowManager
                 LibX11.XCopyArea(_display, _pixmap.Value, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
             }
         }
-
-        LibX11.XFreeGC(_display, graphicsContext);
         Marshal.FreeHGlobal(ev);
         return Task.CompletedTask;
     }
@@ -105,19 +101,19 @@ internal class WindowManager : INativeWindowManager
         var depth = LibX11.XDefaultDepth(_display, _screen);
 
         _image = LibX11.XCreateImage(_display,
-            visual, 
-            depth, 
-            ImageFormat.ZPixmap, 
-            0, 
+            visual,
+            depth,
+            ImageFormat.ZPixmap,
+            0,
             image.Id,
-            (uint)image.Width, 
+            (uint)image.Width,
             (uint)image.Height,
             image.BitCount,
             0);
         _pixmap = LibX11.XCreatePixmap(_display,
-            _window.Value, 
-            (uint)image.Width, 
-            (uint)image.Height, 
+            _window.Value,
+            (uint)image.Width,
+            (uint)image.Height,
             depth);
     }
 }
