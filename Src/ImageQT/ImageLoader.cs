@@ -31,7 +31,7 @@ public static class ImageLoader
             Id = imageData,
             Format = 1,
             Mipmaps = 1,
-            BitCount = sizeof(byte) * 8
+            BitCount = sizeof(int) * 8
         };
     }
 
