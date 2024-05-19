@@ -14,7 +14,16 @@ internal class NSWindow : SafeHandleBaseZeroInvalid
         var window = ObjectCRuntime.PointerObjCMsgSend(nsWindow, PreSelector.Alloc);
 
         var selector = ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:");
-        SetHandle(ObjectCRuntime.PointerObjCMsgSend(window, selector, cgRect, 15, 2, false));
+        SetHandle(ObjectCRuntime.PointerObjCMsgSend(window,
+            selector,
+            cgRect,
+            NSWindowStyle.Borderless |
+            NSWindowStyle.Titled |
+            NSWindowStyle.Closable |
+            NSWindowStyle.Miniaturizable |
+            NSWindowStyle.Resizable,
+            NSBackingStore.Buffered,
+            false));
     }
 
 }
