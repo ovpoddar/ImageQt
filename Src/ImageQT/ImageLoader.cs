@@ -68,6 +68,8 @@ public static class ImageLoader
 
     public static Image LoadImage(string file)
     {
+         // TODO: added support to load from file
+         // TODO: load from base64 string
         throw new NotImplementedException();
     }
 
