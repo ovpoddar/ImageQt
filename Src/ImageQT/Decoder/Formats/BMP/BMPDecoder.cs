@@ -4,7 +4,12 @@ using System.Runtime.InteropServices;
 namespace ImageQT.Decoder.Formats.BMP;
 internal class BMPDecoder : IImageDecoder
 {
-    public int RequiredByteToRead => sizeof(ushort);
+    public int RequiredByteToRead => 
+        Math.Max(BMHeaderSignature.Length, BAHeaderSignature.Length);
+
+    private static ReadOnlySpan<byte> BMHeaderSignature => [66, 77];
+
+    private static ReadOnlySpan<byte> BAHeaderSignature => [66, 65];
 
     public byte[] DecodeImage(Stream stream)
     {
@@ -22,10 +27,10 @@ internal class BMPDecoder : IImageDecoder
         return ((uint)details.Width, (uint)details.Height, (byte)details.BitCount);
     }
 
-    public bool IsSupport(Span<byte> header)
+    public bool IsSupport(ReadOnlySpan<byte> header)
     {
         if (header == null) throw new ArgumentNullException("header");
         if (header.Length != RequiredByteToRead) throw new ArgumentNullException("header");
-        return header.ToStruct<ushort>() == 0x4D42;
+        return GenericHelper.Equal(header, BMHeaderSignature) || GenericHelper.Equal(header, BAHeaderSignature);
     }
 }

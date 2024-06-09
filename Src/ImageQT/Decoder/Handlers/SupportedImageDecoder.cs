@@ -23,6 +23,7 @@ internal static class SupportedImageDecoder
 
     internal static Image? GetImage(this IImageDecoder imageDecoder, Stream stream)
     {
+        stream.Seek(0, SeekOrigin.Begin);
         Span<byte> headerBytes = stackalloc byte[imageDecoder.RequiredByteToRead];
         var header = stream.Read(headerBytes);
 

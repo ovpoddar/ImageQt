@@ -9,6 +9,6 @@ internal interface IImageDecoder
 {
     int RequiredByteToRead { get; }
     byte[] DecodeImage(Stream stream);
-    bool IsSupport(Span<byte> header);
+    bool IsSupport(ReadOnlySpan<byte> header);
     (uint width, uint height, byte bitCount) GetImageDetails(Stream stream);
 }

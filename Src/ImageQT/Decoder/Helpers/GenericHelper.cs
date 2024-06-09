@@ -22,6 +22,18 @@ internal static class GenericHelper
             return memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
     }
 
+
+    internal static unsafe bool Equal(ReadOnlySpan<byte> data1, ReadOnlySpan<byte> data2)
+    {
+        if (data1.Length != data2.Length)
+            return false;
+
+        fixed (byte* p1 = data1, p2 = data2)
+            return  memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
+    }
+
+
+
     internal static byte[] Tobytes(this ValueType @struct)
     {
         var result = new byte[Marshal.SizeOf(@struct)];
@@ -35,7 +47,7 @@ internal static class GenericHelper
         Unsafe.As<byte, T>(ref @bytes[0]);
 
     internal static T FromStream<T>(this Stream stream,
-        long skip = 0, 
+        long skip = 0,
         SeekOrigin origin = SeekOrigin.Current) where T : struct
     {
         var size = Marshal.SizeOf(typeof(T));
