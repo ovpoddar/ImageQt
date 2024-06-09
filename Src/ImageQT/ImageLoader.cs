@@ -1,4 +1,7 @@
-﻿using ImageQT.Models.ImagqQT;
+﻿using ImageQT.Decoder.Handlers;
+using ImageQT.Models.ImagqQT;
+using System.Buffers.Text;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace ImageQT;
@@ -68,11 +71,29 @@ public static class ImageLoader
 
     public static Image LoadImage(string file)
     {
-         // TODO: added support to load from file
-         // TODO: load from base64 string
-        throw new NotImplementedException();
+        using var stream = GetStream(file);
+        var supportedDecoder = SupportedImageDecoder.GetSupportedDecoders();
+        foreach (var decoder in supportedDecoder)
+        {
+            var image = decoder.GetImage(stream);
+            if (image == null)
+                continue;
+
+            return image.Value;
+        }
+
+        throw new NotSupportedException();
     }
 
+
+    private static Stream GetStream(string file)
+    {
+        if (File.Exists(file))
+            return File.OpenRead(file);
+        return Base64.IsValid(file.AsSpan())
+            ? (Stream)new MemoryStream(Convert.FromBase64String(file))
+            : throw new NotSupportedException();
+    }
     public static void ReleaseImage(Image image)
     {
         if (image.Id != IntPtr.Zero)
