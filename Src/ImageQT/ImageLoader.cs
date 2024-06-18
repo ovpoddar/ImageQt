@@ -71,18 +71,7 @@ public static class ImageLoader
 
     public static Image LoadImage(string file)
     {
-        using var stream = GetStream(file);
-        var supportedDecoder = SupportedImageDecoder.GetSupportedDecoders();
-        foreach (var decoder in supportedDecoder)
-        {
-            var image = decoder.GetImage(stream);
-            if (image == null)
-                continue;
-
-            return image.Value;
-        }
-
-        throw new NotSupportedException();
+        throw new NotImplementedException();
     }
 
 
