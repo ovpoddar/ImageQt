@@ -34,6 +34,7 @@ internal sealed class WindowManager : INativeWindowManager
         {
             _application.Dispose();
         }
+        GC.SuppressFinalize(this);
     }
 
     public Task Show()

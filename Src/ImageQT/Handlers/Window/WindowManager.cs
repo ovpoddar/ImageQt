@@ -13,9 +13,12 @@ internal sealed class WindowManager : INativeWindowManager
     private IntPtr _imagePixelData;
     private BitmapInfo _imageData;
 
+    private readonly WndProcDelegate _wndProcDelegate;
+
     public WindowManager()
     {
         _hiddenClass = Guid.NewGuid().ToString();
+        _wndProcDelegate = CustomWndProc;
     }
 
     public nint CreateWindow(uint height, uint width)
@@ -25,7 +28,7 @@ internal sealed class WindowManager : INativeWindowManager
         {
             ClassSize = (uint)Marshal.SizeOf<WndClassExW>(),
             style = WindowStyle.DBLCLKS,
-            lpFnWndProc = Marshal.GetFunctionPointerForDelegate<WndProcDelegate>(CustomWndProc),
+            lpFnWndProc = Marshal.GetFunctionPointerForDelegate(_wndProcDelegate),
             cbClsExtra = 0,
             cbWndExtra = 0,
             hInstance = module,
@@ -67,7 +70,7 @@ internal sealed class WindowManager : INativeWindowManager
 
         var indtance = Kernel32.GetModuleHandleA(null);
         User32.UnregisterClassW(_hiddenClass, indtance);
-
+        GC.SuppressFinalize(this);
     }
 
     public void SetUpImage(Image image)

@@ -59,6 +59,7 @@ internal class WindowManager : INativeWindowManager
 
         //if (_pixmap.HasValue)
         //    LibX11.XFreePixmap(_display, _pixmap.Value);
+        GC.SuppressFinalize(this);
     }
 
     public Task Show()
