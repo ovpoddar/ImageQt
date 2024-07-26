@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -14,4 +15,5 @@ public struct XExposeEvent
     public int x, y;
     public int width, height;
     public int count;		/* if non-zero, at least this many more */
-};
+}
+#endif

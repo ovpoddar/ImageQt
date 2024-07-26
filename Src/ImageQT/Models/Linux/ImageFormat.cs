@@ -1,3 +1,4 @@
+#if DEBUG || Linux
 namespace ImageQT.Models.Linux;
 
 public enum ImageFormat : int
@@ -6,3 +7,4 @@ public enum ImageFormat : int
     XyPixmap = 1,
     ZPixmap = 2
 }
+#endif

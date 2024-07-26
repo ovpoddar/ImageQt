@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -18,3 +19,4 @@ public struct XConfigureEvent
     public ulong above;
     public bool override_redirect;
 }
+#endif

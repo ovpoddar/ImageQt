@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -19,3 +20,4 @@ public struct XConfigureRequestEvent
     public int detail;     /* Above, Below, TopIf, BottomIf, Opposite */
     public ulong value_mask;
 }
+#endif

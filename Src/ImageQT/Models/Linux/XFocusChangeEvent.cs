@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -13,4 +14,5 @@ public struct XFocusChangeEvent
     public ulong window;      /* window of event */
     public int mode;       /* NotifyNormal, NotifyWhileGrabbed, NotifyGrab, NotifyUngrab */
     public int detail;
-};
+}
+#endif

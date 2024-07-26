@@ -1,11 +1,5 @@
 ﻿using ImageQT.Models.Linux;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.Tracing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.DllInterop.Linux;
 internal partial class LibX11
@@ -51,7 +45,7 @@ internal partial class LibX11
 
     [LibraryImport(_dllName)]
     public static partial ulong XInternAtom(IntPtr display, [MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.Bool)] bool state);
-    
+
     [LibraryImport(_dllName)]
     public static partial int XMapWindow(IntPtr display, ulong window);
 

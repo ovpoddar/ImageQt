@@ -1,10 +1,6 @@
-﻿using ImageQT.DllInterop.Linux;
+﻿#if DEBUG || Linux
+using ImageQT.DllInterop.Linux;
 using ImageQT.Models.ImagqQT;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.Models.Linux;
 internal class GraphicsContext : SafeHandleZeroInvalid
@@ -24,3 +20,4 @@ internal class GraphicsContext : SafeHandleZeroInvalid
         return true;
     }
 }
+#endif

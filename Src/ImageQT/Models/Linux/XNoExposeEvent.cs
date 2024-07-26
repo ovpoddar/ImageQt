@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -14,3 +15,4 @@ public struct XNoExposeEvent
     public int major_code;     /* core is CopyArea or CopyPlane */
     public int minor_code;		/* not defined in the core */
 }
+#endif

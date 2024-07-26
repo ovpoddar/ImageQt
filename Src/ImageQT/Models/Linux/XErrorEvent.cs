@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -14,3 +15,4 @@ public struct XErrorEvent
     public byte request_code; /* Major op-code of failed request */
     public byte minor_code;
 }
+#endif

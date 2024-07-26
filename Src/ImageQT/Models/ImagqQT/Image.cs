@@ -9,5 +9,5 @@ public readonly struct Image
     public required int Height { get; init; }
     public required int Mipmaps { get; init; }
     public required int Format { get; init; }
-    public required short BitCount { get; init; } 
+    public required short BitCount { get; init; }
 }

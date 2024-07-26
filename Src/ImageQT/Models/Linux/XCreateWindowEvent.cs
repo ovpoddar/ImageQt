@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -17,3 +18,4 @@ public struct XCreateWindowEvent
     public int border_width;   /* border width */
     public bool override_redirect;	/* creation should be overridden */
 }
+#endif

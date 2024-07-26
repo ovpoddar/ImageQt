@@ -1,3 +1,4 @@
+#if DEBUG || Linux
 using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
@@ -21,3 +22,4 @@ public struct XImage
     public int green_mask;
     public int blue_mask;
 }
+#endif

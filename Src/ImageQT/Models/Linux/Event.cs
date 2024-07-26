@@ -1,4 +1,5 @@
-﻿namespace ImageQT.Models.Linux;
+﻿#if DEBUG || Linux
+namespace ImageQT.Models.Linux;
 
 public enum Event : int
 {
@@ -38,3 +39,4 @@ public enum Event : int
     GenericEvent = 35,
     LASTEvent = 36
 }
+#endif

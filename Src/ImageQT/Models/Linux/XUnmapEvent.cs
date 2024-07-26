@@ -1,4 +1,4 @@
-﻿
+﻿#if DEBUG || Linux
 using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
@@ -14,3 +14,4 @@ public struct XUnmapEvent
     public ulong window;
     public bool from_configure;
 }
+#endif

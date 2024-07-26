@@ -1,4 +1,5 @@
-﻿namespace ImageQT.Models.Linux;
+﻿#if DEBUG || Linux
+namespace ImageQT.Models.Linux;
 
 [Flags]
 public enum EventMask : long
@@ -30,3 +31,4 @@ public enum EventMask : long
     ColormapChangeMask = 1L << 23,
     OwnerGrabButtonMask = 1L << 24,
 }
+#endif

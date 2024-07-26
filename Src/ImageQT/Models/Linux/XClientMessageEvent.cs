@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -25,3 +26,4 @@ public struct XClientMessageEventData
     [FieldOffset(0)]
     public int l;    // If format == 32
 }
+#endif

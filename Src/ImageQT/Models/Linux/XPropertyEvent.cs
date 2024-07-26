@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -15,3 +16,4 @@ public struct XPropertyEvent
     public ulong time;
     public int state;		/* NewValue, Deleted */
 }
+#endif

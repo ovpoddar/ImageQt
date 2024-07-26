@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -14,3 +15,4 @@ public struct XMapEvent
     public ulong window;
     public bool override_redirect;	/* boolean, is override set... */
 }
+#endif

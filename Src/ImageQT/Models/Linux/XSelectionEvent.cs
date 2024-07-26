@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -15,3 +16,4 @@ public struct XSelectionEvent
     public ulong property;      /* ATOM or None */
     public ulong time;
 }
+#endif

@@ -97,7 +97,7 @@ internal sealed class WindowManager : INativeWindowManager
             [image.Id],
             image.Width,
             image.Height,
-            8,4,
+            8, 4,
             true, false,
             colorSpace,
             image.Width * 4,

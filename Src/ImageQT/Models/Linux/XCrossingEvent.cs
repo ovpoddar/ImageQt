@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -24,3 +25,4 @@ public struct XCrossingEvent
     public bool focus;
     public uint state;
 }
+#endif

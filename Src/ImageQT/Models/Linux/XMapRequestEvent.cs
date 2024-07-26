@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -12,4 +13,5 @@ public struct XMapRequestEvent
     public IntPtr display;   /* Display the event was read from */
     public ulong parent;
     public ulong window;
-};
+}
+#endif

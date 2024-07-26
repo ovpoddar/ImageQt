@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -21,3 +22,4 @@ public struct XKeyEvent
     public int keycode;
     public int same_screen;
 }
+#endif

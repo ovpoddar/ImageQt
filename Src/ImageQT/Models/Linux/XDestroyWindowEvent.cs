@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -13,3 +14,4 @@ public struct XDestroyWindowEvent
     public ulong @event;
     public ulong window;
 }
+#endif

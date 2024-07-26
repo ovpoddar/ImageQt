@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -14,3 +15,4 @@ public struct XMappingEvent
     public int first_keycode;  /* first keycode */
     public int count;
 }
+#endif

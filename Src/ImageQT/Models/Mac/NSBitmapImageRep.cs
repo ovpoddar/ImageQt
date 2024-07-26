@@ -1,25 +1,19 @@
 ﻿#if DEBUG || OSX
 using ImageQT.DllInterop.Mac;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.Models.Mac;
 internal class NSBitmapImageRep : SafeHandleBaseZeroInvalid
 {
     public NSBitmapImageRep(
         IntPtr[] planes,
-        long width, 
-        long height, 
-        long bitsPerSample, 
-        long samplesPerPixel, 
+        long width,
+        long height,
+        long bitsPerSample,
+        long samplesPerPixel,
         bool hasAlpha,
-        bool isPlanar, 
-        NSString colorSpaceName, 
-        long bytesPerRow, 
+        bool isPlanar,
+        NSString colorSpaceName,
+        long bytesPerRow,
         long bitsPerPixel) : base(true)
     {
         var nsBitmapImageRep = Appkit.ObjCGetClass("NSBitmapImageRep");

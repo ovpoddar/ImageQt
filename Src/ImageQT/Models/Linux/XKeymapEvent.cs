@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿#if DEBUG || Linux
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.Linux;
 
@@ -14,3 +15,4 @@ public struct XKeymapEvent
     [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
     public char key_vector;
 }
+#endif
