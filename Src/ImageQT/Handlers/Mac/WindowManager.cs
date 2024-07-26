@@ -36,7 +36,7 @@ internal sealed class WindowManager : INativeWindowManager
         }
     }
 
-    public Task Show()
+    public Task Show(DateTime? closeTime = null)
     {
         if (!_cGRect.HasValue || _image is null)
             return Task.CompletedTask;
