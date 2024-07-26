@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using System.Diagnostics;
 using static ImageQT.Models.Mac.WindowDelegate;
 
@@ -31,3 +32,4 @@ internal class NSWindowDelegateImplementation : SafeHandleBaseZeroInvalid
         return responce;
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿namespace ImageQT.Models.Mac;
+﻿#if DEBUG || OSX
+namespace ImageQT.Models.Mac;
 
 public struct CGPoint
 {
@@ -19,3 +20,4 @@ public struct CGPoint
     }
 
 }
+#endif

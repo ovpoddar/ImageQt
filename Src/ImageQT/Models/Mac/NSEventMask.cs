@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUG || OSX
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,3 +43,4 @@ internal enum NSEventMask : ulong
     ChangeMode = 0x4000000000uL,
 	AnyEvent = ulong.MaxValue
 }
+#endif

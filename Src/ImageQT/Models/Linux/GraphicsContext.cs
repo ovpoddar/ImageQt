@@ -1,6 +1,5 @@
 ﻿using ImageQT.DllInterop.Linux;
 using ImageQT.Models.ImagqQT;
-using ImageQT.Models.Mac;
 using System;
 using System.Collections.Generic;
 using System.Linq;

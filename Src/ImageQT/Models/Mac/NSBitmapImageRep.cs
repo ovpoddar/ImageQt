@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,3 +39,4 @@ internal class NSBitmapImageRep : SafeHandleBaseZeroInvalid
             bitsPerPixel));
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿namespace ImageQT.Models.Mac;
+﻿#if DEBUG || OSX
+namespace ImageQT.Models.Mac;
 
 public struct CGSize
 {
@@ -14,3 +15,4 @@ public struct CGSize
     }
 
 }
+#endif

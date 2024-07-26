@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using ImageQT.Models.ImagqQT;
 using System;
 using System.Collections.Generic;
@@ -20,3 +21,4 @@ internal class NSString : SafeHandleBaseZeroInvalid
         SetHandle(ObjectCRuntime.PointerObjCMsgSend(title, PreSelector.Retain));
     }
 }
+#endif

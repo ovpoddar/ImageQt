@@ -25,7 +25,7 @@ public class ImageQt
             throw new PlatformNotSupportedException();
 #else
 #if Windows
-        _windowManager = new Handlers.Window.WindowManager();
+            _windowManager = new Handlers.Window.WindowManager();
 #elif OSX
             _windowManager = new Handlers.Mac.WindowManager();
 #elif Linux

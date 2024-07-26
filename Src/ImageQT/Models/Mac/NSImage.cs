@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,3 +17,4 @@ internal class NSImage : SafeHandleBaseZeroInvalid
         SetHandle(ObjectCRuntime.PointerObjCMsgSend(image, selector, size));
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Mac;
 
@@ -107,3 +108,4 @@ internal sealed class WindowManager : INativeWindowManager
         ObjectCRuntime.ObjCMsgSend(_image, selector, imageRep);
     }
 }
+#endif

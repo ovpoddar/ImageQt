@@ -1,4 +1,5 @@
-﻿using ImageQT.Models.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.Models.Mac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -93,3 +94,4 @@ internal partial class ObjectCRuntime
         windowWillClose imp,
         [MarshalAs(UnmanagedType.LPStr)] string types);
 }
+#endif

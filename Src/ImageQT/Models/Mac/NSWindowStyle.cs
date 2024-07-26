@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿#if DEBUG || OSX
 namespace ImageQT.Models.Mac;
 [Flags]
 internal enum NSWindowStyle : ulong
@@ -23,3 +18,4 @@ internal enum NSWindowStyle : ulong
     FullScreenWindow = 0x4000uL,
     FullSizeContentView = 0x8000uL
 }
+#endif
