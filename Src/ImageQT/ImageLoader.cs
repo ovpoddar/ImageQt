@@ -70,6 +70,7 @@ public static class ImageLoader
 
     public static Image LoadImage(string file)
     {
+        // ToDo provide a image decoder
         throw new NotImplementedException();
     }
 
