@@ -19,12 +19,12 @@ public class ImageQt
         _windowManager.SetUpImage(image);
     }
 
-    public async Task Show(uint time = 0)
+    public async Task Show(TimeSpan? time = null)
     {
         if(_disposed)
             throw new AlreadyExecutedException();
 
-        await _windowManager.Show();
+        await _windowManager.Show(time.HasValue ? DateTime.Now.Add(time.Value) : null);
         _windowManager.Dispose();
         _disposed = true;
     }

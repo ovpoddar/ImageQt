@@ -87,7 +87,7 @@ internal sealed class WindowManager : INativeWindowManager
         _imagePixelData = image.Id;
     }
 
-    public Task Show()
+    public Task Show(DateTime? closeTime = null)
     {
         if (_window is null)
             return Task.CompletedTask;
@@ -97,8 +97,12 @@ internal sealed class WindowManager : INativeWindowManager
 
         while (User32.GetMessage(out message, 0, 0, 0) != 0)
         {
-            if (_imagePixelData == IntPtr.Zero)
-                return Task.CompletedTask;
+            if (_imagePixelData == IntPtr.Zero
+                || closeTime != null && closeTime.Value < DateTime.Now)
+            {
+                User32.PostQuitMessage(0);
+                break;
+            }
 
             IntPtr currentDeviceContext = User32.GetDC(_window);
             GDI32.StretchDIBits(currentDeviceContext,

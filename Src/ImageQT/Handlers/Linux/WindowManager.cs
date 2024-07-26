@@ -62,7 +62,7 @@ internal class WindowManager : INativeWindowManager
         GC.SuppressFinalize(this);
     }
 
-    public Task Show()
+    public Task Show(DateTime? closeTime = null)
     {
         if (!_window.HasValue || !_image.HasValue || !_pixmap.HasValue)
             return Task.CompletedTask;
@@ -77,8 +77,8 @@ internal class WindowManager : INativeWindowManager
         {
             LibX11.XNextEvent(_display, ev);
             var @event = new XEvent(ref ev);
-            if (@event.type == Event.ClientMessage
-                 && @event.xclient.data.l == (int)_atomDelete)
+            if (closeTime != null && closeTime.Value < DateTime.Now
+                || @event.type == Event.ClientMessage && @event.xclient.data.l == (int)_atomDelete)
             {
                 LibX11.XCloseDisplay(_display);
                 break;
