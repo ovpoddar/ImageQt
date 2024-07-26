@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if DEBUG || Windows
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.Models.Windows;
 [StructLayout(LayoutKind.Sequential)]
@@ -23,3 +19,4 @@ public struct BitmapInfo
     [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
     public uint[] bmiColors;
 }
+#endif

@@ -1,10 +1,6 @@
-﻿using ImageQT.Models.Windows;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if DEBUG || Windows
+using ImageQT.Models.Windows;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.DllInterop.Windows;
 internal static partial class GDI32
@@ -28,3 +24,4 @@ internal static partial class GDI32
     [LibraryImport(_dllName)]
     public static partial IntPtr CreateSolidBrush(int color);
 }
+#endif

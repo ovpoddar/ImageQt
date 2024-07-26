@@ -1,4 +1,5 @@
-﻿using ImageQT.Models.Windows;
+﻿#if DEBUG || Windows
+using ImageQT.Models.Windows;
 using System.Runtime.InteropServices;
 
 namespace ImageQT.DllInterop.Windows;
@@ -52,3 +53,4 @@ internal static partial class User32
     [LibraryImport(_dllName)]
     public static partial int UnregisterClassW([MarshalAs(UnmanagedType.LPWStr)] string hwnd, IntPtr hInstance);
 }
+#endif

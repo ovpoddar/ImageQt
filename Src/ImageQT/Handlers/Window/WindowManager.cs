@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Windows;
+﻿#if DEBUG || Windows
+using ImageQT.DllInterop.Windows;
 using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Windows;
 using System.Runtime.InteropServices;
@@ -136,3 +137,4 @@ internal sealed class WindowManager : INativeWindowManager
         return User32.DefWindowProcW(hWnd, (uint)msg, wParam, lParam);
     }
 }
+#endif

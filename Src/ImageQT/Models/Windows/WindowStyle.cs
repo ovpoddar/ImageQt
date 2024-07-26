@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if DEBUG || Windows
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,3 +10,4 @@ internal enum WindowStyle : uint
 {
     DBLCLKS = 0x0008
 }
+#endif

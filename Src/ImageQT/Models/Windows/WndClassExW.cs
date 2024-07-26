@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if DEBUG || Windows
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.Models.Windows;
 internal struct WndClassExW
@@ -23,3 +19,4 @@ internal struct WndClassExW
     public required string lpszClassName;
     public required IntPtr hIconSm;
 }
+#endif
