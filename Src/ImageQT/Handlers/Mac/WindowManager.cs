@@ -60,6 +60,11 @@ internal sealed class WindowManager : INativeWindowManager
         {
             for (; ; )
             {
+                if (closeTime != null && closeTime.Value < DateTime.Now)
+                {
+                    _isRunning = false;
+                    break;
+                }
                 var @event = ObjectCRuntime.PointerObjCMsgSend(_application,
                     ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
                     NSEventMask.AnyEvent,
