@@ -1,4 +1,5 @@
-﻿using ImageQT.Models.Linux;
+﻿#if DEBUG || Linux
+using ImageQT.Models.Linux;
 using System.Runtime.InteropServices;
 
 namespace ImageQT.DllInterop.Linux;
@@ -118,3 +119,4 @@ internal partial class LibX11
     [LibraryImport(_dllName)]
     public static partial void XDestroyImage(IntPtr xImage);
 }
+#endif
