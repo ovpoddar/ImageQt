@@ -1,4 +1,6 @@
-﻿using ImageQT.Models.ImagqQT;
+﻿using ImageQT.Exceptions;
+using ImageQT.Handlers.ImageQT;
+using ImageQT.Models.ImagqQT;
 using System.Buffers.Text;
 using System.Runtime.InteropServices;
 
@@ -70,7 +72,15 @@ public static class ImageLoader
     public static Image LoadImage(string file)
     {
         // ToDo provide a image decoder
-        throw new NotImplementedException();
+        using var stream = GetStream(file);
+        var supportedDecoder = SupportedImageDecoder.GetSupportedDecoders(stream);
+        foreach (var decoder in supportedDecoder)
+        {
+            if (!decoder.CanProcess())
+                continue;
+            return decoder.Decode();
+        }
+        throw new AskForImageDecoder();
     }
 
 

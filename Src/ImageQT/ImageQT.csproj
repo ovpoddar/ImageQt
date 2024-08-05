@@ -19,6 +19,7 @@
 		<DefineConstants>Linux</DefineConstants>
 	</PropertyGroup>
 	<ItemGroup>
-	  <Folder Include="Extensions\" />
+	  <Folder Include="Decoder\PNG\Models\ColorReader\" />
+	  <Folder Include="Exceptions\Decoders\" />
 	</ItemGroup>
 </Project>
