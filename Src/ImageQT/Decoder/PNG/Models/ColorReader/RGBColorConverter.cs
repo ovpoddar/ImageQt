@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageQT.Models.ImagqQT;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -11,26 +12,18 @@ internal class RGBColorConverter : BaseRGBColorConverter
 
     public RGBColorConverter(IHDRData headerData) : base(headerData) { }
 
-    internal override void Write(ArraySegment<byte> result, Span<byte> currentByte, ref int writingIndex)
+    internal override void Write(ArraySegment<Pixels> result, Span<byte> currentByte, ref int writingIndex)
     {
         if (HeaderData.BitDepth == 8)
         {
             Debug.Assert(currentByte.Length == 3);
-
-            result[writingIndex++] = currentByte[0];
-            result[writingIndex++] = currentByte[1];
-            result[writingIndex++] = currentByte[2];
-            result[writingIndex++] = 255;
+            result[writingIndex++] = new Pixels(currentByte[0], currentByte[1], currentByte[2]);
         }
         // 16
         else
         {
             Debug.Assert(currentByte.Length == 6);
-
-            result[writingIndex++] = currentByte[0];
-            result[writingIndex++] = currentByte[2];
-            result[writingIndex++] = currentByte[4];
-            result[writingIndex++] = 255;
+            result[writingIndex++] = new Pixels(currentByte[0], currentByte[2], currentByte[4]);
         }
     }
 }

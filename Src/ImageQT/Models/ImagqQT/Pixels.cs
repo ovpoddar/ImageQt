@@ -22,6 +22,18 @@ public struct Pixels
         this.Alfa = 0;
     }
 
+
+    public Pixels(byte red, byte green, byte blue, byte alpha)
+    {
+        this.Red = red;
+        this.Green = green;
+        this.Blue = blue;
+#if OSX
+        this.Alfa = alpha;
+#endif
+        this.Alfa = alpha;
+    }
+
     public Pixels(int color, PixelFormat format)
     {
         if (color < 0)

@@ -62,7 +62,7 @@ internal class PngDecoder : IImageDecoder
         }
         var writingIndex = 0;
         var processRow = 0;
-        var result = new byte[headerData.Height * headerData.Width * 4];
+        var result = new Pixels[headerData.Height * headerData.Width];
         var colorConverter = GetPixelColorDecoder(ref headerData, ref paletteData);
 
         using var rawstream = GetDecompressedRawStream();
@@ -72,8 +72,6 @@ internal class PngDecoder : IImageDecoder
         return ImageLoader.LoadImage((int)headerData.Width, (int)headerData.Height, ref result);
     }
 
-    // TODO: change to BGRA 
-    // TODO: change into pixel version for converter
     static BaseRGBColorConverter GetPixelColorDecoder(ref IHDRData headerData, ref PLTEData? paletteData) =>
       headerData.ColorType switch
       {
@@ -107,7 +105,7 @@ internal class PngDecoder : IImageDecoder
 
     void DecodeZLibStream(MemoryStream filteredMutableRawStream,
            ref IHDRData headerData,
-           byte[] result,
+           Pixels[] result,
            ref int writingIndex,
            ref int currentRow,
            BaseRGBColorConverter colorConverter)
@@ -115,7 +113,7 @@ internal class PngDecoder : IImageDecoder
         filteredMutableRawStream.Position = 0;
         var scanline = headerData.GetScanLinesWidthWithPadding();
         BasePNGFilter? currentFilter = null;
-        ArraySegment<byte> writtenSection = new();
+        ArraySegment<Pixels> writtenSection = new();
         Span<byte> currentByte = headerData.BitDepth < 8
             ? stackalloc byte[1]
             : stackalloc byte[headerData.GetPixelSizeInByte()];
@@ -127,7 +125,7 @@ internal class PngDecoder : IImageDecoder
             {
                 filteredMutableRawStream.ReadExactly(currentFilterByte);
                 currentFilter = GetFilter(filteredMutableRawStream, currentFilterByte[0]);
-                writtenSection = new ArraySegment<byte>(result, (int)(currentRow++ * headerData.Width * 4), (int)headerData.Width * 4);
+                writtenSection = new ArraySegment<Pixels>(result, (int)(currentRow++ * headerData.Width), (int)headerData.Width);
                 writingIndex = 0;
             }
             else

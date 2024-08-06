@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using ImageQT.Models.ImagqQT;
+using System.Diagnostics;
 
 namespace ImageQT.Decoder.PNG.Models.ColorReader;
 internal class PalateColorConverter : BaseRGBColorConverter
@@ -8,7 +9,7 @@ internal class PalateColorConverter : BaseRGBColorConverter
     public PalateColorConverter(PLTEData palate, IHDRData headerData) : base(headerData) =>
         _palate = palate;
 
-    internal override void Write(ArraySegment<byte> result,
+    internal override void Write(ArraySegment<Pixels> result,
         Span<byte> currentByte,
         ref int writingIndex)
     {
@@ -23,22 +24,14 @@ internal class PalateColorConverter : BaseRGBColorConverter
                 var currentBit = (byte)((currentByte[0] & mask) >> j);
                 var colors = _palate[currentBit];
 
-                if (writingIndex < HeaderData.Width * 4)
-                {
-                    for (var i = 0; i < colors.Length; i++)
-                        result[writingIndex++] = colors[i];
-                    // for alpha
-                    result[writingIndex++] = 255;
-                }
+                if (writingIndex < HeaderData.Width)
+                    result[writingIndex++] = colors;
             }
         }
         else if (HeaderData.BitDepth == 8)
         {
             Debug.Assert(currentByte.Length == 1);
-            result[writingIndex++] = _palate[currentByte[0]][0];
-            result[writingIndex++] = _palate[currentByte[0]][1];
-            result[writingIndex++] = _palate[currentByte[0]][2];
-            result[writingIndex++] = 255;
+            result[writingIndex++] = _palate[currentByte[0]];
         }
     }
 }

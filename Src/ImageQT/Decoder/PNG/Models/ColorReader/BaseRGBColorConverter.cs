@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageQT.Models.ImagqQT;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ internal abstract class BaseRGBColorConverter
     protected BaseRGBColorConverter(IHDRData headerData) =>
         HeaderData = headerData;
 
-    internal abstract void Write(ArraySegment<byte> result, Span<byte> currentByte, ref int writingIndex);
+    internal abstract void Write(ArraySegment<Pixels> result, Span<byte> currentByte, ref int writingIndex);
 
     public (byte? step, byte? mask) BitDepthDetailsForPalated()
     {
