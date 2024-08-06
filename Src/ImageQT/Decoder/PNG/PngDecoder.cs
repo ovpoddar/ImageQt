@@ -2,6 +2,7 @@
 using ImageQT.Decoder.PNG.Models;
 using ImageQT.Decoder.PNG.Models.ColorReader;
 using ImageQT.Decoder.PNG.Models.Filters;
+using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
 using System;
 using System.Buffers;
@@ -52,9 +53,9 @@ internal class PngDecoder : IImageDecoder
         Debug.Assert(_fileStream != null);
         var header = _chunks.First(a => a.Signature == PngChunkType.IHDR);
         var headerData = new IHDRData(header);
-
         var paletteData = new PLTEData?();
-
+        if (headerData.InterlaceMethod != 0)
+            throw new AskForImageDecoder();
         if (headerData.ColorType == ColorType.Palette)
         {
             var palate = _chunks.First(a => a.Signature == PngChunkType.PLTE);
@@ -80,7 +81,7 @@ internal class PngDecoder : IImageDecoder
           ColorType.RGB => new RGBColorConverter(headerData),
           ColorType.GreyScaleAndAlpha => new GreyScaleAndAlphaConverter(headerData),
           ColorType.RGBA => new RGBAColorConverter(headerData),
-          _ => throw new NotSupportedException(),
+          _ => throw new BadImageException(),
       };
 
     ZLibStream GetDecompressedRawStream()
@@ -145,7 +146,7 @@ internal class PngDecoder : IImageDecoder
           2 => new UpFilter(stream),
           3 => new AverageFilter(stream),
           4 => new PaethFilter(stream),
-          _ => throw new NotImplementedException()
+          _ => throw new BadImageException()
       };
 
 }
