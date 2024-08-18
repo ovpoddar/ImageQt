@@ -18,8 +18,4 @@
 	<PropertyGroup Condition="'$(IsLinux)'=='true'">
 		<DefineConstants>Linux</DefineConstants>
 	</PropertyGroup>
-	<ItemGroup>
-	  <Folder Include="Decoder\PNG\Models\ColorReader\" />
-	  <Folder Include="Exceptions\Decoders\" />
-	</ItemGroup>
 </Project>
