@@ -4,24 +4,16 @@ using ImageQT.Decoder.PNG.Models.ColorReader;
 using ImageQT.Decoder.PNG.Models.Filters;
 using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
-using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Compression;
-using System.IO.Pipes;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.PNG;
 internal class PngDecoder : IImageDecoder
 {
     private Stream _fileStream;
     private readonly List<PNGChunk> _chunks = new List<PNGChunk>(4);
-    private static ReadOnlySpan<byte> HeaderSignature => [137, 80, 78, 71, 13, 10, 26, 10];
+    private static byte[] HeaderSignature => [137, 80, 78, 71, 13, 10, 26, 10];
 
     public PngDecoder(Stream stream) =>
         _fileStream = stream;

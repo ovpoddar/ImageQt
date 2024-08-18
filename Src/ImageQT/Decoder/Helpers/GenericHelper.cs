@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.Helpers;
 internal static class GenericHelper
@@ -29,7 +24,7 @@ internal static class GenericHelper
             return false;
 
         fixed (byte* p1 = data1, p2 = data2)
-            return  memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
+            return memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
     }
 
 

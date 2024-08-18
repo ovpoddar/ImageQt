@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace ImageQT.Decoder.PNG.Models.Filters;
+﻿namespace ImageQT.Decoder.PNG.Models.Filters;
 public class BasePNGFilter
 {
     private readonly Stream _stream;
