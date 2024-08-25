@@ -10,9 +10,4 @@ internal struct BmpFileHeader
     public ushort Reserved1 { get; set; }
     public ushort Reserved2 { get; set; }
     public uint OffsetData { get; set; }
-
-    public BmpFileHeader()
-    {
-
-    }
 }

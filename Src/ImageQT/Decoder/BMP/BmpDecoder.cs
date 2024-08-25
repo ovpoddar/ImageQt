@@ -1,11 +1,12 @@
 ﻿// Ignore Spelling: Bmp
 
 using ImageQT.Decoder.BMP.Models;
+using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.Helpers;
 using ImageQT.Models.ImagqQT;
-using ImageQT.Models.Windows;
 using System.Runtime.InteropServices;
+
 
 namespace ImageQT.Decoder.BMP;
 internal class BmpDecoder : IImageDecoder
@@ -29,47 +30,80 @@ internal class BmpDecoder : IImageDecoder
     public Image Decode()
     {
         //1, 4, 8, 16, 24, 32
+        Pixels[] result;
+        int height, width;
+        RequiredProcessData header;
         _fileStream.Position = 0;
         if (BitConverter.IsLittleEndian)
         {
             var fileHeader = _fileStream.FromStream<BmpFileHeader>();
-            //switch
+            header = ReadBmpHeader(_fileStream);
+            height = header.Height < 0 ? header.Height * -1 : header.Height;
+            width = header.Width < 0 ? header.Width * -1 : header.Width;
+            result = new Pixels[width * height];
+
+            _fileStream.Seek(fileHeader.OffsetData, SeekOrigin.Begin);
         }
         else
         {
-            var c = new BitMapCoreHeader();
-            
+            // not sure do i need this or not
+            // TODO: chack on arm processer if the BitConverter.IsLittleEndian is false and how it react
+            height = 0; width = 0; result = []; header = default;
         }
-        return default;
+        ProcessImage(result, header, _fileStream);
+        return ImageLoader.LoadImage(width, height, ref result);
     }
 
-    private T ReadBmpHeader<T>(Stream stream) where T : struct
+    private void ProcessImage(Pixels[] result, RequiredProcessData header, Stream fileStream)
     {
-        var sizeofBMPHeaderType = Marshal.SizeOf<BMPHeaderType>();
-        var bmpHeaderType = _fileStream.FromStream<BMPHeaderType>();
-        switch (bmpHeaderType)
+        var reader = GetReader(header, fileStream);
+        reader.Decode(result);
+    }
+
+    private static RequiredProcessData ReadBmpHeader(Stream stream)
+    {
+        var sizeofBMPHeaderType = Marshal.SizeOf(Enum.GetUnderlyingType(typeof(BMPHeaderType))); ;
+        Span<byte> bmpHeaderType = stackalloc byte[sizeofBMPHeaderType];
+        stream.Read(bmpHeaderType);
+        switch (bmpHeaderType.ToStruct<BMPHeaderType>())
         {
             case BMPHeaderType.BitMapCore:
-                return (T)(object)_fileStream.FromStream<BitMapCoreHeader>(-sizeofBMPHeaderType);
+                return stream.FromStream<BitMapCoreHeader>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.OS22XBitMapSmall:
-                return (T)(object)_fileStream.FromStream<Os22xBitMapHeaderSmall>(-sizeofBMPHeaderType);
+                return stream.FromStream<Os22xBitMapHeaderSmall>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.BitMapINFO:
-                return (T)(object)_fileStream.FromStream<BitMapInfoHeader>(-sizeofBMPHeaderType);
+                return stream.FromStream<BitMapInfoHeader>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.BitMapV2INFO:
-                return (T)(object)_fileStream.FromStream<BitMapV2InfoHeader>(-sizeofBMPHeaderType);
+                return stream.FromStream<BitMapV2InfoHeader>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.BitMapV3INFO:
-                return (T)(object)_fileStream.FromStream<BitMapV3InfoHeader>(-sizeofBMPHeaderType);
+                return stream.FromStream<BitMapV3InfoHeader>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.OS22XBitMap:
-                return (T)(object)_fileStream.FromStream<Os22xBitMapHeader>(-sizeofBMPHeaderType);
+                return stream.FromStream<Os22xBitMapHeader>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.BitMapV4:
-                return (T)(object)_fileStream.FromStream<BitMapV4Header>(-sizeofBMPHeaderType);
+                return stream.FromStream<BitMapV4Header>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             case BMPHeaderType.BitMapV5:
-                return (T)(object)_fileStream.FromStream<BitMapV5Header>(-sizeofBMPHeaderType);
+                return stream.FromStream<BitMapV5Header>(-sizeofBMPHeaderType)
+                    .GetPropertyValue();
             default:
                 break;
         }
         throw new NotImplementedException();
     }
+
+    private BaseColorReader GetReader(RequiredProcessData header, Stream fileStream) =>
+        header.comperssion switch
+        {
+            HeaderCompression.Rgb => new RgbColorReader(fileStream, header),
+            _ => throw new NotImplementedException()
+        };
+
 }
 
 

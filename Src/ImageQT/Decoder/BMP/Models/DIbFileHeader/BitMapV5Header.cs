@@ -5,12 +5,12 @@ namespace ImageQT.Decoder.BMP.Models.DIbFileHeader;
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
 internal struct BitMapV5Header
 {
-    public uint Size { get; set; }
+    public BMPHeaderType Size { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
     public ushort Planes { get; set; }
     public ushort BitCount { get; set; }
-    public uint Compression { get; set; }
+    public HeaderCompression Compression { get; set; }
     public uint SizeImage { get; set; }
     public int XPelsPerMeter { get; set; }
     public int YPelsPerMeter { get; set; }
@@ -29,4 +29,7 @@ internal struct BitMapV5Header
     public uint ProfileData { get; set; }
     public uint ProfileSize { get; set; }
     public uint Reserved { get; set; }
+
+    public RequiredProcessData GetPropertyValue() =>
+        (Height, Width, BitCount, Compression);
 }

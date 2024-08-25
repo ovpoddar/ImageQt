@@ -2,12 +2,12 @@
 // 64
 internal struct Os22xBitMapHeader
 {
-    public uint Size { get; set; }
+    public BMPHeaderType Size { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
     public ushort Planes { get; set; }
     public ushort BitCount { get; set; }
-    public uint Compression { get; set; }
+    public HeaderCompression Compression { get; set; }
     public uint SizeImage { get; set; }
     public int XPixelsPerMeter { get; set; }
     public int YPixelPerMeter { get; set; }
@@ -21,4 +21,8 @@ internal struct Os22xBitMapHeader
     public int Halftoning2 { get; set; }
     public int ColorEncoding { get; set; }
     public int Identifier { get; set; }
+
+
+    public RequiredProcessData GetPropertyValue() =>
+        (Height, Width, BitCount, Compression);
 }
