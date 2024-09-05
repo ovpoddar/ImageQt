@@ -1,4 +1,6 @@
-﻿using ImageQT.Decoder.Helpers;
+﻿// Ignore Spelling: Png
+
+using ImageQT.Decoder.Helpers;
 using ImageQT.Decoder.PNG.Models;
 using ImageQT.Decoder.PNG.Models.ColorReader;
 using ImageQT.Decoder.PNG.Models.Filters;
@@ -7,17 +9,19 @@ using ImageQT.Models.ImagqQT;
 using System.Buffers;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Runtime.CompilerServices;
 
 namespace ImageQT.Decoder.PNG;
 internal class PngDecoder : IImageDecoder
 {
-    private Stream _fileStream;
+    private readonly Stream _fileStream;
     private readonly List<PNGChunk> _chunks = new List<PNGChunk>(4);
     private static byte[] HeaderSignature => [137, 80, 78, 71, 13, 10, 26, 10];
 
     public PngDecoder(Stream stream) =>
         _fileStream = stream;
 
+    [SkipLocalsInit]
     public bool CanProcess()
     {
         Span<byte> signature = stackalloc byte[HeaderSignature.Length];
@@ -58,9 +62,9 @@ internal class PngDecoder : IImageDecoder
         var result = new Pixels[headerData.Height * headerData.Width];
         var colorConverter = GetPixelColorDecoder(ref headerData, ref paletteData);
 
-        using var rawstream = GetDecompressedRawStream();
+        using var rawStream = GetDecompressedRawStream();
         using var filteredMutableRawStream = new MemoryStream();
-        rawstream.CopyTo(filteredMutableRawStream);
+        rawStream.CopyTo(filteredMutableRawStream);
         DecodeZLibStream(filteredMutableRawStream, ref headerData, result, ref writingIndex, ref processRow, colorConverter);
         return ImageLoader.LoadImage((int)headerData.Width, (int)headerData.Height, ref result);
     }
@@ -96,6 +100,7 @@ internal class PngDecoder : IImageDecoder
         return new ZLibStream(result, CompressionMode.Decompress, false);
     }
 
+    [SkipLocalsInit]
     void DecodeZLibStream(MemoryStream filteredMutableRawStream,
            ref IHDRData headerData,
            Pixels[] result,
@@ -134,7 +139,7 @@ internal class PngDecoder : IImageDecoder
       currentByte switch
       {
           0 => new NonFilter(stream),
-          1 => new SubFilter(stream),
+          1 => new SubFilter(stream), 
           2 => new UpFilter(stream),
           3 => new AverageFilter(stream),
           4 => new PaethFilter(stream),
