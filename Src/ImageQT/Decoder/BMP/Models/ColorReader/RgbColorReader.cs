@@ -17,7 +17,7 @@ internal class RgbColorReader : BaseColorReader
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
-        if (this.ProcessData.BitDepth > 8)
+        if (this.ProcessData.BitDepth < 8)
         {
             throw new NotImplementedException();
         }

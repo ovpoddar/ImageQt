@@ -6,7 +6,11 @@ using static System.Formats.Asn1.AsnWriter;
 namespace ImageQT.Decoder.Helpers;
 internal static class GenericHelper
 {
+#if Windows
     [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
+#elif OSX
+    [DllImport("libc", CallingConvention= CallingConvention.Cdecl)] 
+#endif
     private static extern int memcmp(IntPtr a1, IntPtr a2, uint count);
 
     internal static unsafe bool Equal(byte[] data1, byte[] data2)
