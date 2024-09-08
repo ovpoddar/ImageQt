@@ -33,7 +33,7 @@ internal struct IHDRData
 
     }
 
-    public int GetScanLinesWidthWithPadding()
+    public readonly int GetScanLinesWidthWithPadding()
     {
         var length = Width * BitDepth * GetBytePerPixels();
         // 1 for the filter Type
@@ -55,7 +55,7 @@ internal struct IHDRData
         _ => throw new Exception(),
     };
 
-    public byte GetPixelSizeInByte() => ColorType switch
+    public readonly byte GetPixelSizeInByte() => ColorType switch
     {
         ColorType.GreyScale => (byte)Math.Round(1d * BitDepth / 8, MidpointRounding.ToPositiveInfinity),
         ColorType.Palette => 1,

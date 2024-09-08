@@ -1,7 +1,11 @@
-﻿using ImageQT.Models.ImagqQT;
+﻿using ImageQT.Exceptions;
+using ImageQT.Models.ImagqQT;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,13 +13,23 @@ namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal abstract class BaseColorReader
 {
     public Stream FileStream { get; }
-    public RequiredProcessData RequiredProcessData { get; }
+    public BMPHeader ProcessData { get; }
 
-    protected BaseColorReader(Stream fileStream, RequiredProcessData RequiredProcessData)
+    protected BaseColorReader(Stream fileStream, BMPHeader requiredProcessData)
     {
         this.FileStream = fileStream;
-        this.RequiredProcessData = RequiredProcessData;
+        this.ProcessData = requiredProcessData;
     }
 
-    internal abstract void Decode(Pixels[] result);
+    internal abstract void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex);
+
+    public int CalculationOfRowSize()
+    {
+        var s1 = Math.Ceiling((ProcessData.BitDepth * ProcessData.Width) / 32D) * 4;
+        var s2 = Math.Floor((ProcessData.BitDepth * ProcessData.Width + 31D) / 32) * 4;
+        Debug.Assert(s1 == s2);
+        return (int)s1;
+    }
+
 }
+

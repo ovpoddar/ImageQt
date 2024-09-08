@@ -4,7 +4,7 @@ namespace ImageQT.Decoder.BMP.Models.DIbFileHeader;
 
 // 12
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-internal partial struct BitMapCoreHeader
+internal struct BitMapCoreHeader
 {
     public BMPHeaderType Size { get; set; }
     public ushort Width { get; set; }
@@ -12,6 +12,4 @@ internal partial struct BitMapCoreHeader
     public ushort Planes { get; set; }
     public ushort BitDepth { get; set; }
 
-    public RequiredProcessData GetPropertyValue() =>
-        (Height, Width, BitDepth, HeaderCompression.Rgb);
 }

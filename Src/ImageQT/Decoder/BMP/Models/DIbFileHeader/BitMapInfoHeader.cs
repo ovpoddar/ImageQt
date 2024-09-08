@@ -9,7 +9,7 @@ internal partial struct BitMapInfoHeader
     public int Width { get; set; }
     public int Height { get; set; }
     public ushort Planes { get; set; }
-    public ushort BitCount { get; set; }
+    public ushort BitDepth { get; set; }
     public HeaderCompression Compression { get; set; }
     public uint SizeImage { get; set; }
     public int XPixelsPerMeter { get; set; }
@@ -17,7 +17,4 @@ internal partial struct BitMapInfoHeader
     public uint ColorUsed { get; set; }
     public uint ColorImportant { get; set; }
 
-
-    public RequiredProcessData GetPropertyValue() =>
-        (Height, Width, BitCount, Compression);
 }

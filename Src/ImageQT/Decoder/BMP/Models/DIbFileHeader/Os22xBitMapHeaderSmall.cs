@@ -11,6 +11,4 @@ internal struct Os22xBitMapHeaderSmall
     public ushort Planes { get; set; }
     public ushort BitDepth { get; set; }
 
-    public RequiredProcessData GetPropertyValue() =>
-        (Height, Width, BitDepth, HeaderCompression.Rgb);
 }

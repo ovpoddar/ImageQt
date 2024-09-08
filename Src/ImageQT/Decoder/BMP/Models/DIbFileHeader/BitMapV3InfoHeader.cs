@@ -21,6 +21,4 @@ internal struct BitMapV3InfoHeader
     public uint BlueMask { get; set; }
     public uint AlphaMask { get; set; }
 
-    public RequiredProcessData GetPropertyValue() =>
-        (Height, Width, BitDepth, Compression);
 }

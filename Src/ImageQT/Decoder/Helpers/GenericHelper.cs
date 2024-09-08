@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace ImageQT.Decoder.Helpers;
 internal static class GenericHelper
@@ -27,6 +28,10 @@ internal static class GenericHelper
             return memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
     }
 
+
+    // from p5.js
+    internal static int Map(int value, int valueMin, int valueMax, int mapMin, int mapMax) => 
+        (int)(((value - valueMin) / (decimal)(valueMax - valueMin)) * (mapMax - mapMin) + mapMin);
 
 
     internal static byte[] Tobytes(this ValueType @struct)

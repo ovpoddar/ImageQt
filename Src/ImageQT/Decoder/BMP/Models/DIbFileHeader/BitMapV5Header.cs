@@ -9,7 +9,7 @@ internal struct BitMapV5Header
     public int Width { get; set; }
     public int Height { get; set; }
     public ushort Planes { get; set; }
-    public ushort BitCount { get; set; }
+    public ushort BitDepth { get; set; }
     public HeaderCompression Compression { get; set; }
     public uint SizeImage { get; set; }
     public int XPelsPerMeter { get; set; }
@@ -30,6 +30,4 @@ internal struct BitMapV5Header
     public uint ProfileSize { get; set; }
     public uint Reserved { get; set; }
 
-    public RequiredProcessData GetPropertyValue() =>
-        (Height, Width, BitCount, Compression);
 }

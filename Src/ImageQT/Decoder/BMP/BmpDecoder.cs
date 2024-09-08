@@ -5,6 +5,7 @@ using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.Helpers;
 using ImageQT.Models.ImagqQT;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 
 
@@ -32,13 +33,13 @@ internal class BmpDecoder : IImageDecoder
         //1, 4, 8, 16, 24, 32
         Pixels[] result;
         int height, width;
-        RequiredProcessData header;
+        BMPHeader header;
         _fileStream.Position = 0;
         if (BitConverter.IsLittleEndian)
         {
             var fileHeader = _fileStream.FromStream<BmpFileHeader>();
-            header = ReadBmpHeader(_fileStream);
-            height = header.Height < 0 ? header.Height * -1 : header.Height;
+            header = new BMPHeader(_fileStream);
+            height = header.GetNormalizeHeight();
             width = header.Width < 0 ? header.Width * -1 : header.Width;
             result = new Pixels[width * height];
 
@@ -47,60 +48,47 @@ internal class BmpDecoder : IImageDecoder
         else
         {
             // not sure do i need this or not
-            // TODO: chack on arm processer if the BitConverter.IsLittleEndian is false and how it react
+            // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
             height = 0; width = 0; result = []; header = default;
         }
-        ProcessImage(result, header, _fileStream);
+        ProcessImage(result, header);
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
-    private void ProcessImage(Pixels[] result, RequiredProcessData header, Stream fileStream)
+    private void ProcessImage(Pixels[] result, BMPHeader header)
     {
-        var reader = GetReader(header, fileStream);
-        reader.Decode(result);
-    }
+        var currentPos = _fileStream.Position;
+        var reader = GetReader(header);
+        var rowWithPadding = reader.CalculationOfRowSize();
+        var height = header.GetNormalizeHeight();
+        Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
+        ArraySegment<Pixels> writingSection;
 
-    private static RequiredProcessData ReadBmpHeader(Stream stream)
-    {
-        var sizeofBMPHeaderType = Marshal.SizeOf(Enum.GetUnderlyingType(typeof(BMPHeaderType))); ;
-        Span<byte> bmpHeaderType = stackalloc byte[sizeofBMPHeaderType];
-        stream.Read(bmpHeaderType);
-        switch (bmpHeaderType.ToStruct<BMPHeaderType>())
+        for (var i = 0; i < height; i++)
         {
-            case BMPHeaderType.BitMapCore:
-                return stream.FromStream<BitMapCoreHeader>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.OS22XBitMapSmall:
-                return stream.FromStream<Os22xBitMapHeaderSmall>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.BitMapINFO:
-                return stream.FromStream<BitMapInfoHeader>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.BitMapV2INFO:
-                return stream.FromStream<BitMapV2InfoHeader>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.BitMapV3INFO:
-                return stream.FromStream<BitMapV3InfoHeader>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.OS22XBitMap:
-                return stream.FromStream<Os22xBitMapHeader>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.BitMapV4:
-                return stream.FromStream<BitMapV4Header>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            case BMPHeaderType.BitMapV5:
-                return stream.FromStream<BitMapV5Header>(-sizeofBMPHeaderType)
-                    .GetPropertyValue();
-            default:
-                break;
+            var writingIndex = 0;
+            _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
+            writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
+            while (writingIndex < header.Width)
+            {
+                _fileStream.ReadExactly(pixel);
+                reader.Decode(writingSection, pixel, ref writingIndex);
+            }
         }
-        throw new NotImplementedException();
     }
 
-    private BaseColorReader GetReader(RequiredProcessData header, Stream fileStream) =>
-        header.comperssion switch
+    private static int GetWritingOffset(int i, BMPHeader header)
+    {
+        var maxTarget = header.GetNormalizeHeight() - 1;
+        return header.Height < 0
+            ? GenericHelper.Map(i, 0, maxTarget, maxTarget, 0) * header.Width
+            : i * header.Width;
+    }
+
+    private BaseColorReader GetReader(BMPHeader header) =>
+        header.Compression switch
         {
-            HeaderCompression.Rgb => new RgbColorReader(fileStream, header),
+            HeaderCompression.Rgb => new RgbColorReader(_fileStream, header),
             _ => throw new NotImplementedException()
         };
 

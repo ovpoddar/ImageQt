@@ -20,7 +20,4 @@ internal struct BitMapV2InfoHeader
     public uint GreenMask { get; set; }
     public uint BlueMask { get; set; }
 
-
-    public RequiredProcessData GetPropertyValue() =>
-        (Height, Width, BitDepth, Compression);
 }
