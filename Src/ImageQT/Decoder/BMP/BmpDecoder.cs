@@ -81,8 +81,8 @@ internal class BmpDecoder : IImageDecoder
     {
         var maxTarget = header.GetNormalizeHeight() - 1;
         return header.Height < 0
-            ? GenericHelper.Map(i, 0, maxTarget, maxTarget, 0) * header.Width
-            : i * header.Width;
+            ? i * header.Width
+            : (maxTarget - i) * header.Width;
     }
 
     private BaseColorReader GetReader(BMPHeader header) =>

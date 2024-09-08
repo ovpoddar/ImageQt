@@ -33,11 +33,6 @@ internal static class GenericHelper
     }
 
 
-    // from p5.js
-    internal static int Map(int value, int valueMin, int valueMax, int mapMin, int mapMax) => 
-        (int)(((value - valueMin) / (decimal)(valueMax - valueMin)) * (mapMax - mapMin) + mapMin);
-
-
     internal static byte[] Tobytes(this ValueType @struct)
     {
         var result = new byte[Marshal.SizeOf(@struct)];
