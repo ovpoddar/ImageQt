@@ -14,7 +14,7 @@ public class ImageQt
             _windowManager = new Handlers.Window.WindowManager();
         else if (OperatingSystem.IsLinux())
             _windowManager = new Handlers.Linux.WindowManager();
-        else if (OperatingSystem.IsMacCatalyst())
+        else if (OperatingSystem.IsMacOS())
             _windowManager = new Handlers.Mac.WindowManager();
         else
             throw new PlatformNotSupportedException();
