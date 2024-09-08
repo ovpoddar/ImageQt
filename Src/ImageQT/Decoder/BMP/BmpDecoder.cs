@@ -5,8 +5,6 @@ using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.Helpers;
 using ImageQT.Models.ImagqQT;
-using System.Reflection.PortableExecutable;
-using System.Runtime.InteropServices;
 
 
 namespace ImageQT.Decoder.BMP;
@@ -77,13 +75,10 @@ internal class BmpDecoder : IImageDecoder
         }
     }
 
-    private static int GetWritingOffset(int i, BMPHeader header)
-    {
-        var maxTarget = header.GetNormalizeHeight() - 1;
-        return header.Height < 0
+    private static int GetWritingOffset(int i, BMPHeader header) =>
+        header.Height < 0
             ? i * header.Width
-            : (maxTarget - i) * header.Width;
-    }
+            : (header.GetNormalizeHeight() - 1 - i) * header.Width;
 
     private BaseColorReader GetReader(BMPHeader header) =>
         header.Compression switch
