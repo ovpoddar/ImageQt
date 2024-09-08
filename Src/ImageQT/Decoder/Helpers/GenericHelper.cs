@@ -8,7 +8,7 @@ internal static class GenericHelper
 {
 #if Windows
     [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
-#elif OSX
+#else
     [DllImport("libc", CallingConvention= CallingConvention.Cdecl)] 
 #endif
     private static extern int memcmp(IntPtr a1, IntPtr a2, uint count);
