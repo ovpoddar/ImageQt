@@ -3,6 +3,7 @@
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Models.ImagqQT;
 using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal class RgbColorReader : BaseColorReader
 {
     public RgbColorReader(Stream fileStream, BMPHeader RequiredProcessData)
-        : base(fileStream, RequiredProcessData) { } 
+        : base(fileStream, RequiredProcessData) { }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
@@ -25,12 +26,21 @@ internal class RgbColorReader : BaseColorReader
         {
             Debug.Assert(pixel.Length == 1);
             result[writingIndex++] = new Pixels(pixel[0], pixel[0], pixel[0]);
-        }   
+        }
         else if (this.ProcessData.BitDepth == 16)
         {
             Debug.Assert(pixel.Length == 2);
-            throw new NotImplementedException();
-            // result[writingIndex++] = new Pixels(pixel[0], pixel[1], pixel[1]);
+            var value = BinaryPrimitives.ReadInt16LittleEndian(pixel); // work on both endien
+            var r = base.ProcessData.Compression == HeaderCompression.BitFields
+                ? (byte)(((value & 0b1111100000000000) >> 11) * 17) // TODO verify
+                : (byte)(((value & 0b01111100000000000) >> 10) * 8.2);
+            var g = base.ProcessData.Compression == HeaderCompression.BitFields
+                ? (byte)(((value & 0b0000011111100000) >> 5) * 17)
+                : (byte)(((value & 0b00000001111100000) >> 5) * 8.2);
+            var b = base.ProcessData.Compression == HeaderCompression.BitFields
+                ? (byte)(((value & 0b0000000000011111)) * 17)
+                : (byte)(((value & 0b00000000000011111)) * 8.2);
+            result[writingIndex++] = new Pixels(r, g, b);
         }
         else if (this.ProcessData.BitDepth == 24)
         {
@@ -44,3 +54,4 @@ internal class RgbColorReader : BaseColorReader
         }
     }
 }
+ 

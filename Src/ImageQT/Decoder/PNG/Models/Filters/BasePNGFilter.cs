@@ -13,7 +13,7 @@ public class BasePNGFilter
         return currentPixel;
     }
 
-    public void GetTopPixel(Span<byte> result, int scanLineWidth)
+    protected void GetTopPixel(Span<byte> result, int scanLineWidth)
     {
         // (scanLineWidth + 1) for next account next filter
         if (_stream.Position <= scanLineWidth + 1)
@@ -25,7 +25,7 @@ public class BasePNGFilter
         _stream.Position = tempPosation;
     }
 
-    public void GetTopLeftPixel(Span<byte> result, int scanLineWidth)
+    protected void GetTopLeftPixel(Span<byte> result, int scanLineWidth)
     {
         var currentPosition = _stream.Position;
         var pixelLength = result.Length;

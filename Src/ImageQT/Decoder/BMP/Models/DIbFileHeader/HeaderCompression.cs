@@ -7,7 +7,7 @@ public enum HeaderCompression : uint
     Rgb = 0,
     Rle8 = 1,
     Rle4 = 2,
-    Bitfields = 3,
+    BitFields = 3,
     Jpeg = 4,
     Png = 5,
     AlphaBitFields = 6,

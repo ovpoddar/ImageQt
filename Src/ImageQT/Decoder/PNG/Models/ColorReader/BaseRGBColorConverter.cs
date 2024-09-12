@@ -1,4 +1,6 @@
-﻿using ImageQT.Models.ImagqQT;
+﻿// Ignore Spelling: Palated
+
+using ImageQT.Models.ImagqQT;
 
 namespace ImageQT.Decoder.PNG.Models.ColorReader;
 internal abstract class BaseRGBColorConverter
@@ -10,7 +12,7 @@ internal abstract class BaseRGBColorConverter
 
     internal abstract void Write(ArraySegment<Pixels> result, Span<byte> currentByte, ref int writingIndex);
 
-    public (byte? step, byte? mask) BitDepthDetailsForPalated()
+    protected (byte? step, byte? mask) BitDepthDetailsForPalated()
     {
         if (HeaderData.BitDepth < 8)
         {
@@ -23,7 +25,7 @@ internal abstract class BaseRGBColorConverter
         return (null, null);
     }
 
-    public (byte? mask, byte? bit, byte? map) BitDepthDetailsForGrayScale()
+    protected (byte? mask, byte? bit, byte? map) BitDepthDetailsForGrayScale()
     {
         if (HeaderData.BitDepth < 8)
             return ((byte)(0xFF >> 8 - HeaderData.BitDepth), HeaderData.BitDepth, (byte)((1 << HeaderData.BitDepth) - 1));
