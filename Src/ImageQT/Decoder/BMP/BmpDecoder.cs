@@ -61,10 +61,11 @@ internal class BmpDecoder : IImageDecoder
         var height = header.GetNormalizeHeight();
         Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
         ArraySegment<Pixels> writingSection;
+        int writingIndex;
 
         for (var i = 0; i < height; i++)
         {
-            var writingIndex = 0;
+            writingIndex = 0;
             _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
             writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
             while (writingIndex < header.Width)

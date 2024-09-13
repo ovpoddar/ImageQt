@@ -18,6 +18,7 @@ internal class PalateColorConverter : BaseRGBColorConverter
         {
             Debug.Assert(currentByte.Length == 1);
             // less than 8 n
+            // TODO: may be need to make it reverce too for little endien
             for (int j = bitDetails.step!.Value; j >= 0; j -= HeaderData.BitDepth)
             {
                 var mask = (byte)(bitDetails.mask << j);

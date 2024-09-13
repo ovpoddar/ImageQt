@@ -20,7 +20,17 @@ internal class RgbColorReader : BaseColorReader
     {
         if (this.ProcessData.BitDepth < 8)
         {
-            throw new NotImplementedException();
+            Debug.Assert(pixel.Length == 1);
+            // may have a palate
+            var details = GetDepthDetails();
+            for (int i = details.shift; i >= 0; i -= ProcessData.BitDepth)
+            {
+                var current = (byte)((pixel[0] >> (8 - ProcessData.BitDepth - i)) & details.mask);
+
+                if (writingIndex < ProcessData.Width)
+                    result[writingIndex++] = new Pixels(current, current, current);
+            }
+
         }
         else if (this.ProcessData.BitDepth == 8)
         {
@@ -54,4 +64,3 @@ internal class RgbColorReader : BaseColorReader
         }
     }
 }
- 
