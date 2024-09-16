@@ -31,11 +31,13 @@ internal abstract class BaseColorReader
         return (int)s1;
     }
 
-
-    protected (int mask, byte shift) GetDepthDetails()
+    protected (byte step, byte mask) GetDepthDetails()
     {
-        Debug.Assert(ProcessData.BitDepth < 8);
-        return (0xff >> (8 - ProcessData.BitDepth), (byte)(8 - ProcessData.BitDepth));
+        byte step = 1;
+        for (byte i = 0; i < ProcessData.BitDepth; i++)
+            step |= (byte)(1 << i);
+
+        return ((byte)(8 - ProcessData.BitDepth), step);
     }
 }
 

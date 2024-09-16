@@ -32,6 +32,7 @@ internal class BmpDecoder : IImageDecoder
         Pixels[] result;
         int height, width;
         BMPHeader header;
+        ColorTable? colorTable = null;
         _fileStream.Position = 0;
         if (BitConverter.IsLittleEndian)
         {
@@ -41,6 +42,14 @@ internal class BmpDecoder : IImageDecoder
             width = header.Width < 0 ? header.Width * -1 : header.Width;
             result = new Pixels[width * height];
 
+            if (fileHeader.OffsetData != _fileStream.Position)
+            {
+                // can have more data.
+                // staff like pixel format assuming 3-4 bit
+                if (header.BitDepth <= 8)
+                    colorTable = new ColorTable(_fileStream, header);
+            }
+
             _fileStream.Seek(fileHeader.OffsetData, SeekOrigin.Begin);
         }
         else
@@ -49,14 +58,14 @@ internal class BmpDecoder : IImageDecoder
             // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
             height = 0; width = 0; result = []; header = default;
         }
-        ProcessImage(result, header);
+        ProcessImage(result, header, colorTable);
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
-    private void ProcessImage(Pixels[] result, BMPHeader header)
+    private void ProcessImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
     {
         var currentPos = _fileStream.Position;
-        var reader = GetReader(header);
+        var reader = GetReader(header, colorTable);
         var rowWithPadding = reader.CalculationOfRowSize();
         var height = header.GetNormalizeHeight();
         Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
@@ -81,10 +90,10 @@ internal class BmpDecoder : IImageDecoder
             ? i * header.Width
             : (header.GetNormalizeHeight() - 1 - i) * header.Width;
 
-    private BaseColorReader GetReader(BMPHeader header) =>
+    private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable) =>
         header.Compression switch
         {
-            HeaderCompression.Rgb => new RgbColorReader(_fileStream, header),
+            HeaderCompression.Rgb => new RgbColorReader(_fileStream, header, colorTable),
             _ => throw new NotImplementedException()
         };
 

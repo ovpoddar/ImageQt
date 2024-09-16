@@ -13,29 +13,25 @@ using System.Threading.Tasks;
 namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal class RgbColorReader : BaseColorReader
 {
-    public RgbColorReader(Stream fileStream, BMPHeader RequiredProcessData)
-        : base(fileStream, RequiredProcessData) { }
+    private readonly ColorTable? _colorTable;
+
+    public RgbColorReader(Stream fileStream, BMPHeader RequiredProcessData, ColorTable? colorTable)
+        : base(fileStream, RequiredProcessData) => _colorTable = colorTable;
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
-        if (this.ProcessData.BitDepth < 8)
+        if (this.ProcessData.BitDepth <= 8)
         {
             Debug.Assert(pixel.Length == 1);
-            // may have a palate
+            Debug.Assert(_colorTable.HasValue);
             var details = GetDepthDetails();
-            for (int i = details.shift; i >= 0; i -= ProcessData.BitDepth)
+            for (int j = details.step; j >= 0; j -= ProcessData.BitDepth)
             {
-                var current = (byte)((pixel[0] >> (8 - ProcessData.BitDepth - i)) & details.mask);
-
+                var mask = (byte)(details.mask << j);
+                var currentBit = (byte)((pixel[0] & mask) >> j);
                 if (writingIndex < ProcessData.Width)
-                    result[writingIndex++] = new Pixels(current, current, current);
+                    result[writingIndex++] = _colorTable.Value[currentBit];
             }
-
-        }
-        else if (this.ProcessData.BitDepth == 8)
-        {
-            Debug.Assert(pixel.Length == 1);
-            result[writingIndex++] = new Pixels(pixel[0], pixel[0], pixel[0]);
         }
         else if (this.ProcessData.BitDepth == 16)
         {
