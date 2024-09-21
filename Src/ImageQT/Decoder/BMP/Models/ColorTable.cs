@@ -19,10 +19,11 @@ internal readonly struct ColorTable
     private readonly Pixels[] _colors;
     public ColorTable(Stream fileStream, BMPHeader header)
     {
+        // TODO: Doesnot support rle encoding of any kind
         var pixelsCount = header.BitDepth <= 8
                ? (0xff >> (8 - header.BitDepth)) + 1
                : header.ColorUsed;
-        Span<byte> tableData = stackalloc byte[pixelsCount * (header.Type == BMPHeaderType.BitMapV5 ? 3 : 4)];
+        Span<byte> tableData = stackalloc byte[pixelsCount * header.CalculatePixelSize()];
 
         fileStream.Read(tableData);
         _colors = header.Type == BMPHeaderType.BitMapV5

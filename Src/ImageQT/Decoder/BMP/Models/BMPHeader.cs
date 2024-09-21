@@ -113,7 +113,7 @@ internal struct BMPHeader
         BlueMask = BitConverter.ToInt32(masks.Slice(8, 4));
     }
 
-    public int? CalculateTheSizeOfExtraBitMask(int availableByte)
+    public readonly int? CalculateTheSizeOfExtraBitMask(int availableByte)
     {
         if (this.Type != BMPHeaderType.BitMapINFO
             || this.Compression is not HeaderCompression.BitFields and not HeaderCompression.AlphaBitFields
@@ -121,12 +121,12 @@ internal struct BMPHeader
             return null;
 
         var requiredSizeForBitMask = BitDepth == 16 ? 12 : 16;
-        return requiredSizeForBitMask >= availableByte 
-            ? requiredSizeForBitMask 
+        return requiredSizeForBitMask >= availableByte
+            ? requiredSizeForBitMask
             : null;
     }
 
-    public int? CalculateTheSizeOfPalate(int availableByte)
+    public readonly int? CalculateTheSizeOfPalate(int availableByte)
     {
         if (BitDepth <= 8 || ColorUsed != -1)
         {
@@ -136,12 +136,21 @@ internal struct BMPHeader
             if (pixelsCount == 0)
                 return null;
 
-            var pixelSize = Type == BMPHeaderType.BitMapV5 ? 3 : 4;
+            var pixelSize = CalculatePixelSize();
             var requiredSizeForColorTable = pixelsCount * pixelSize;
-            return requiredSizeForColorTable >= availableByte 
-                ? requiredSizeForColorTable 
+            return requiredSizeForColorTable >= availableByte
+                ? requiredSizeForColorTable
                 : null;
         }
         return null;
+    }
+
+    public readonly int CalculatePixelSize()
+    {
+        if (this.Compression is HeaderCompression.Rle4 or HeaderCompression.Rle8)
+            return 2;
+        if (this.Type is BMPHeaderType.BitMapV5 or BMPHeaderType.BitMapCore)
+            return 3;
+        return 4;
     }
 }
