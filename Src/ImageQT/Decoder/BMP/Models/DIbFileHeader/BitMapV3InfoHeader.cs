@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection.PortableExecutable;
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Decoder.BMP.Models.DIbFileHeader;
 // 56
@@ -14,7 +15,7 @@ internal struct BitMapV3InfoHeader
     public uint SizeImage { get; set; }
     public uint XPelsPerMeter { get; set; }
     public uint YPelsPerMeter { get; set; }
-    public uint ClrUsed { get; set; }
+    public uint ColorUsed { get; set; }
     public uint ClrImportant { get; set; }
     public uint RedMask { get; set; }
     public uint GreenMask { get; set; }

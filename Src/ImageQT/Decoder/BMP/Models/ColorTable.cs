@@ -1,10 +1,12 @@
-﻿using ImageQT.Exceptions;
+﻿using ImageQT.Decoder.BMP.Models.DIbFileHeader;
+using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.PortableExecutable;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -17,14 +19,13 @@ internal readonly struct ColorTable
     private readonly Pixels[] _colors;
     public ColorTable(Stream fileStream, BMPHeader header)
     {
-        Debug.Assert(header.BitDepth <= 8);
-        var pixelsCount = (0xff >> (8 - header.BitDepth)) + 1;
-        var tablePixelsSize = header.Compression == DIbFileHeader.HeaderCompression.BitFields ? 3 : 4;
-        Span<byte> tableData = stackalloc byte[pixelsCount * tablePixelsSize];
+        var pixelsCount = header.BitDepth <= 8
+               ? (0xff >> (8 - header.BitDepth)) + 1
+               : header.ColorUsed;
+        Span<byte> tableData = stackalloc byte[pixelsCount * (header.Type == BMPHeaderType.BitMapV5 ? 3 : 4)];
 
         fileStream.Read(tableData);
-
-        _colors = header.Compression == DIbFileHeader.HeaderCompression.BitFields
+        _colors = header.Type == BMPHeaderType.BitMapV5
             ? ReadWithLoop(tableData, pixelsCount)
             : MemoryMarshal.Cast<byte, Pixels>(tableData).ToArray();
     }
@@ -50,4 +51,5 @@ internal readonly struct ColorTable
             return _colors[index];
         }
     }
+
 }

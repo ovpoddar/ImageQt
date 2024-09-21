@@ -44,22 +44,21 @@ internal class BmpDecoder : IImageDecoder
 
             if (fileHeader.OffsetData != _fileStream.Position)
             {
-                if (header.Type == BMPHeaderType.BitMapINFO &&
-                    (header.Compression == HeaderCompression.BitFields
-                    || header.Compression == HeaderCompression.AlphaBitFields))
+                var availableByte = (int)(fileHeader.OffsetData - _fileStream.Position);
+                var extraBitMasksSize = header.CalculateTheSizeOfExtraBitMask(availableByte);
+                if (extraBitMasksSize.HasValue)
                 {
-                    var availableByte = (int)(fileHeader.OffsetData - _fileStream.Position);
-                    if (availableByte is 12 or 16)
-                    {
-                        Span<byte> ExtraBit = stackalloc byte[availableByte];
-                        _fileStream.Read(ExtraBit);
-                        header.ReadFromExtraBits(ExtraBit);
-                    }
+                    Span<byte> ExtraBit = stackalloc byte[extraBitMasksSize.Value];
+                    _fileStream.Read(ExtraBit);
+                    header.ReadFromExtraBits(ExtraBit);
+
                 }
-                if (header.BitDepth <= 8)
+                availableByte = (int)(fileHeader.OffsetData - _fileStream.Position);
+                var colorTableSize = header.CalculateTheSizeOfPalate(availableByte);
+                if (colorTableSize.HasValue)
                     colorTable = new ColorTable(_fileStream, header);
             }
-            Debug.Assert(_fileStream.Position == fileHeader.OffsetData);
+            _fileStream.Position = fileHeader.OffsetData;
         }
         else
         {

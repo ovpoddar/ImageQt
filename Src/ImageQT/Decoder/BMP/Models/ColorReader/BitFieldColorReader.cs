@@ -20,9 +20,10 @@ internal class BitFieldColorReader : BaseColorReader
         if (ProcessData.BitDepth == 16)
         {
             var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-            var r = (byte)(((value & ProcessData.RedMask) >> 11) * 8.2); // TODO: multiply not getting the exact amount due to the decimal find another way.
-            var g = (byte)(((value & ProcessData.GreenMask) >> 5) * 4);
-            var b = (byte)((value & ProcessData.BlueMask) * 8.2);
+            // todo make dynamic calculation 
+            var r = Map5BitsTo8Bits((byte)(((value & ProcessData.RedMask) >> 11)));
+            var g = Map6BitsTo8Bits((byte)(((value & ProcessData.GreenMask) >> 5)));
+            var b = Map5BitsTo8Bits((byte)((value & ProcessData.BlueMask)));
             result[writingIndex++] = new Pixels(r, g, b);
         }
         // 32

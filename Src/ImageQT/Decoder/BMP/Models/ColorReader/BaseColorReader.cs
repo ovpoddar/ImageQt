@@ -39,5 +39,17 @@ internal abstract class BaseColorReader
 
         return ((byte)(8 - ProcessData.BitDepth), step);
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected byte Map5BitsTo8Bits(byte value)
+    {
+        return (byte)((value * 8) + (value >> 2) + (value >> 5));
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected byte Map6BitsTo8Bits(byte value)
+    {
+        return (byte)((value * 4) + (value >> 4));
+    }
 }
 

@@ -41,9 +41,9 @@ internal class RgbColorReader : BaseColorReader
                 {
                     Debug.Assert(pixel.Length == 2);
                     var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-                    var r = (byte)(((value & ProcessData.RedMask) >> 10) * 8.2); // TODO: multiply not getting the exact amount due to the decimal find another way.
-                    var g = (byte)(((value & ProcessData.GreenMask) >> 5) * 8.2);
-                    var b = (byte)((value & ProcessData.BlueMask) * 8.2);
+                    var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> 10));
+                    var g = Map5BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> 5));
+                    var b = Map5BitsTo8Bits((byte)(value & ProcessData.BlueMask));
                     result[writingIndex++] = new Pixels(r, g, b);
                     break;
                 }
