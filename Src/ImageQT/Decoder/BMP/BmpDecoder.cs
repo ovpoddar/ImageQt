@@ -5,6 +5,7 @@ using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.Helpers;
 using ImageQT.Models.ImagqQT;
+using System.Diagnostics;
 
 
 namespace ImageQT.Decoder.BMP;
@@ -28,7 +29,6 @@ internal class BmpDecoder : IImageDecoder
 
     public Image Decode()
     {
-        //1, 4, 8, 16, 24, 32
         Pixels[] result;
         int height, width;
         BMPHeader header;
@@ -44,21 +44,31 @@ internal class BmpDecoder : IImageDecoder
 
             if (fileHeader.OffsetData != _fileStream.Position)
             {
-                // can have more data.
-                // staff like pixel format assuming 3-4 bit
+                if (header.Type == BMPHeaderType.BitMapINFO &&
+                    (header.Compression == HeaderCompression.BitFields
+                    || header.Compression == HeaderCompression.AlphaBitFields))
+                {
+                    var availableByte = (int)(fileHeader.OffsetData - _fileStream.Position);
+                    if (availableByte is 12 or 16)
+                    {
+                        Span<byte> ExtraBit = stackalloc byte[availableByte];
+                        _fileStream.Read(ExtraBit);
+                        header.ReadFromExtraBits(ExtraBit);
+                    }
+                }
                 if (header.BitDepth <= 8)
                     colorTable = new ColorTable(_fileStream, header);
             }
-
-            _fileStream.Seek(fileHeader.OffsetData, SeekOrigin.Begin);
+            Debug.Assert(_fileStream.Position == fileHeader.OffsetData);
         }
         else
         {
-            // not sure do i need this or not
             // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
-            height = 0; width = 0; result = []; header = default;
+            // not sure do i need this or not
+            throw new NotImplementedException();
         }
         ProcessImage(result, header, colorTable);
+        Console.WriteLine($"R: {result[result.Length - 1].Red} G: {result[result.Length - 1].Green} B: {result[result.Length - 1].Blue}");
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
@@ -94,6 +104,7 @@ internal class BmpDecoder : IImageDecoder
         header.Compression switch
         {
             HeaderCompression.Rgb => new RgbColorReader(_fileStream, header, colorTable),
+            HeaderCompression.BitFields => new BitFieldColorReader(_fileStream, header),
             _ => throw new NotImplementedException()
         };
 

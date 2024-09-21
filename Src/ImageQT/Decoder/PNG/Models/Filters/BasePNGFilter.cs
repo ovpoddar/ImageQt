@@ -15,7 +15,6 @@ public class BasePNGFilter
 
     protected void GetTopPixel(Span<byte> result, int scanLineWidth)
     {
-        // (scanLineWidth + 1) for next account next filter
         if (_stream.Position <= scanLineWidth + 1)
             return;
 
