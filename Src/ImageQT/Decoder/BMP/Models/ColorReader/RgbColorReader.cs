@@ -39,10 +39,11 @@ internal class RgbColorReader : BaseColorReader
 
             case 16:
                 {
+                    //TODO: CalculateMaskShift catch the value wither at base or to the header
                     Debug.Assert(pixel.Length == 2);
                     var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-                    var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> 10));
-                    var g = Map5BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> 5));
+                    var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> CalculateMaskShift(ProcessData.RedMask)));
+                    var g = Map5BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> CalculateMaskShift(ProcessData.GreenMask)));
                     var b = Map5BitsTo8Bits((byte)(value & ProcessData.BlueMask));
                     result[writingIndex++] = new Pixels(r, g, b);
                     break;

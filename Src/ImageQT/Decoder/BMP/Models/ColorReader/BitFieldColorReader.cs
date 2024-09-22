@@ -15,14 +15,14 @@ internal class BitFieldColorReader : BaseColorReader
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
-        // TODO: found a image with palate no doc found
         // 16
         if (ProcessData.BitDepth == 16)
         {
             var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-            // todo make dynamic calculation 
-            var r = Map5BitsTo8Bits((byte)(((value & ProcessData.RedMask) >> 11)));
-            var g = Map6BitsTo8Bits((byte)(((value & ProcessData.GreenMask) >> 5)));
+            // TODO: make dynamic calculation 
+            // TODO: CalculateMaskShift catch the value either at base or to the header
+            var r = Map5BitsTo8Bits((byte)(((value & ProcessData.RedMask) >> CalculateMaskShift(ProcessData.RedMask))));
+            var g = Map6BitsTo8Bits((byte)(((value & ProcessData.GreenMask) >> CalculateMaskShift(ProcessData.GreenMask))));
             var b = Map5BitsTo8Bits((byte)((value & ProcessData.BlueMask)));
             result[writingIndex++] = new Pixels(r, g, b);
         }

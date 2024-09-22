@@ -45,11 +45,35 @@ internal abstract class BaseColorReader
     {
         return (byte)((value * 8) + (value >> 2) + (value >> 5));
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected byte Map6BitsTo8Bits(byte value)
     {
         return (byte)((value * 4) + (value >> 4));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected static byte CalculateMaskShift(long value)
+    {
+        // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
+        // not sure do i need this or not
+        byte result = 0;
+        if (value == 0)
+            return result;
+
+        while (true)
+        {
+            if ((value & 1) != 1)
+            {
+                value >>= 1;
+                result++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return result;
     }
 }
 

@@ -22,7 +22,6 @@ internal static class GenericHelper
             return memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
     }
 
-
     internal static unsafe bool Equal(ReadOnlySpan<byte> data1, ReadOnlySpan<byte> data2)
     {
         if (data1.Length != data2.Length)
@@ -32,8 +31,7 @@ internal static class GenericHelper
             return memcmp((IntPtr)p1, (IntPtr)p2, (uint)data1.Length * sizeof(byte)) == 0;
     }
 
-
-    internal static byte[] Tobytes(this ValueType @struct)
+    internal static byte[] ToBytes(this ValueType @struct)
     {
         var result = new byte[Marshal.SizeOf(@struct)];
         Unsafe.As<byte, ValueType>(ref result[0]) = @struct;
@@ -42,6 +40,7 @@ internal static class GenericHelper
 
     internal static T ToStruct<T>(this byte[] @bytes) where T : struct =>
         Unsafe.As<byte, T>(ref @bytes[0]);
+
     internal static T ToStruct<T>(this Span<byte> @bytes) where T : struct =>
         Unsafe.As<byte, T>(ref @bytes[0]);
 
