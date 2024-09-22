@@ -84,7 +84,7 @@ internal abstract class BaseColorReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte MapBitsTo8Bits(byte value, int bitCount) => bitCount switch
+    protected byte MapTo8Bits(byte value, int bitCount) => bitCount switch
     {
         1 => (byte)(value * 255),
         2 => (byte)((value * 85) + (value >> 1)),

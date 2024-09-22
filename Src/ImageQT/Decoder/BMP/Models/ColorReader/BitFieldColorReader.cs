@@ -35,9 +35,9 @@ internal class BitFieldColorReader : BaseColorReader
         {
             var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
             // TODO: make dynamic calculation 
-            var r = MapBitsTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
-            var g = MapBitsTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
-            var b = MapBitsTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
+            var r = MapTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
+            var g = MapTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
+            var b = MapTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
             result[writingIndex++] = new Pixels(r, g, b);
         }
         // 32

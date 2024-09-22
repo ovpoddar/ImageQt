@@ -56,9 +56,9 @@ internal class RgbColorReader : BaseColorReader
                 {
                     Debug.Assert(pixel.Length == 2);
                     var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-                    var r = MapBitsTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
-                    var g = MapBitsTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
-                    var b = MapBitsTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
+                    var r = MapTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
+                    var g = MapTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
+                    var b = MapTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
                     result[writingIndex++] = new Pixels(r, g, b);
                     break;
                 }
