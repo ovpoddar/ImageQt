@@ -18,7 +18,6 @@ internal struct BMPHeader
     public int BlueMask { get; set; }
     public int GreenMask { get; set; }
 
-    // TODO: find better way to the switch without dynamic
     public BMPHeader(Stream stream)
     {
         var sizeofBMPHeaderType = Marshal.SizeOf(Enum.GetUnderlyingType(typeof(BMPHeaderType))); ;
