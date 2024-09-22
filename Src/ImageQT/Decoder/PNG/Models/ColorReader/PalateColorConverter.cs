@@ -13,7 +13,7 @@ internal class PalateColorConverter : BaseRGBColorConverter
         Span<byte> currentByte,
         ref int writingIndex)
     {
-        var bitDetails = BitDepthDetailsForPalated();
+        var bitDetails = BitDepthDetailsForPalated(); // TODO: MIGHT NOT NEED TO CALCULATE ON EVERY WRITE
         if (bitDetails is { mask: not null, step: not null })
         {
             Debug.Assert(currentByte.Length == 1);

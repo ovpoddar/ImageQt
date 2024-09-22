@@ -71,7 +71,6 @@ public static class ImageLoader
 
     public static Image LoadImage(string file)
     {
-        // ToDo provide a image decoder
         using var stream = GetStream(file);
         var supportedDecoder = SupportedImageDecoder.GetSupportedDecoders(stream);
         foreach (var decoder in supportedDecoder)

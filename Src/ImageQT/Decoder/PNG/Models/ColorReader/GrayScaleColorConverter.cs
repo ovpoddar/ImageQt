@@ -8,11 +8,10 @@ internal class GrayScaleColorConverter : BaseRGBColorConverter
 
     internal override void Write(ArraySegment<Pixels> result, Span<byte> currentByte, ref int writingIndex)
     {
-        var bitDetails = BitDepthDetailsForGrayScale();
+        var bitDetails = BitDepthDetailsForGrayScale(); // TODO: MIGHT NOT NEED TO CALCULATE ON EVERY WRITE
         if (bitDetails is { mask: not null, map: not null })
         {
             Debug.Assert(currentByte.Length == 1);
-            // TODO: may be need to make it reverce too for little endien
             for (var j = 0; j < 8; j += HeaderData.BitDepth)
             {
                 var currentBit = (byte)((byte)(currentByte[0] >> 8 - HeaderData.BitDepth - j & bitDetails.mask) * (255 / bitDetails.map));

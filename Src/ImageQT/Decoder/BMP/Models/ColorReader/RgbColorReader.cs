@@ -41,7 +41,7 @@ internal class RgbColorReader : BaseColorReader
                 {
                     Debug.Assert(pixel.Length == 1);
                     Debug.Assert(_colorTable.HasValue);
-                    var details = GetDepthDetails();
+                    var details = GetDepthDetails(); // TODO: MIGHT NOT NEED TO CALCULATE ON EVERY WRITE
                     for (int j = details.step; j >= 0; j -= ProcessData.BitDepth)
                     {
                         var currentBit = (byte)((pixel[0] & (byte)(details.mask << j)) >> j);
