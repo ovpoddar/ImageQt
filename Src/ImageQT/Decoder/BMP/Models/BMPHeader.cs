@@ -85,7 +85,7 @@ internal struct BMPHeader
             BMPHeaderType.BitMapV3INFO => (int)header.ColorUsed,
             BMPHeaderType.BitMapV4 => (int)header.ColorUsed,
             BMPHeaderType.BitMapV5 => (int)header.ColorUsed,
-            _ => -1
+            _ => 0
         };
     }
 
@@ -120,24 +120,24 @@ internal struct BMPHeader
             return null;
 
         var requiredSizeForBitMask = BitDepth == 16 ? 12 : 16;
-        return requiredSizeForBitMask >= availableByte
+        return availableByte >= requiredSizeForBitMask
             ? requiredSizeForBitMask
             : null;
     }
 
     public readonly int? CalculateTheSizeOfPalate(int availableByte)
     {
-        if (BitDepth <= 8 || ColorUsed != -1)
+        if (BitDepth <= 8 || ColorUsed > 0)
         {
-            var pixelsCount = this.BitDepth <= 8
-               ? (0xff >> (8 - this.BitDepth)) + 1
-               : this.ColorUsed;
+            var pixelsCount = ColorUsed > 0
+               ? this.ColorUsed
+               : (0xff >> (8 - this.BitDepth)) + 1;
             if (pixelsCount == 0)
                 return null;
 
             var pixelSize = CalculatePixelSize();
             var requiredSizeForColorTable = pixelsCount * pixelSize;
-            return requiredSizeForColorTable >= availableByte
+            return availableByte >= requiredSizeForColorTable
                 ? requiredSizeForColorTable
                 : null;
         }
