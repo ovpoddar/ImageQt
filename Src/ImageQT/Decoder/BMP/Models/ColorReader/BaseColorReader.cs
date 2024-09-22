@@ -41,18 +41,6 @@ internal abstract class BaseColorReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte Map5BitsTo8Bits(byte value)
-    {
-        return (byte)((value * 8) + (value >> 2) + (value >> 5));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte Map6BitsTo8Bits(byte value)
-    {
-        return (byte)((value * 4) + (value >> 4));
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static byte CalculateMaskShift(long value)
     {
         // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
@@ -76,10 +64,37 @@ internal abstract class BaseColorReader
         return result;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected byte MapSmallerBitsTo8Bits(byte maximumLimit, byte value)
+    protected static byte CalculateMaskSize(long value, byte shift)
     {
-        return (byte)(byte.MaxValue / maximumLimit * value);
+        byte result = 0;
+        value >>= shift;
+        while (true)
+        {
+            if ((value & 1) != 0)
+            {
+                value >>= 1;
+                result++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        return result;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected byte MapBitsTo8Bits(byte value, int bitCount) => bitCount switch
+    {
+        1 => (byte)(value * 255),
+        2 => (byte)((value * 85) + (value >> 1)),
+        3 => (byte)((value * 36) + (value >> 2)),
+        4 => (byte)((value * 17) + (value >> 1) + (value >> 4)),
+        5 => (byte)((value * 8) + (value >> 2) + (value >> 5)),
+        6 => (byte)((value * 4) + (value >> 4)),
+        7 => (byte)((value * 2) + (value >> 6)),
+        _ => throw new ArgumentException("Unsupported bit count"),
+    };
+
 }
 

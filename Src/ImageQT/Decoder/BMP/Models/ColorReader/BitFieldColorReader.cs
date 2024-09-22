@@ -13,6 +13,9 @@ internal class BitFieldColorReader : BaseColorReader
     private readonly byte _redShift;
     private readonly byte _blueShift;
     private readonly byte _greenShift;
+    private readonly byte _redMaskSize;
+    private readonly byte _blueMaskSize;
+    private readonly byte _greenMaskSize;
 
     public BitFieldColorReader(Stream fileStream, BMPHeader RequiredProcessData)
       : base(fileStream, RequiredProcessData)
@@ -20,6 +23,9 @@ internal class BitFieldColorReader : BaseColorReader
         _redShift = CalculateMaskShift(ProcessData.RedMask);
         _blueShift = CalculateMaskShift(ProcessData.BlueMask);
         _greenShift = CalculateMaskShift(ProcessData.GreenMask);
+        _redMaskSize = CalculateMaskSize(ProcessData.RedMask, _redShift);
+        _blueMaskSize = CalculateMaskSize(ProcessData.BlueMask, _blueShift);
+        _greenMaskSize = CalculateMaskSize(ProcessData.GreenMask, _greenShift);
     }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
@@ -29,9 +35,9 @@ internal class BitFieldColorReader : BaseColorReader
         {
             var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
             // TODO: make dynamic calculation 
-            var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift));
-            var g = Map6BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift));
-            var b = Map5BitsTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift));
+            var r = MapBitsTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
+            var g = MapBitsTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
+            var b = MapBitsTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
             result[writingIndex++] = new Pixels(r, g, b);
         }
         // 32
