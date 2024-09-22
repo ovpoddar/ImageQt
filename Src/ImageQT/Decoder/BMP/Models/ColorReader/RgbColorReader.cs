@@ -69,10 +69,7 @@ internal class RgbColorReader : BaseColorReader
                 break;
             case 32:
                 Debug.Assert(pixel.Length == 4);
-                // TODO:ERROR: according to https://en.wikipedia.org/wiki/BMP_file_format#Color_table
-                // the format should be argb but found rgba 
-                // verify the issue
-                result[writingIndex++] = new Pixels(pixel[0], pixel[1], pixel[2]);
+                result[writingIndex++] = new Pixels(pixel[2], pixel[1], pixel[0]);
                 break;
         }
     }
