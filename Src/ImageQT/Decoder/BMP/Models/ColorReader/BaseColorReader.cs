@@ -75,5 +75,11 @@ internal abstract class BaseColorReader
         }
         return result;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected byte MapSmallerBitsTo8Bits(byte maximumLimit, byte value)
+    {
+        return (byte)(byte.MaxValue / maximumLimit * value);
+    }
 }
 

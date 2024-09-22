@@ -14,9 +14,18 @@ namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal class RgbColorReader : BaseColorReader
 {
     private readonly ColorTable? _colorTable;
+    private readonly byte _redShift;
+    private readonly byte _blueShift;
+    private readonly byte _greenShift;
 
     public RgbColorReader(Stream fileStream, BMPHeader RequiredProcessData, ColorTable? colorTable)
-        : base(fileStream, RequiredProcessData) => _colorTable = colorTable;
+        : base(fileStream, RequiredProcessData)
+    {
+        _colorTable = colorTable;
+        _redShift = CalculateMaskShift(ProcessData.RedMask);
+        _blueShift = CalculateMaskShift(ProcessData.BlueMask);
+        _greenShift = CalculateMaskShift(ProcessData.GreenMask);
+    }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
@@ -39,12 +48,11 @@ internal class RgbColorReader : BaseColorReader
 
             case 16:
                 {
-                    //TODO: CalculateMaskShift catch the value wither at base or to the header
                     Debug.Assert(pixel.Length == 2);
                     var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-                    var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> CalculateMaskShift(ProcessData.RedMask)));
-                    var g = Map5BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> CalculateMaskShift(ProcessData.GreenMask)));
-                    var b = Map5BitsTo8Bits((byte)(value & ProcessData.BlueMask));
+                    var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift));
+                    var g = Map5BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift));
+                    var b = Map5BitsTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift));
                     result[writingIndex++] = new Pixels(r, g, b);
                     break;
                 }

@@ -10,8 +10,17 @@ using System.Threading.Tasks;
 namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal class BitFieldColorReader : BaseColorReader
 {
+    private readonly byte _redShift;
+    private readonly byte _blueShift;
+    private readonly byte _greenShift;
+
     public BitFieldColorReader(Stream fileStream, BMPHeader RequiredProcessData)
-      : base(fileStream, RequiredProcessData) {}
+      : base(fileStream, RequiredProcessData)
+    {
+        _redShift = CalculateMaskShift(ProcessData.RedMask);
+        _blueShift = CalculateMaskShift(ProcessData.BlueMask);
+        _greenShift = CalculateMaskShift(ProcessData.GreenMask);
+    }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
@@ -20,10 +29,9 @@ internal class BitFieldColorReader : BaseColorReader
         {
             var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
             // TODO: make dynamic calculation 
-            // TODO: CalculateMaskShift catch the value either at base or to the header
-            var r = Map5BitsTo8Bits((byte)(((value & ProcessData.RedMask) >> CalculateMaskShift(ProcessData.RedMask))));
-            var g = Map6BitsTo8Bits((byte)(((value & ProcessData.GreenMask) >> CalculateMaskShift(ProcessData.GreenMask))));
-            var b = Map5BitsTo8Bits((byte)((value & ProcessData.BlueMask)));
+            var r = Map5BitsTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift));
+            var g = Map6BitsTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift));
+            var b = Map5BitsTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift));
             result[writingIndex++] = new Pixels(r, g, b);
         }
         // 32
