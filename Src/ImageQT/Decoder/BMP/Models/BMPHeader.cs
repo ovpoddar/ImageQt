@@ -14,9 +14,9 @@ internal struct BMPHeader
     public int BitDepth { get; set; }
     public HeaderCompression Compression { get; set; }
     public BMPHeaderType Type { get; set; }
-    public int RedMask { get; set; }
-    public int BlueMask { get; set; }
-    public int GreenMask { get; set; }
+    public uint RedMask { get; set; }
+    public uint BlueMask { get; set; }
+    public uint GreenMask { get; set; }
 
     public BMPHeader(Stream stream)
     {
@@ -38,8 +38,8 @@ internal struct BMPHeader
         };
 
         this.BitDepth = header.BitDepth;
-        this.Width = header.Width;
-        this.Height = header.Height;
+        this.Width = (int)header.Width;
+        this.Height = (int)header.Height;
         this.Compression = Type switch
         {
             BMPHeaderType.BitMapCore => HeaderCompression.Rgb,
@@ -49,33 +49,33 @@ internal struct BMPHeader
 
         this.RedMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => header.RedMask,
-            BMPHeaderType.BitMapV3INFO => header.RedMask,
-            BMPHeaderType.BitMapV4 => header.RedMask,
-            BMPHeaderType.BitMapV5 => header.RedMask,
+            BMPHeaderType.BitMapV2INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV4 => (uint)header.RedMask,
+            BMPHeaderType.BitMapV5 => (uint)header.RedMask,
             _ => this.Compression == HeaderCompression.BitFields
-                ? 0b1111100000000000
-                : 0b0111110000000000
+                ? 0b1111100000000000u
+                : 0b0111110000000000u
         };
         this.GreenMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => header.RedMask,
-            BMPHeaderType.BitMapV3INFO => header.RedMask,
-            BMPHeaderType.BitMapV4 => header.RedMask,
-            BMPHeaderType.BitMapV5 => header.RedMask,
+            BMPHeaderType.BitMapV2INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV4 => (uint)header.RedMask,
+            BMPHeaderType.BitMapV5 => (uint)header.RedMask,
             _ => this.Compression == HeaderCompression.BitFields
-                ? 0b0000011111100000
-                : 0b0000001111100000
+                ? 0b0000011111100000u
+                : 0b0000001111100000u
         };
         this.BlueMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => header.RedMask,
-            BMPHeaderType.BitMapV3INFO => header.RedMask,
-            BMPHeaderType.BitMapV4 => header.RedMask,
-            BMPHeaderType.BitMapV5 => header.RedMask,
+            BMPHeaderType.BitMapV2INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV4 => (uint)header.RedMask,
+            BMPHeaderType.BitMapV5 => (uint)header.RedMask,
             _ => this.Compression == HeaderCompression.BitFields
-                ? 0b0000000000011111
-                : 0b0000000000011111
+                ? 0b0000000000011111u
+                : 0b0000000000011111u
         };
 
         this.ColorUsed = Type switch
@@ -107,9 +107,9 @@ internal struct BMPHeader
     public void ReadFromExtraBits(Span<byte> masks)
     {
         Debug.Assert(masks.Length >= 12);
-        RedMask = BitConverter.ToInt32(masks.Slice(0, 4));
-        GreenMask = BitConverter.ToInt32(masks.Slice(4, 4));
-        BlueMask = BitConverter.ToInt32(masks.Slice(8, 4));
+        RedMask = BitConverter.ToUInt32(masks.Slice(0, 4));
+        GreenMask = BitConverter.ToUInt32(masks.Slice(4, 4));
+        BlueMask = BitConverter.ToUInt32(masks.Slice(8, 4));
     }
 
     public readonly int? CalculateTheSizeOfExtraBitMask(int availableByte)
