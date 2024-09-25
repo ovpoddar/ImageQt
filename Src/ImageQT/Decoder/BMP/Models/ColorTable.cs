@@ -17,28 +17,25 @@ namespace ImageQT.Decoder.BMP.Models;
 internal readonly struct ColorTable
 {
     private readonly Pixels[] _colors;
-    public ColorTable(Stream fileStream, BMPHeader header)
+    public ColorTable(BMPHeader header, Span<byte> tableData)
     {
-        // TODO: Doesnot support rle encoding of any kind
-        var pixelsCount = header.BitDepth <= 8
-               ? (0xff >> (8 - header.BitDepth)) + 1
-               : header.ColorUsed;
-        Span<byte> tableData = stackalloc byte[pixelsCount * header.CalculatePixelSize()];
-
-        fileStream.Read(tableData);
+        // TODO: Does not support rle encoding of any kind
         _colors = header.Type == BMPHeaderType.BitMapV5
-            ? ReadWithLoop(tableData, pixelsCount)
+            ? ReadWithLoop(tableData)
             : MemoryMarshal.Cast<byte, Pixels>(tableData).ToArray();
     }
 
-    private static Pixels[] ReadWithLoop(Span<byte> tableData, int pixelsCount)
+    private static Pixels[] ReadWithLoop(Span<byte> tableData)
     {
-        var result = new Pixels[pixelsCount];
+        Debug.Assert(tableData.Length % 3 == 0);
+        var pixelCount = tableData.Length / 3;
+        var result = new Pixels[pixelCount];
 
-        for (int i = 0; i < pixelsCount; i++)
+        for (var i = 0; i < pixelCount; i++)
         {
-            var index = i * 3;
-            result[i] = new Pixels(tableData[index], tableData[index + 1], tableData[index + 2]);
+            result[i] = new Pixels(tableData[i * 3],
+                tableData[i * 3 + 1],
+                tableData[i * 3 + 2]);
         }
 
         return result;
@@ -48,7 +45,8 @@ internal readonly struct ColorTable
     {
         get
         {
-            if (index > _colors.Length) throw new InvalidOperationException();
+            if (index > _colors.Length) 
+                throw new InvalidOperationException($"{index} is access voilation {_colors.Length}");
             return _colors[index];
         }
     }

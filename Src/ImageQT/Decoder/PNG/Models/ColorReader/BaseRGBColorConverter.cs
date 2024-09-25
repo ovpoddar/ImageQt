@@ -11,25 +11,17 @@ internal abstract class BaseRGBColorConverter
         HeaderData = headerData;
 
     internal abstract void Write(ArraySegment<Pixels> result, Span<byte> currentByte, ref int writingIndex);
-    
+
     // TODO: simplify make the non loop one 
-    protected (byte? step, byte? mask) BitDepthDetailsForPalated()
+    protected (byte step, byte mask) BitDepthDetailsForPalated()
     {
-        if (HeaderData.BitDepth < 8)
-        {
-            byte step = 1;
-            for (byte i = 0; i < HeaderData.BitDepth; i++)
-                step |= (byte)(1 << i);
+        byte step = 1;
+        for (byte i = 0; i < HeaderData.BitDepth; i++)
+            step |= (byte)(1 << i);
 
-            return ((byte)(8 - HeaderData.BitDepth), step);
-        }
-        return (null, null);
+        return ((byte)(8 - HeaderData.BitDepth), step);
     }
 
-    protected (byte? mask, byte? map) BitDepthDetailsForGrayScale()
-    {
-        if (HeaderData.BitDepth < 8)
-            return ((byte)(0xFF >> 8 - HeaderData.BitDepth), (byte)((1 << HeaderData.BitDepth) - 1));
-        return (null, null);
-    }
+    protected (byte mask, byte map) BitDepthDetailsForGrayScale() =>
+        ((byte)(0xFF >> 8 - HeaderData.BitDepth), (byte)((1 << HeaderData.BitDepth) - 1));
 }

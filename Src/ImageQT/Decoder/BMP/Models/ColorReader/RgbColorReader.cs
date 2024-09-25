@@ -20,7 +20,8 @@ internal class RgbColorReader : BaseColorReader
     private readonly byte _redMaskSize;
     private readonly byte _blueMaskSize;
     private readonly byte _greenMaskSize;
-
+    private readonly byte _step;
+    private readonly byte _mask;
     public RgbColorReader(Stream fileStream, BMPHeader RequiredProcessData, ColorTable? colorTable)
         : base(fileStream, RequiredProcessData)
     {
@@ -31,6 +32,7 @@ internal class RgbColorReader : BaseColorReader
         _redMaskSize = CalculateMaskSize(ProcessData.RedMask, _redShift);
         _blueMaskSize = CalculateMaskSize(ProcessData.BlueMask, _blueShift);
         _greenMaskSize = CalculateMaskSize(ProcessData.GreenMask, _greenShift);
+        (_step, _mask) = GetDepthDetails();
     }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
@@ -41,10 +43,9 @@ internal class RgbColorReader : BaseColorReader
                 {
                     Debug.Assert(pixel.Length == 1);
                     Debug.Assert(_colorTable.HasValue);
-                    var details = GetDepthDetails(); // TODO: MIGHT NOT NEED TO CALCULATE ON EVERY WRITE
-                    for (int j = details.step; j >= 0; j -= ProcessData.BitDepth)
+                    for (int j = _step; j >= 0; j -= ProcessData.BitDepth)
                     {
-                        var currentBit = (byte)((pixel[0] & (byte)(details.mask << j)) >> j);
+                        var currentBit = (byte)((pixel[0] & (byte)(_mask << j)) >> j);
                         if (writingIndex < ProcessData.Width)
                             result[writingIndex++] = _colorTable.Value[currentBit];
                     }

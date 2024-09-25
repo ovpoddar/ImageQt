@@ -54,9 +54,13 @@ internal class BmpDecoder : IImageDecoder
 
                 }
                 availableByte = (int)(fileHeader.OffsetData - _fileStream.Position);
-                var colorTableSize = header.CalculateTheSizeOfPalate(availableByte);
+                var colorTableSize = header.CalculateDetailsOfPalate(availableByte);
                 if (colorTableSize.HasValue)
-                    colorTable = new ColorTable(_fileStream, header);
+                {
+                    Span<byte> colorPalate = stackalloc byte[colorTableSize.Value];
+                    _fileStream.Read(colorPalate);
+                    colorTable = new ColorTable(header, colorPalate);
+                }
             }
             _fileStream.Position = fileHeader.OffsetData;
         }

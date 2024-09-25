@@ -125,7 +125,7 @@ internal struct BMPHeader
             : null;
     }
 
-    public readonly int? CalculateTheSizeOfPalate(int availableByte)
+    public readonly int? CalculateDetailsOfPalate(int availableByte)
     {
         if (BitDepth <= 8 || ColorUsed > 0)
         {
@@ -139,7 +139,7 @@ internal struct BMPHeader
             var requiredSizeForColorTable = pixelsCount * pixelSize;
             return availableByte >= requiredSizeForColorTable
                 ? requiredSizeForColorTable
-                : null;
+                : availableByte;
         }
         return null;
     }
