@@ -20,9 +20,12 @@ internal readonly struct ColorTable
     public ColorTable(BMPHeader header, Span<byte> tableData)
     {
         // TODO: Does not support rle encoding of any kind
-        _colors = header.Type == BMPHeaderType.BitMapV5
-            ? ReadWithLoop(tableData)
-            : MemoryMarshal.Cast<byte, Pixels>(tableData).ToArray();
+        _colors = header.CalculatePixelSize() switch
+        {
+            3 => ReadWithLoop(tableData),
+            4 => MemoryMarshal.Cast<byte, Pixels>(tableData).ToArray(),
+            _ => throw new NotImplementedException(),
+        };
     }
 
     private static Pixels[] ReadWithLoop(Span<byte> tableData)

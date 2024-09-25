@@ -148,7 +148,7 @@ internal struct BMPHeader
     {
         if (this.Compression is HeaderCompression.Rle4 or HeaderCompression.Rle8)
             return 2;
-        if (this.Type is BMPHeaderType.BitMapV5 or BMPHeaderType.BitMapCore)
+        if (this.Type is BMPHeaderType.BitMapCore)
             return 3;
         return 4;
     }
