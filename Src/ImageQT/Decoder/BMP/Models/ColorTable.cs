@@ -19,7 +19,7 @@ internal readonly struct ColorTable
     private readonly Pixels[] _colors;
     public ColorTable(BMPHeader header, Span<byte> tableData)
     {
-        // TODO: Does not support rle encoding of any kind
+        // TODO:IMPLEMENT: Does not support rle encoding of any kind
         _colors = header.CalculatePixelSize() switch
         {
             3 => ReadWithLoop(tableData),

@@ -69,7 +69,7 @@ internal class RgbColorReader : BaseColorReader
                 result[writingIndex++] = new Pixels(pixel[2], pixel[1], pixel[0]);
                 break;
             case 32:
-                /* TODO:Issue: according to Wikipidia 
+                /* TODO:ISSUE: according to Wikipidia 
                  * The 32-bit per pixel (32bpp) format supports 4,294,967,296 distinct colors and stores 1 pixel per 4-byte DWORD.
                  * Each DWORD can define the alpha, red, green and blue samples of the pixel.
                  * but found images in bgra format also can have MemoryMarshal.Cast if the format is bgra

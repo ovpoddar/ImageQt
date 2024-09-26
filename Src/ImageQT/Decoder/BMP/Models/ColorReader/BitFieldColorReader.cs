@@ -42,6 +42,8 @@ internal class BitFieldColorReader : BaseColorReader
         // 32
         if (ProcessData.BitDepth == 24)
         {
+            var value = BinaryPrimitives.ReadInt32LittleEndian(pixel);
+            // TODO:IMPLEMENT: write on mask.
             result[writingIndex++] = new Pixels(pixel[0], pixel[1], pixel[2]);
         }
     }

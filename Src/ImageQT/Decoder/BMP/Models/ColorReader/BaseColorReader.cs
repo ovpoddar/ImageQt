@@ -43,7 +43,7 @@ internal abstract class BaseColorReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static byte CalculateMaskShift(long value)
     {
-        // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
+        // TODO:TEST check on arm processor if the BitConverter.IsLittleEndian is false and how it react
         // not sure do i need this or not
         byte result = 0;
         if (value == 0)

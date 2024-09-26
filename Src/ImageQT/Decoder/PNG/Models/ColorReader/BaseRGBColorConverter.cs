@@ -12,7 +12,7 @@ internal abstract class BaseRGBColorConverter
 
     internal abstract void Write(ArraySegment<Pixels> result, Span<byte> currentByte, ref int writingIndex);
 
-    // TODO: simplify make the non loop one 
+    // TODO:OPTAMICE: simplify make the non loop one 
     protected (byte step, byte mask) BitDepthDetailsForPalated()
     {
         byte step = 1;

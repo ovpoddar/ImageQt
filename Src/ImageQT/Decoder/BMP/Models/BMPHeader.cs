@@ -144,6 +144,17 @@ internal struct BMPHeader
         return null;
     }
 
+    /*
+     * For bitmaps with normal color tables (where the compression scheme is not BITFIELDS encoding),
+     * the length of the color table is a function of the number of colors the image can have. The 
+     * number of possible colors is 2bit depth, where bit depth is the number of color planes, multiplied
+     * by the number of bits per plane. If bit depth is 24, however, the length of the color table is 0,
+     * since each pixel will already contain the proper RGB value. Each entry in a normal color table is one RGB structure.
+     * The first byte is the blue value; the second, green; and the third, red. If this is a "new" format bitmap 
+     * (indicated by the image's BITMAPHEADER structure having a size greater than 12 bytes),
+     * then an additional byte of padding between each RGB structure must be skipped over before reading the 
+     * next structure in the array.
+     */
     public readonly int CalculatePixelSize()
     {
         if (this.Compression is HeaderCompression.Rle4 or HeaderCompression.Rle8)

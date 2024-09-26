@@ -66,7 +66,7 @@ internal class BmpDecoder : IImageDecoder
         }
         else
         {
-            // TODO: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
+            // TODO:TEST: check on arm processor if the BitConverter.IsLittleEndian is false and how it react
             // not sure do i need this or not
             throw new NotImplementedException();
         }
