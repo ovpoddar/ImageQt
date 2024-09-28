@@ -42,7 +42,6 @@ internal class BitFieldColorReader : BaseColorReader
         // 32
         if (HeaderDetails.BitDepth == 32)
         {
-            // 32 bit has some issue
             var value = BinaryPrimitives.ReadInt32LittleEndian(pixel);
             var r = MapTo8Bits(((value & HeaderDetails.RedMask) >> _redShift), _redMaskSize);
             var g = MapTo8Bits(((value & HeaderDetails.GreenMask) >> _greenShift), _greenMaskSize);

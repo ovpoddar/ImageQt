@@ -83,9 +83,21 @@ internal abstract class BaseColorReader
     protected static byte MapTo8Bits(long value, int bitCount) => bitCount switch
     {
         8 => (byte)value,
-        > 8 => (byte)(value >> (bitCount - 8)),
-        > 4 => (byte)((value << (8 - bitCount)) | (value >> (bitCount - (8 - bitCount)))),
-        _ => throw new ArgumentException("Unsupported bit count"),
+        > 8 and < 32 => (byte)((value >> (bitCount - 8)) | (value << (8 - (bitCount - 8))) & 0xff),
+        >= 4 => (byte)((value << (8 - bitCount)) | (value >> (bitCount - (8 - bitCount)))),
+        < 4 and >= 0 => (byte)((value << (8 - bitCount)) | ((value << (8 - bitCount)) >> bitCount)),
+        _ => throw new ArgumentException("Unsupported Pixel Format"),
     };
+
+    /*
+     * protected static byte MapTo8Bits(long value, int bitCount) => bitCount switch
+     * {
+     *      8 => (byte)value,  // No scaling needed
+     *      > 8 and < 32 => (byte)(value >> (bitCount - 8)),  // Downscale large values
+     *      >= 4 => (byte)((value * (255 / ((1 << bitCount) - 1)))),  // Scale up smaller values
+     *      < 4 and >= 0 => (byte)(value * (255 / ((1 << bitCount) - 1))),  // Scale very small values
+     *      _ => throw new ArgumentException("Unsupported Pixel Format"),
+     * };
+     */
 }
 
