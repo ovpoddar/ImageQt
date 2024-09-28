@@ -20,7 +20,7 @@ internal struct BMPHeader
 
     public BMPHeader(Stream stream)
     {
-        var sizeofBMPHeaderType = Marshal.SizeOf(Enum.GetUnderlyingType(typeof(BMPHeaderType))); ;
+        var sizeofBMPHeaderType = Marshal.SizeOf(Enum.GetUnderlyingType(typeof(BMPHeaderType)));
         Span<byte> bmpHeaderType = stackalloc byte[sizeofBMPHeaderType];
         stream.Read(bmpHeaderType);
         this.Type = bmpHeaderType.ToStruct<BMPHeaderType>();
@@ -42,37 +42,30 @@ internal struct BMPHeader
         this.Height = (int)header.Height;
         this.Compression = Type switch
         {
-            BMPHeaderType.BitMapCore => HeaderCompression.Rgb,
-            BMPHeaderType.OS22XBitMapSmall => HeaderCompression.Rgb,
+            BMPHeaderType.BitMapCore or BMPHeaderType.OS22XBitMapSmall => HeaderCompression.Rgb,
             _ => header.Compression,
         };
 
         this.RedMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV4 => (uint)header.RedMask,
-            BMPHeaderType.BitMapV5 => (uint)header.RedMask,
+            BMPHeaderType.BitMapV2INFO or BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
+            BMPHeaderType.BitMapV4 or BMPHeaderType.BitMapV5 => (uint)header.RedMask,
             _ => this.Compression == HeaderCompression.BitFields
                 ? 0b1111100000000000u
                 : 0b0111110000000000u
         };
         this.GreenMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => (uint)header.GreenMask,
-            BMPHeaderType.BitMapV3INFO => (uint)header.GreenMask,
-            BMPHeaderType.BitMapV4 => (uint)header.GreenMask,
-            BMPHeaderType.BitMapV5 => (uint)header.GreenMask,
+            BMPHeaderType.BitMapV2INFO or BMPHeaderType.BitMapV3INFO => (uint)header.GreenMask,
+            BMPHeaderType.BitMapV4 or BMPHeaderType.BitMapV5 => (uint)header.GreenMask,
             _ => this.Compression == HeaderCompression.BitFields
                 ? 0b0000011111100000u
                 : 0b0000001111100000u
         };
         this.BlueMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => (uint)header.BlueMask,
-            BMPHeaderType.BitMapV3INFO => (uint)header.BlueMask,
-            BMPHeaderType.BitMapV4 => (uint)header.BlueMask,
-            BMPHeaderType.BitMapV5 => (uint)header.BlueMask,
+            BMPHeaderType.BitMapV2INFO or BMPHeaderType.BitMapV3INFO => (uint)header.BlueMask,
+            BMPHeaderType.BitMapV4 or BMPHeaderType.BitMapV5 => (uint)header.BlueMask,
             _ => this.Compression == HeaderCompression.BitFields
                 ? 0b0000000000011111u
                 : 0b0000000000011111u
@@ -80,11 +73,11 @@ internal struct BMPHeader
 
         this.ColorUsed = Type switch
         {
-            BMPHeaderType.BitMapINFO => (int)header.ColorUsed,
-            BMPHeaderType.BitMapV2INFO => (int)header.ColorUsed,
-            BMPHeaderType.BitMapV3INFO => (int)header.ColorUsed,
-            BMPHeaderType.BitMapV4 => (int)header.ColorUsed,
-            BMPHeaderType.BitMapV5 => (int)header.ColorUsed,
+            BMPHeaderType.BitMapINFO 
+            or BMPHeaderType.BitMapV2INFO 
+            or BMPHeaderType.BitMapV3INFO 
+            or BMPHeaderType.BitMapV4 
+            or BMPHeaderType.BitMapV5 => (int)header.ColorUsed,
             _ => 0
         };
     }
@@ -122,7 +115,7 @@ internal struct BMPHeader
         var requiredSizeForBitMask = BitDepth == 16 ? 12 : 16;
         return availableByte >= requiredSizeForBitMask
             ? requiredSizeForBitMask
-            : null;
+            : availableByte;
     }
 
     public readonly int? CalculateDetailsOfPalate(int availableByte)

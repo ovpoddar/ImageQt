@@ -107,16 +107,15 @@ internal class BmpDecoder : IImageDecoder
             ? i * header.Width
             : (header.GetNormalizeHeight() - 1 - i) * header.Width;
 
-    // TODO:INVESTIGATION _fileStream might not needed to be passed.
-    private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable) =>
-        header.Compression switch
+    private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable)
+    {
+        return header.Compression switch
         {
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
-            HeaderCompression.BitFields => new BitFieldColorReader(header),
-            HeaderCompression.AlphaBitFields => new AlphaBitFieldsReader(header),
+            HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
-
+    }
 }
 
 
