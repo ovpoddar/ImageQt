@@ -82,11 +82,10 @@ internal abstract class BaseColorReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static byte MapTo8Bits(long value, int bitCount) => bitCount switch
     {
-        var x when x < 8 && x > 4 => (byte)((value << (8 - bitCount)) | (value << (8 - (8 - bitCount)))),
-        8 => (byte)(value),
-        var x when x > 8 => (byte)(value >> (bitCount - 8)),
+        8 => (byte)value,
+        > 8 => (byte)(value >> (bitCount - 8)),
+        > 4 => (byte)((value << (8 - bitCount)) | (value >> (bitCount - (8 - bitCount)))),
         _ => throw new ArgumentException("Unsupported bit count"),
     };
-
 }
 
