@@ -59,20 +59,20 @@ internal struct BMPHeader
         };
         this.GreenMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV4 => (uint)header.RedMask,
-            BMPHeaderType.BitMapV5 => (uint)header.RedMask,
+            BMPHeaderType.BitMapV2INFO => (uint)header.GreenMask,
+            BMPHeaderType.BitMapV3INFO => (uint)header.GreenMask,
+            BMPHeaderType.BitMapV4 => (uint)header.GreenMask,
+            BMPHeaderType.BitMapV5 => (uint)header.GreenMask,
             _ => this.Compression == HeaderCompression.BitFields
                 ? 0b0000011111100000u
                 : 0b0000001111100000u
         };
         this.BlueMask = Type switch
         {
-            BMPHeaderType.BitMapV2INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV4 => (uint)header.RedMask,
-            BMPHeaderType.BitMapV5 => (uint)header.RedMask,
+            BMPHeaderType.BitMapV2INFO => (uint)header.BlueMask,
+            BMPHeaderType.BitMapV3INFO => (uint)header.BlueMask,
+            BMPHeaderType.BitMapV4 => (uint)header.BlueMask,
+            BMPHeaderType.BitMapV5 => (uint)header.BlueMask,
             _ => this.Compression == HeaderCompression.BitFields
                 ? 0b0000000000011111u
                 : 0b0000000000011111u

@@ -22,31 +22,31 @@ internal class RgbColorReader : BaseColorReader
     private readonly byte _greenMaskSize;
     private readonly byte _step;
     private readonly byte _mask;
-    public RgbColorReader(Stream fileStream, BMPHeader RequiredProcessData, ColorTable? colorTable)
-        : base(fileStream, RequiredProcessData)
+    public RgbColorReader(BMPHeader RequiredProcessData, ColorTable? colorTable)
+        : base(RequiredProcessData)
     {
         _colorTable = colorTable;
-        _redShift = CalculateMaskShift(ProcessData.RedMask);
-        _blueShift = CalculateMaskShift(ProcessData.BlueMask);
-        _greenShift = CalculateMaskShift(ProcessData.GreenMask);
-        _redMaskSize = CalculateMaskSize(ProcessData.RedMask, _redShift);
-        _blueMaskSize = CalculateMaskSize(ProcessData.BlueMask, _blueShift);
-        _greenMaskSize = CalculateMaskSize(ProcessData.GreenMask, _greenShift);
+        _redShift = CalculateMaskShift(HeaderDetails.RedMask);
+        _blueShift = CalculateMaskShift(HeaderDetails.BlueMask);
+        _greenShift = CalculateMaskShift(HeaderDetails.GreenMask);
+        _redMaskSize = CalculateMaskSize(HeaderDetails.RedMask, _redShift);
+        _blueMaskSize = CalculateMaskSize(HeaderDetails.BlueMask, _blueShift);
+        _greenMaskSize = CalculateMaskSize(HeaderDetails.GreenMask, _greenShift);
         (_step, _mask) = GetDepthDetails();
     }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
-        switch (ProcessData.BitDepth)
+        switch (HeaderDetails.BitDepth)
         {
             case <= 8:
                 {
                     Debug.Assert(pixel.Length == 1);
                     Debug.Assert(_colorTable.HasValue);
-                    for (int j = _step; j >= 0; j -= ProcessData.BitDepth)
+                    for (int j = _step; j >= 0; j -= HeaderDetails.BitDepth)
                     {
                         var currentBit = (byte)((pixel[0] & (byte)(_mask << j)) >> j);
-                        if (writingIndex < ProcessData.Width)
+                        if (writingIndex < HeaderDetails.Width)
                             result[writingIndex++] = _colorTable.Value[currentBit];
                     }
 
@@ -57,9 +57,9 @@ internal class RgbColorReader : BaseColorReader
                 {
                     Debug.Assert(pixel.Length == 2);
                     var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-                    var r = MapTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
-                    var g = MapTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
-                    var b = MapTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
+                    var r = MapTo8Bits((byte)((value & HeaderDetails.RedMask) >> _redShift), _redMaskSize);
+                    var g = MapTo8Bits((byte)((value & HeaderDetails.GreenMask) >> _greenShift), _greenMaskSize);
+                    var b = MapTo8Bits((byte)((value & HeaderDetails.BlueMask) >> _blueShift), _blueMaskSize);
                     result[writingIndex++] = new Pixels(r, g, b);
                     break;
                 }

@@ -4,6 +4,7 @@ using ImageQT.Decoder.BMP.Models;
 using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.Helpers;
+using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
 using System.Diagnostics;
 
@@ -70,8 +71,11 @@ internal class BmpDecoder : IImageDecoder
             // not sure do i need this or not
             throw new NotImplementedException();
         }
+
+        if (header.BitDepth > 64)
+            throw new BadImageException();
         ProcessImage(result, header, colorTable);
-        Console.WriteLine($"R: {result[result.Length - 1].Red} G: {result[result.Length - 1].Green} B: {result[result.Length - 1].Blue}");
+        Console.WriteLine($"R: {result[result.Length - 10].Red} G: {result[result.Length - 10].Green} B: {result[result.Length - 10].Blue}");
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
@@ -103,12 +107,14 @@ internal class BmpDecoder : IImageDecoder
             ? i * header.Width
             : (header.GetNormalizeHeight() - 1 - i) * header.Width;
 
+    // TODO:INVESTIGATION _fileStream might not needed to be passed.
     private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable) =>
         header.Compression switch
         {
-            HeaderCompression.Rgb => new RgbColorReader(_fileStream, header, colorTable),
-            HeaderCompression.BitFields => new BitFieldColorReader(_fileStream, header),
-            _ => throw new NotImplementedException()
+            HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
+            HeaderCompression.BitFields => new BitFieldColorReader(header),
+            HeaderCompression.AlphaBitFields => new AlphaBitFieldsReader(header),
+            _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
 
 }

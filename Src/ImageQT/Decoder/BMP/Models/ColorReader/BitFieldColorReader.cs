@@ -17,34 +17,36 @@ internal class BitFieldColorReader : BaseColorReader
     private readonly byte _blueMaskSize;
     private readonly byte _greenMaskSize;
 
-    public BitFieldColorReader(Stream fileStream, BMPHeader RequiredProcessData)
-      : base(fileStream, RequiredProcessData)
+    public BitFieldColorReader(BMPHeader RequiredProcessData)
+      : base(RequiredProcessData)
     {
-        _redShift = CalculateMaskShift(ProcessData.RedMask);
-        _blueShift = CalculateMaskShift(ProcessData.BlueMask);
-        _greenShift = CalculateMaskShift(ProcessData.GreenMask);
-        _redMaskSize = CalculateMaskSize(ProcessData.RedMask, _redShift);
-        _blueMaskSize = CalculateMaskSize(ProcessData.BlueMask, _blueShift);
-        _greenMaskSize = CalculateMaskSize(ProcessData.GreenMask, _greenShift);
+        _redShift = CalculateMaskShift(HeaderDetails.RedMask);
+        _blueShift = CalculateMaskShift(HeaderDetails.BlueMask);
+        _greenShift = CalculateMaskShift(HeaderDetails.GreenMask);
+        _redMaskSize = CalculateMaskSize(HeaderDetails.RedMask, _redShift);
+        _blueMaskSize = CalculateMaskSize(HeaderDetails.BlueMask, _blueShift);
+        _greenMaskSize = CalculateMaskSize(HeaderDetails.GreenMask, _greenShift);
     }
 
     internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
         // 16
-        if (ProcessData.BitDepth == 16)
+        if (HeaderDetails.BitDepth == 16)
         {
             var value = BinaryPrimitives.ReadInt16LittleEndian(pixel);
-            var r = MapTo8Bits((byte)((value & ProcessData.RedMask) >> _redShift), _redMaskSize);
-            var g = MapTo8Bits((byte)((value & ProcessData.GreenMask) >> _greenShift), _greenMaskSize);
-            var b = MapTo8Bits((byte)((value & ProcessData.BlueMask) >> _blueShift), _blueMaskSize);
+            var r = MapTo8Bits((byte)((value & HeaderDetails.RedMask) >> _redShift), _redMaskSize);
+            var g = MapTo8Bits((byte)((value & HeaderDetails.GreenMask) >> _greenShift), _greenMaskSize);
+            var b = MapTo8Bits((byte)((value & HeaderDetails.BlueMask) >> _blueShift), _blueMaskSize);
             result[writingIndex++] = new Pixels(r, g, b);
         }
         // 32
-        if (ProcessData.BitDepth == 24)
+        if (HeaderDetails.BitDepth == 32)
         {
             var value = BinaryPrimitives.ReadInt32LittleEndian(pixel);
-            // TODO:IMPLEMENT: write on mask.
-            result[writingIndex++] = new Pixels(pixel[0], pixel[1], pixel[2]);
+            var r = MapTo8Bits((byte)((value & HeaderDetails.RedMask) >> _redShift), _redMaskSize);
+            var g = MapTo8Bits((byte)((value & HeaderDetails.GreenMask) >> _greenShift), _greenMaskSize);
+            var b = MapTo8Bits((byte)((value & HeaderDetails.BlueMask) >> _blueShift), _blueMaskSize);
+            result[writingIndex++] = new Pixels(r, g, b);
         }
     }
 }

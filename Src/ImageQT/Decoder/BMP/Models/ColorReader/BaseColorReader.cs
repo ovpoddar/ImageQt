@@ -12,21 +12,17 @@ using System.Threading.Tasks;
 namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal abstract class BaseColorReader
 {
-    public Stream FileStream { get; }
-    public BMPHeader ProcessData { get; }
+    protected BMPHeader HeaderDetails { get; }
 
-    protected BaseColorReader(Stream fileStream, BMPHeader requiredProcessData)
-    {
-        this.FileStream = fileStream;
-        this.ProcessData = requiredProcessData;
-    }
+    protected BaseColorReader(BMPHeader header) =>
+        this.HeaderDetails = header;
 
     internal abstract void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex);
 
     public int CalculationOfRowSize()
     {
-        var s1 = Math.Ceiling((ProcessData.BitDepth * ProcessData.Width) / 32D) * 4;
-        var s2 = Math.Floor((ProcessData.BitDepth * ProcessData.Width + 31D) / 32) * 4;
+        var s1 = Math.Ceiling((HeaderDetails.BitDepth * HeaderDetails.Width) / 32D) * 4;
+        var s2 = Math.Floor((HeaderDetails.BitDepth * HeaderDetails.Width + 31D) / 32) * 4;
         Debug.Assert(s1 == s2);
         return (int)s1;
     }
@@ -34,10 +30,10 @@ internal abstract class BaseColorReader
     protected (byte step, byte mask) GetDepthDetails()
     {
         byte step = 1;
-        for (byte i = 0; i < ProcessData.BitDepth; i++)
+        for (byte i = 0; i < HeaderDetails.BitDepth; i++)
             step |= (byte)(1 << i);
 
-        return ((byte)(8 - ProcessData.BitDepth), step);
+        return ((byte)(8 - HeaderDetails.BitDepth), step);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,13 +82,10 @@ internal abstract class BaseColorReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected byte MapTo8Bits(byte value, int bitCount) => bitCount switch
     {
-        1 => (byte)(value * 255),
-        2 => (byte)((value * 85) + (value >> 1)),
-        3 => (byte)((value * 36) + (value >> 2)),
-        4 => (byte)((value * 17) + (value >> 1) + (value >> 4)),
         5 => (byte)((value * 8) + (value >> 2) + (value >> 5)),
         6 => (byte)((value * 4) + (value >> 4)),
-        7 => (byte)((value * 2) + (value >> 6)),
+        8 => value,
+        10 => value,//(byte)((value | (value >> 1)) >> 1),
         _ => throw new ArgumentException("Unsupported bit count"),
     };
 
