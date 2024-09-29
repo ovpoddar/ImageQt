@@ -79,6 +79,8 @@ internal abstract class BaseColorReader
         return result;
     }
 
+    // TODO:TEST: check on arm processor if the BitConverter.IsLittleEndian is false
+    // verify the bit manipulation.  
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected static byte MapTo8Bits(long value, int bitCount) => bitCount switch
     {

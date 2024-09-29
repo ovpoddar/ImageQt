@@ -113,6 +113,7 @@ internal class BmpDecoder : IImageDecoder
         {
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
             HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
+            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(header),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
     }
