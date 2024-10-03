@@ -96,6 +96,9 @@ internal class BmpDecoder : IImageDecoder
             writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
             while (writingIndex < header.Width)
             {
+                // TODO: IF RLE ADD ADD DECODE THE PIXELS THEN DO FARTHER PROCESSING
+                // CAN TRY TO HAVE A PEN SYSTEM. TRY A DUMMY TEST TO VERIFY THE PROCESS 
+                // ONCE MORE.
                 _fileStream.ReadExactly(pixel);
                 reader.Decode(writingSection, pixel, ref writingIndex);
             }
