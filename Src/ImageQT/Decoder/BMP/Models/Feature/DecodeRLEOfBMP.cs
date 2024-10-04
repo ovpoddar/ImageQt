@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.BMP.Models.Feature;
+//TODO:IMPLEMENT: ITS not working find a better way
 internal class DecodeRLEOfBMP : Stream
 {
     private readonly Stream _stream;
@@ -20,9 +22,9 @@ internal class DecodeRLEOfBMP : Stream
 
     public override bool CanWrite => false;
 
-    public override long Length { get; }
+    public override long Length { get; } // total number of bytes
 
-    public override long Position { get; set; }
+    public override long Position { get; set; }// no of processed bytes
 
     public DecodeRLEOfBMP(Stream stream, BMPHeader header)
     {
@@ -78,29 +80,36 @@ internal class DecodeRLEOfBMP : Stream
 
     public int GetReadSize()
     {
-        ProcessCurrentPosition();
-
+        if (!ProcessCurrentPosition())
+            return 0;
+        int result;
         if (_data[0] == 0)
         {
             switch (_data[1])
             {
                 case 0:
-                    return (int)(_header.Width - Position % _header.Width) * -1;
+                    result = (int)(_header.Width - Position % _header.Width) * -1;
+                    break;
                 case 1:
-                    return (int)(_header.Width * _header.Height - Position) * -1;
+                    result = (int)(_header.Width * _header.Height - Position) * -1;
+                    break;
                 case 2:
                     var num = _stream.ReadByte();
                     var num2 = _stream.ReadByte();
-                    _stream.Seek(-2L, SeekOrigin.Current);
-                    return (num2 * _header.Width + num) * -1;
+                    result = (num2 * _header.Width + num) * -1;
+                    break;
                 default:
-                    return MapByteCountToActualMemory(_data[1]);
+                    result = MapByteCountToActualMemory(_data[1]);
+                    break;
             }
         }
         else
         {
-            return _data[0] * (_header.BitDepth < 16 ? 1 : 3);
+            result = _data[0] * (_header.BitDepth < 16 ? 1 : 3);
         }
+
+        Debug.Assert(_stream.Position + result <= _stream.Length);
+        return result;
     }
 
     public override int Read(byte[] buffer, int offset, int count)
@@ -149,6 +158,7 @@ internal class DecodeRLEOfBMP : Stream
                 totalRead = count;
             }
         }
+        _isProcessed = true;
         return totalRead;
     }
 }

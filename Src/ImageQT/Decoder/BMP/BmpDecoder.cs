@@ -3,6 +3,7 @@
 using ImageQT.Decoder.BMP.Models;
 using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
+using ImageQT.Decoder.BMP.Models.Feature;
 using ImageQT.Decoder.Helpers;
 using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
@@ -74,12 +75,42 @@ internal class BmpDecoder : IImageDecoder
 
         if (header.BitDepth > 64)
             throw new BadImageException();
-        ProcessImage(result, header, colorTable);
+        //TODO: IMPLEMENT: Marge this in same function
+        //TODO:INFO: according to wikipidia not found any info related to 24 bit rle image http://www.fileformat.info/format/bmp/egff.htm
+        // but according to this looks like their are more than that https://chromium.googlesource.com/chromium/blink.git/+/master/Source/platform/image-decoders/bmp/BMPImageReader.cpp
+        // according to following this these does exist but im not gonna bother until i found a image for testing
+        if (header.Compression is HeaderCompression.Rle4 or HeaderCompression.Rle8 //or HeaderCompression.24 probly 32 and 16 too
+            )
+            ProcessRLEImage(result, header, colorTable);
+        else
+            ProcessNonRLEImage(result, header, colorTable);
         Console.WriteLine($"R: {result[result.Length - 10].Red} G: {result[result.Length - 10].Green} B: {result[result.Length - 10].Blue}");
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
-    private void ProcessImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
+    private void ProcessRLEImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
+    {
+        var currentPos = _fileStream.Position;
+        var reader = GetReader(header, colorTable);
+        var rleData = new DecodeRLEOfBMP(_fileStream, header);
+        Span<byte> data;
+        while (true)
+        {
+            var readingSize = rleData.GetReadSize();
+            var needFilled = readingSize < 0;
+            var normalizedReadingSize = readingSize < 0 ? readingSize * -1 : readingSize;
+            data =// normalizedReadingSize > 1024 ? 
+                new byte[normalizedReadingSize]
+                //: stackalloc byte[normalizedReadingSize]
+                ;
+            var read = rleData.Read(data);
+            if (read == -1)
+                break;
+        }
+
+    }
+
+    private void ProcessNonRLEImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
     {
         var currentPos = _fileStream.Position;
         var reader = GetReader(header, colorTable);
@@ -96,9 +127,6 @@ internal class BmpDecoder : IImageDecoder
             writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
             while (writingIndex < header.Width)
             {
-                // TODO: IF RLE ADD ADD DECODE THE PIXELS THEN DO FARTHER PROCESSING
-                // CAN TRY TO HAVE A PEN SYSTEM. TRY A DUMMY TEST TO VERIFY THE PROCESS 
-                // ONCE MORE.
                 _fileStream.ReadExactly(pixel);
                 reader.Decode(writingSection, pixel, ref writingIndex);
             }
