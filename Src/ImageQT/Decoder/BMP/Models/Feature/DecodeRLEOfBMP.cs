@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageQT.Decoder.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -45,36 +46,33 @@ internal class DecodeRLEOfBMP
         };
 
 
-    public int GetReadSize(int writingIndex)
+    public (int count, bool isUndefinedPixel) GetReadSize(int writingIndex)
     {
-        if (!ProcessCurrentPosition())
-            return 0;
-        int result;
+        ProcessCurrentPosition();
         if (_data[0] == 0)
         {
             switch (_data[1])
             {
                 case 0:
-                    result = (int)(_header.Width - writingIndex % _header.Width);
-                    break;
+                    return (_header.Width - writingIndex % _header.Width, true);
+
                 case 1:
-                    result = (int)(_header.Width * _header.Height - writingIndex);
-                    break;
+                    return (_header.Width * _header.Height - writingIndex, true);
+
                 case 2:
-                    var num = _stream.ReadByte();
-                    var num2 = _stream.ReadByte();
-                    result = (num2 * _header.Width + num);
-                    break;
+                    Span<byte> data = stackalloc byte[2];
+                    _stream.ReadStreamWithRollBackSeek(data);
+                    return (data[1] * _header.Width + data[0], true);
+
                 default:
-                    result = MapByteCountToActualMemory(_data[1]);
-                    break;
+                    return (MapByteCountToActualMemory(_data[1]), false);
+
             }
         }
         else
         {
-            result = _data[0] * (_header.BitDepth < 16 ? 1 : 3);
+            return (_data[0] * (_header.BitDepth < 16 ? 1 : 3), false);
         }
-        return result;
     }
 
     public int Read(byte[] buffer, int offset, int count)
@@ -85,9 +83,13 @@ internal class DecodeRLEOfBMP
             switch (_data[1])
             {
                 case 0:
+                    _position += count;
+                    totalRead = count;
+                    break;
                 case 2:
                     _position += count;
                     totalRead = count;
+                    _stream.Seek(2, SeekOrigin.Current);
                     break;
                 case 1:
                     _position += count;

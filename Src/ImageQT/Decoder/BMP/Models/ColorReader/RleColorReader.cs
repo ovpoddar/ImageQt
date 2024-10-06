@@ -16,7 +16,7 @@ internal class RleColorReader : BaseColorReader
         _colorTable = colorTable;
     }
 
-    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
+    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex, bool isUndefinedPixels)
     {
         for (int i = 0; i < pixel.Length; i++)
         {
@@ -28,10 +28,16 @@ internal class RleColorReader : BaseColorReader
             }
             else if (HeaderDetails.BitDepth == 8)
             {
-                if (result.Count >= writingIndex)
+                //TODO:INVISTAGATE: their are other approaches, not sure which one to pick
+                // no documentation found about this. may be missing something check the chromium 
+                // codes once again.
+                if (isUndefinedPixels)
+                    result[writingIndex++] = _colorTable!.Value[0];
+                else
                     result[writingIndex++] = _colorTable!.Value[item];
 
             }
         }
     }
+
 }

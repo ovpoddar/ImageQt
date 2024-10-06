@@ -57,4 +57,19 @@ internal static class GenericHelper
 
         return resultAsByte.ToStruct<T>();
     }
+
+    internal static int ReadStreamWithRollBackSeek(this Stream stream, Span<byte> bytes)
+    {
+        if (!stream.CanSeek)
+            throw new InvalidOperationException("Stream does not support this operation");
+        var position = stream.Position;
+        try
+        {
+            return stream.Read(bytes);
+        }
+        finally
+        {
+            stream.Seek(position, SeekOrigin.Begin);
+        }
+    }
 }

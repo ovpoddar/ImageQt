@@ -35,7 +35,7 @@ internal class RgbColorReader : BaseColorReader
         (_step, _mask) = GetDepthDetails();
     }
 
-    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
+    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex, bool _)
     {
         switch (HeaderDetails.BitDepth)
         {

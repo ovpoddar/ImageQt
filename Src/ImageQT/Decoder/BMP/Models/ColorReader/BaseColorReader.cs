@@ -18,7 +18,7 @@ internal abstract class BaseColorReader
     protected BaseColorReader(BMPHeader header) =>
         this.HeaderDetails = header;
 
-    internal abstract void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex);
+    internal abstract void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex, bool isUndefinedPixels = false);
 
     public int CalculationOfRowSize()
     {

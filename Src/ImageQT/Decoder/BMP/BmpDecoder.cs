@@ -109,18 +109,19 @@ internal class BmpDecoder : IImageDecoder
         }
         else
         {
+            //TODO:IMPLEMENT Simplify this section, might able to remove some unnessesary 
+            // deceleration.
             var row = 0;
             writingIndex = 0;
             writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
-            var c = new DecodeRLEOfBMP(_fileStream, header);
+            var rleDecoder = new DecodeRLEOfBMP(_fileStream, header);
 
             while (writingIndex < result.Length)
             {
-                //todo::Implement find a way to get skipped pixels
-                var s = c.GetReadSize(writingIndex);
-                var unProcessedPixels = ArrayPool<byte>.Shared.Rent(s);
-                var totalRead = c.Read(unProcessedPixels, 0, s);
-                reader.Decode(writingSection, unProcessedPixels.AsSpan().Slice(0, s), ref writingIndex);
+                var (count, isUndefinedPixel) = rleDecoder.GetReadSize(writingIndex);
+                var unProcessedPixels = ArrayPool<byte>.Shared.Rent(count);
+                var totalRead = rleDecoder.Read(unProcessedPixels, 0, count);
+                reader.Decode(writingSection, unProcessedPixels.AsSpan().Slice(0, count), ref writingIndex, isUndefinedPixel);
                 ArrayPool<byte>.Shared.Return(unProcessedPixels);
 
                 if (totalRead == -1 ||
