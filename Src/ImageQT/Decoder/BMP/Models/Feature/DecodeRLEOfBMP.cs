@@ -6,54 +6,20 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.BMP.Models.Feature;
-//TODO:IMPLEMENT: ITS not working find a better way
-internal class DecodeRLEOfBMP : Stream
+internal class DecodeRLEOfBMP
 {
     private readonly Stream _stream;
     private readonly BMPHeader _header;
+    private readonly byte[] _data = new byte[2];
 
     private bool _isProcessed = true;
-    private byte[] _data = new byte[2];
-
-
-    public override bool CanRead => true;
-
-    public override bool CanSeek => false;
-
-    public override bool CanWrite => false;
-
-    public override long Length { get; } // total number of bytes
-
-    public override long Position { get; set; }// no of processed bytes
+    private long _position = 0;
 
     public DecodeRLEOfBMP(Stream stream, BMPHeader header)
     {
         _stream = stream;
         _header = header;
-        Length = header.Width * header.Height * (_header.BitDepth < 16 ? 1 : 3);
-        Position = 0;
         ProcessCurrentPosition();
-    }
-
-    public override void Flush()
-    {
-        throw new NotImplementedException();
-    }
-
-
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void SetLength(long value)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        throw new NotImplementedException();
     }
 
     private bool ProcessCurrentPosition()
@@ -78,7 +44,8 @@ internal class DecodeRLEOfBMP : Stream
             _ => throw new NotSupportedException()
         };
 
-    public int GetReadSize()
+
+    public int GetReadSize(int writingIndex)
     {
         if (!ProcessCurrentPosition())
             return 0;
@@ -88,15 +55,15 @@ internal class DecodeRLEOfBMP : Stream
             switch (_data[1])
             {
                 case 0:
-                    result = (int)(_header.Width - Position % _header.Width) * -1;
+                    result = (int)(_header.Width - writingIndex % _header.Width);
                     break;
                 case 1:
-                    result = (int)(_header.Width * _header.Height - Position) * -1;
+                    result = (int)(_header.Width * _header.Height - writingIndex);
                     break;
                 case 2:
                     var num = _stream.ReadByte();
                     var num2 = _stream.ReadByte();
-                    result = (num2 * _header.Width + num) * -1;
+                    result = (num2 * _header.Width + num);
                     break;
                 default:
                     result = MapByteCountToActualMemory(_data[1]);
@@ -107,12 +74,10 @@ internal class DecodeRLEOfBMP : Stream
         {
             result = _data[0] * (_header.BitDepth < 16 ? 1 : 3);
         }
-
-        Debug.Assert(_stream.Position + result <= _stream.Length);
         return result;
     }
 
-    public override int Read(byte[] buffer, int offset, int count)
+    public int Read(byte[] buffer, int offset, int count)
     {
         int totalRead;
         if (_data[0] == 0)
@@ -121,16 +86,16 @@ internal class DecodeRLEOfBMP : Stream
             {
                 case 0:
                 case 2:
-                    Position += count;
+                    _position += count;
                     totalRead = count;
                     break;
                 case 1:
-                    Position += count;
+                    _position += count;
                     totalRead = -1;
                     break;
                 default:
                     totalRead = _stream.Read(buffer, offset, count);
-                    Position += _data[1];
+                    _position += _data[1];
                     var padding = count & 1;
                     _stream.Seek(padding, SeekOrigin.Current);
                     break;
@@ -142,18 +107,18 @@ internal class DecodeRLEOfBMP : Stream
             {
                 var writingSection = new Span<byte>(buffer, offset, count);
                 writingSection.Fill(_data[1]);
-                Position += writingSection.Length;
+                _position += writingSection.Length;
                 totalRead = writingSection.Length;
             }
             else
             {
                 Span<byte> otherPixels = stackalloc byte[2];
                 _stream.Read(otherPixels);
-                while (Position < (Position + count))
+                while (_position < (_position + count))
                 {
-                    buffer[offset + Position++] = _data[1];
-                    buffer[offset + Position++] = otherPixels[0];
-                    buffer[offset + Position++] = otherPixels[1];
+                    buffer[offset + _position++] = _data[1];
+                    buffer[offset + _position++] = otherPixels[0];
+                    buffer[offset + _position++] = otherPixels[1];
                 }
                 totalRead = count;
             }

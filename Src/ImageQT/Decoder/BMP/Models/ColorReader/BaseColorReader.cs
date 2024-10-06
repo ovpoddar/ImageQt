@@ -13,6 +13,7 @@ namespace ImageQT.Decoder.BMP.Models.ColorReader;
 internal abstract class BaseColorReader
 {
     protected BMPHeader HeaderDetails { get; }
+    public virtual bool IsRLE { get; } = false;
 
     protected BaseColorReader(BMPHeader header) =>
         this.HeaderDetails = header;

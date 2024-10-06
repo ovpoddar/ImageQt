@@ -7,6 +7,7 @@ using ImageQT.Decoder.BMP.Models.Feature;
 using ImageQT.Decoder.Helpers;
 using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
+using System.Buffers;
 using System.Diagnostics;
 
 
@@ -75,63 +76,67 @@ internal class BmpDecoder : IImageDecoder
 
         if (header.BitDepth > 64)
             throw new BadImageException();
-        //TODO: IMPLEMENT: Marge this in same function
-        //TODO:INFO: according to wikipidia not found any info related to 24 bit rle image http://www.fileformat.info/format/bmp/egff.htm
-        // but according to this looks like their are more than that https://chromium.googlesource.com/chromium/blink.git/+/master/Source/platform/image-decoders/bmp/BMPImageReader.cpp
-        // according to following this these does exist but im not gonna bother until i found a image for testing
-        if (header.Compression is HeaderCompression.Rle4 or HeaderCompression.Rle8 //or HeaderCompression.24 probly 32 and 16 too
-            )
-            ProcessRLEImage(result, header, colorTable);
-        else
-            ProcessNonRLEImage(result, header, colorTable);
+
+        ProcessImage(result, header, colorTable);
         Console.WriteLine($"R: {result[result.Length - 10].Red} G: {result[result.Length - 10].Green} B: {result[result.Length - 10].Blue}");
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
-    private void ProcessRLEImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
+    private void ProcessImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
     {
         var currentPos = _fileStream.Position;
         var reader = GetReader(header, colorTable);
-        var rleData = new DecodeRLEOfBMP(_fileStream, header);
-        Span<byte> data;
-        while (true)
-        {
-            var readingSize = rleData.GetReadSize();
-            var needFilled = readingSize < 0;
-            var normalizedReadingSize = readingSize < 0 ? readingSize * -1 : readingSize;
-            data =// normalizedReadingSize > 1024 ? 
-                new byte[normalizedReadingSize]
-                //: stackalloc byte[normalizedReadingSize]
-                ;
-            var read = rleData.Read(data);
-            if (read == -1)
-                break;
-        }
-
-    }
-
-    private void ProcessNonRLEImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
-    {
-        var currentPos = _fileStream.Position;
-        var reader = GetReader(header, colorTable);
-        var rowWithPadding = reader.CalculationOfRowSize();
-        var height = header.GetNormalizeHeight();
-        Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
         ArraySegment<Pixels> writingSection;
+        var height = header.GetNormalizeHeight();
         int writingIndex;
 
-        for (var i = 0; i < height; i++)
+        if (!reader.IsRLE)
         {
-            writingIndex = 0;
-            _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
-            writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
-            while (writingIndex < header.Width)
+            var rowWithPadding = reader.CalculationOfRowSize();
+            Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
+
+            for (var i = 0; i < height; i++)
             {
-                _fileStream.ReadExactly(pixel);
-                reader.Decode(writingSection, pixel, ref writingIndex);
+                writingIndex = 0;
+                _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
+                writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
+                while (writingIndex < header.Width)
+                {
+                    _fileStream.ReadExactly(pixel);
+                    reader.Decode(writingSection, pixel, ref writingIndex);
+                }
+            }
+        }
+        else
+        {
+            var row = 0;
+            writingIndex = 0;
+            writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
+            var c = new DecodeRLEOfBMP(_fileStream, header);
+
+            while (writingIndex < result.Length)
+            {
+                //todo::Implement find a way to get skipped pixels
+                var s = c.GetReadSize(writingIndex);
+                var unProcessedPixels = ArrayPool<byte>.Shared.Rent(s);
+                var totalRead = c.Read(unProcessedPixels, 0, s);
+                reader.Decode(writingSection, unProcessedPixels.AsSpan().Slice(0, s), ref writingIndex);
+                ArrayPool<byte>.Shared.Return(unProcessedPixels);
+
+                if (totalRead == -1 ||
+                    (writingIndex == header.Width && row == header.Height))
+                {
+                    break;
+                }
+                if (writingIndex == writingSection.Count)
+                {
+                    writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
+                    writingIndex = 0;
+                }
             }
         }
     }
+
 
     private static int GetWritingOffset(int i, BMPHeader header) =>
         header.Height < 0
@@ -144,7 +149,7 @@ internal class BmpDecoder : IImageDecoder
         {
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
             HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
-            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(header),
+            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(header, colorTable),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
     }
