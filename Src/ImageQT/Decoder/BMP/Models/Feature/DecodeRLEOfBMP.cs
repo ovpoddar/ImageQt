@@ -53,6 +53,9 @@ internal class DecodeRLEOfBMP
         {
             switch (_data[1])
             {
+                // TODO:IMPROVEMENT might need a better way to this
+                // else it could be clash with skipping row definitely need a 
+                // to avoide that
                 case 0:
                     return (writingIndex == 0 ? 0 : _header.Width - writingIndex, true);
 
