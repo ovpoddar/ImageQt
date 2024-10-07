@@ -46,7 +46,7 @@ internal class DecodeRLEOfBMP
         };
 
 
-    public (int count, bool isUndefinedPixel) GetReadSize(int writingIndex)
+    public (int count, bool isUndefinedPixel) GetReadSize(int writingIndex, int row)
     {
         ProcessCurrentPosition();
         if (_data[0] == 0)
@@ -54,10 +54,10 @@ internal class DecodeRLEOfBMP
             switch (_data[1])
             {
                 case 0:
-                    return (_header.Width - writingIndex % _header.Width, true);
+                    return (_header.Width - writingIndex, true);
 
                 case 1:
-                    return (_header.Width * _header.Height - writingIndex, true);
+                    return (_header.Width * _header.Height - ((row - 2) * _header.Width) + writingIndex, true);
 
                 case 2:
                     Span<byte> data = stackalloc byte[2];

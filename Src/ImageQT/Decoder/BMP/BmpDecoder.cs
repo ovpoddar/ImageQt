@@ -113,12 +113,17 @@ internal class BmpDecoder : IImageDecoder
             // deceleration.
             var row = 0;
             writingIndex = 0;
-            writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
+            writingSection = new();
             var rleDecoder = new DecodeRLEOfBMP(_fileStream, header);
-
+            // TODO:ISSUE:EOL should not be create a new line
             while (writingIndex < result.Length)
             {
-                var (count, isUndefinedPixel) = rleDecoder.GetReadSize(writingIndex);
+                if (writingSection.Count == 0 || writingIndex == writingSection.Count)
+                {
+                    writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
+                    writingIndex = 0;
+                }
+                var (count, isUndefinedPixel) = rleDecoder.GetReadSize(writingIndex, row);
                 var unProcessedPixels = ArrayPool<byte>.Shared.Rent(count);
                 var totalRead = rleDecoder.Read(unProcessedPixels, 0, count);
                 reader.Decode(writingSection, unProcessedPixels.AsSpan().Slice(0, count), ref writingIndex, isUndefinedPixel);
@@ -128,11 +133,6 @@ internal class BmpDecoder : IImageDecoder
                     (writingIndex == header.Width && row == header.Height))
                 {
                     break;
-                }
-                if (writingIndex == writingSection.Count)
-                {
-                    writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
-                    writingIndex = 0;
                 }
             }
         }

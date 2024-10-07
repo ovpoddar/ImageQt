@@ -32,7 +32,7 @@ internal class RleColorReader : BaseColorReader
                 // no documentation found about this. may be missing something check the chromium 
                 // codes once again.
                 if (isUndefinedPixels)
-                    result[writingIndex++] = _colorTable!.Value[0];
+                    result[writingIndex++] = new Pixels(); // _colorTable!.Value[0];
                 else
                     result[writingIndex++] = _colorTable!.Value[item];
 
