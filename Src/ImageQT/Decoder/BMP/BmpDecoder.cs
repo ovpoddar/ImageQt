@@ -109,13 +109,12 @@ internal class BmpDecoder : IImageDecoder
         }
         else
         {
-            //TODO:IMPLEMENT Simplify this section, might able to remove some unnessesary 
-            // deceleration.
+            // TODO:UPDATE not happy with the implementation find other way also possible 
+            // to not to allocate bunch of arrey on each write due to default pixels
             var row = 0;
             writingIndex = 0;
             writingSection = new();
             var rleDecoder = new DecodeRLEOfBMP(_fileStream, header);
-            // TODO:ISSUE:EOL should not be create a new line
             while (writingIndex < result.Length)
             {
                 if (writingSection.Count == 0 || writingIndex == writingSection.Count)
@@ -126,7 +125,8 @@ internal class BmpDecoder : IImageDecoder
                 var (count, isUndefinedPixel) = rleDecoder.GetReadSize(writingIndex, row);
                 var unProcessedPixels = ArrayPool<byte>.Shared.Rent(count);
                 var totalRead = rleDecoder.Read(unProcessedPixels, 0, count);
-                reader.Decode(writingSection, unProcessedPixels.AsSpan().Slice(0, count), ref writingIndex, isUndefinedPixel);
+                // could possible it did not write all the data
+                reader.Decode(writingSection, unProcessedPixels.AsSpan(0, count), ref writingIndex, isUndefinedPixel);
                 ArrayPool<byte>.Shared.Return(unProcessedPixels);
 
                 if (totalRead == -1 ||

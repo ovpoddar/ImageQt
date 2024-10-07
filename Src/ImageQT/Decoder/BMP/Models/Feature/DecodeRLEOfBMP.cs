@@ -54,7 +54,7 @@ internal class DecodeRLEOfBMP
             switch (_data[1])
             {
                 case 0:
-                    return (_header.Width - writingIndex, true);
+                    return (writingIndex == 0 ? 0 : _header.Width - writingIndex, true);
 
                 case 1:
                     return (_header.Width * _header.Height - ((row - 2) * _header.Width) + writingIndex, true);
