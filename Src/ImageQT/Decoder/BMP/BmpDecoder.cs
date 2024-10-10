@@ -88,10 +88,10 @@ internal class BmpDecoder : IImageDecoder
         var reader = GetReader(header, colorTable);
         ArraySegment<Pixels> writingSection;
         var height = header.GetNormalizeHeight();
-        int writingIndex;
 
         if (!reader.IsRLE)
         {
+            int writingIndex;
             var rowWithPadding = reader.CalculationOfRowSize();
             Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
 
@@ -109,31 +109,22 @@ internal class BmpDecoder : IImageDecoder
         }
         else
         {
-            // TODO:UPDATE not happy with the implementation find other way also possible 
-            // to not to allocate bunch of arrey on each write due to default pixels
+            var rleReader = (BaseRLEColorReader)reader;
+            var rleProcesser = new DecodeRLEOfBMP2(_fileStream);
             var row = 0;
-            writingIndex = 0;
-            writingSection = new();
-            var rleDecoder = new DecodeRLEOfBMP(_fileStream, header);
-            while (writingIndex < result.Length)
-            {
-                if (writingSection.Count == 0 || writingIndex == writingSection.Count)
-                {
-                    writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
-                    writingIndex = 0;
-                }
-                var (count, isUndefinedPixel) = rleDecoder.GetReadSize(writingIndex, row);
-                var unProcessedPixels = ArrayPool<byte>.Shared.Rent(count);
-                var totalRead = rleDecoder.Read(unProcessedPixels, 0, count);
-                // could possible it did not write all the data
-                reader.Decode(writingSection, unProcessedPixels.AsSpan(0, count), ref writingIndex, isUndefinedPixel);
-                ArrayPool<byte>.Shared.Return(unProcessedPixels);
+            var column = 0;
+            Span<byte> readSection = [];
 
-                if (totalRead == -1 ||
-                    (writingIndex == header.Width && row == header.Height))
-                {
-                    break;
-                }
+            while (true)
+            {
+                var command = rleProcesser.GetCommand();
+                if (command.CommandType == RLECommandType.Default)
+                    readSection = rleProcesser.DecodeValue(command);
+
+                writingSection = rleReader.CalculateWriteSection(result, command, row, column);
+                rleReader.ProcessActualCommand(writingSection, command, readSection, ref row, ref column);
+
+                if (command.CommandType == RLECommandType.EOF) break;
             }
         }
     }
@@ -150,7 +141,7 @@ internal class BmpDecoder : IImageDecoder
         {
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
             HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
-            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(header, colorTable),
+            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(_fileStream, header, colorTable),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
     }

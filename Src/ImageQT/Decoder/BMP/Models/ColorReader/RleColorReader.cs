@@ -1,51 +1,36 @@
 ﻿using ImageQT.Models.ImagqQT;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.BMP.Models.ColorReader;
-internal class RleColorReader : BaseColorReader
+internal class RleColorReader : BaseRLEColorReader
 {
-    private readonly Pixels _defaultPixel;
     private readonly ColorTable? _colorTable;
 
-    public override bool IsRLE => true;
-    public RleColorReader(BMPHeader header, ColorTable? colorTable) : base(header)
-    {
+    public RleColorReader(Stream stream, BMPHeader header, ColorTable? colorTable) : base(stream, header) => 
         _colorTable = colorTable;
-        _defaultPixel = colorTable.HasValue ? colorTable.Value[0] : new Pixels();
-    }
 
-    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex, bool isUndefinedPixels)
+    protected override Pixels DefaultPixel => _colorTable.HasValue ? _colorTable.Value[0] : new Pixels();
+
+    protected override void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte)
     {
-        if (isUndefinedPixels)
+        var i = 0;
+        foreach (var item in readByte)
         {
-            var availableSpace =  result.Count - writingIndex;
-            result.AsSpan(writingIndex, availableSpace < pixel.Length ? availableSpace : pixel.Length).Fill(_defaultPixel);
-            writingIndex += pixel.Length;
-            return;
+            if (i > result.Count)
+                return;
+
+            result[i++] = _colorTable!.Value[item];
         }
-
-
-        foreach (var item in pixel)
-        {
-            if (HeaderDetails.BitDepth == 4)
-            {
-                // each pixel of byte suppose to be 2 pixels
-                throw new Exception();
-            }
-            else if (HeaderDetails.BitDepth == 8)
-            {
-                if (writingIndex >= result.Count)
-                    return;
-
-                result[writingIndex++] = _colorTable!.Value[item];
-
-            }
-        }
-
     }
 
+    protected override void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex)
+    {
+        result.AsSpan(0, size)
+            .Fill(_colorTable!.Value[colorIndex]);
+    }
 }

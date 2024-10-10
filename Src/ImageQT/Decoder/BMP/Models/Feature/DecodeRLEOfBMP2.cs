@@ -16,9 +16,9 @@ internal class DecodeRLEOfBMP2
 
     public RLECommand GetCommand()
     {
-        var read = _stream.Read(_data, 0, _data.Length);
-        if (_stream.Position > _stream.Length || read != _data.Length)
+        if (_stream.Position > _stream.Length || _stream.Read(_data, 0, _data.Length) != _data.Length)
             throw new BadImageFormatException();
+
         var readCommand = BinaryPrimitives.ReadInt16BigEndian(_data);
         return new RLECommand
         {
@@ -31,5 +31,20 @@ internal class DecodeRLEOfBMP2
                 _ => RLECommandType.Fill,
             }
         };
+    }
+
+    internal byte[] DecodeValue(RLECommand command)
+    {
+        byte[] result = Array.Empty<byte>();
+        if (command.CommandType == RLECommandType.Default)
+        {
+            result = new byte[command.Data2];
+            _stream.Read(result, 0, result.Length);
+
+            var padding = command.Data2 & 1;
+            _stream.Seek(padding, SeekOrigin.Current);
+        }
+
+        return result;
     }
 }
