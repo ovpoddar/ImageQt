@@ -42,7 +42,7 @@ internal class BmpDecoder : IImageDecoder
             var fileHeader = _fileStream.FromStream<BmpFileHeader>();
             header = new BMPHeader(_fileStream);
             height = header.GetNormalizeHeight();
-            width = header.Width < 0 ? header.Width * -1 : header.Width;
+            width = header.Width < 0 ? header.Width * -1 : header.Width; // should not be valid.
             result = new Pixels[width * height];
 
             if (fileHeader.OffsetData != _fileStream.Position)
@@ -88,6 +88,7 @@ internal class BmpDecoder : IImageDecoder
         var reader = GetReader(header, colorTable);
         ArraySegment<Pixels> writingSection;
         var height = header.GetNormalizeHeight();
+        var positionTracker = new RLEPositionTracker(header.Height < 0, header.Width, height);
 
         if (!reader.IsRLE)
         {
@@ -99,7 +100,8 @@ internal class BmpDecoder : IImageDecoder
             {
                 writingIndex = 0;
                 _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
-                writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
+                positionTracker.SetWithXYValue(0, i);
+                writingSection = new ArraySegment<Pixels>(result, (int)positionTracker.Position, header.Width);
                 while (writingIndex < header.Width)
                 {
                     _fileStream.ReadExactly(pixel);
@@ -111,8 +113,6 @@ internal class BmpDecoder : IImageDecoder
         {
             var rleReader = (BaseRLEColorReader)reader;
             var rleProcesser = new DecodeRLEOfBMP2(_fileStream);
-            var row = 0;
-            var column = 0;
             Span<byte> readSection = [];
 
             while (true)
@@ -121,8 +121,8 @@ internal class BmpDecoder : IImageDecoder
                 if (command.CommandType == RLECommandType.Default)
                     readSection = rleProcesser.DecodeValue(command);
 
-                writingSection = rleReader.CalculateWriteSection(result, command, row, column);
-                rleReader.ProcessActualCommand(writingSection, command, readSection, ref row, ref column);
+                writingSection = rleReader.CalculateWriteSection(result, command, positionTracker);
+                rleReader.ProcessActualCommand(writingSection, command, readSection, ref positionTracker);
 
                 if (command.CommandType == RLECommandType.EOF) break;
             }
