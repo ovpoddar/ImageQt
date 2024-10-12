@@ -119,10 +119,10 @@ internal class BmpDecoder : IImageDecoder
             {
                 var command = rleProcesser.GetCommand();
                 if (command.CommandType == RLECommandType.Default)
-                    readSection = rleProcesser.DecodeValue(command);
+                    readSection = rleProcesser.DecodeValue(ref command);
 
-                writingSection = rleReader.CalculateWriteSection(result, command, positionTracker);
-                rleReader.ProcessActualCommand(writingSection, command, readSection, ref positionTracker);
+                writingSection = rleReader.CalculateWriteSection(result, ref command, positionTracker);
+                rleReader.ProcessActualCommand(writingSection, ref command, readSection, ref positionTracker);
 
                 if (command.CommandType == RLECommandType.EOF) break;
             }

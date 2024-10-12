@@ -28,19 +28,20 @@ internal abstract class BaseRLEColorReader : BaseColorReader
     protected abstract void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte);
     protected abstract void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex);
 
+    // TODO: REMOVE THIS BS.
     private int _row = 1;
 
-    public void ProcessActualCommand(ArraySegment<Pixels> result, RLECommand command, Span<byte> readByte, ref RLEPositionTracker positionTracker)
+    public void ProcessActualCommand(ArraySegment<Pixels> result, ref RLECommand command, Span<byte> readByte, ref RLEPositionTracker positionTracker)
     {
         switch (command.CommandType)
         {
             case RLECommandType.Fill:
                 ProcessFill(result, command.Data1, command.Data2);
-                positionTracker.SetWithPosition(command.Data1);
+                positionTracker.SetWithPositionAsRelative(command.Data1);
                 break;
             case RLECommandType.Default:
                 ProcessDefault(result, command.Data2, readByte);
-                positionTracker.SetWithPosition(command.Data2);
+                positionTracker.SetWithPositionAsRelative(command.Data2);
                 break;
             case RLECommandType.EOL:
                 result.AsSpan(positionTracker.XWWidth, HeaderDetails.Width - positionTracker.XWWidth)
@@ -48,12 +49,11 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 positionTracker.SetWithXYValue(0, _row++);
                 break;
             case RLECommandType.EOF:
-                var endPosition = HeaderDetails.Height > 0
-                    ? 0
-                    : result.Count;
-                var currentPosition = positionTracker.Position;
-                FillSection(result, (int)positionTracker.Position, endPosition);
-                // not bothering to set it because their will be no more process to begin with.
+                if (positionTracker.Position == HeaderDetails.Width)
+                    return;
+
+                result.AsSpan()
+                    .Fill(DefaultPixel);
                 break;
             case RLECommandType.Delta:
                 Span<byte> deltaValues = stackalloc byte[2];
@@ -65,46 +65,26 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 var size = Math.Max(newRelativePosition, (int)positionTracker.Position) - start;
                 result.AsSpan(start, size)
                     .Fill(DefaultPixel);
-                positionTracker.SetWithXYValue(positionTracker.XWWidth + deltaValues[0], positionTracker.YHHeight + deltaValues[1]);
+                positionTracker.SetWithXYAsRelative(deltaValues[0], deltaValues[1]);
                 break;
             default:
                 throw new BadImageFormatException();
         }
     }
 
-    //TODO:VEFIFY THE IMPLEMENTTION
     private int CalculateNormalizeIndex(int currentIndex, int x, int y) =>
         currentIndex + x + (HeaderDetails.Height < 0
             ? (HeaderDetails.GetNormalizeHeight() - 1 - y)
             : y * HeaderDetails.Width * HeaderDetails.Width);
 
-    private void FillSection(ArraySegment<Pixels> pixels, int start, int end)
-    {
-        var startPosition = Math.Min(start, end);
-        var size = HeaderDetails.Height < 0
-            ? (end - start)
-            : (start - end) * -1;
-
-        //pixels.AsSpan(startPosition, size)
-        //    .Fill(DefaultPixel);
-
-        for (int i = startPosition; i < size; i++)
+    internal ArraySegment<Pixels> CalculateWriteSection(Pixels[] result, ref RLECommand command, RLEPositionTracker positionTracker) =>
+        command.CommandType switch
         {
-            pixels[i] = DefaultPixel;
-        }
-    }
-
-    internal ArraySegment<Pixels> CalculateWriteSection(Pixels[] result, RLECommand command, RLEPositionTracker positionTracker)
-    {
-        //command.CommandType is RLECommandType.Default or RLECommandType.Fill
-        if (command.CommandType is RLECommandType.Fill)
-        {
-            return new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data1);
-        }
-        else if (command.CommandType == RLECommandType.Default)
-        {
-            return new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data2);
-        }
-        return new ArraySegment<Pixels>(result);
-    }
+            RLECommandType.Fill => new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data1),
+            RLECommandType.Default => new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data2),
+            RLECommandType.EOF => HeaderDetails.Height > 0
+                    ? new ArraySegment<Pixels>(result, 0, (int)(positionTracker.Position - 0))
+                    : new ArraySegment<Pixels>(result, (int)positionTracker.Position, (int)(result.Length - positionTracker.Position)),
+            _ => new ArraySegment<Pixels>(result)
+        };
 }

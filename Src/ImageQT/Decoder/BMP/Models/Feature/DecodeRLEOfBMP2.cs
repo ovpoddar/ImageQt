@@ -33,9 +33,9 @@ internal class DecodeRLEOfBMP2
         };
     }
 
-    internal byte[] DecodeValue(RLECommand command)
+    internal byte[] DecodeValue(ref RLECommand command)
     {
-        byte[] result = Array.Empty<byte>();
+        byte[] result = [];
         if (command.CommandType == RLECommandType.Default)
         {
             result = new byte[command.Data2];
