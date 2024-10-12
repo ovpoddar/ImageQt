@@ -100,13 +100,13 @@ internal class BmpDecoder : IImageDecoder
             {
                 writingIndex = 0;
                 _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
-                positionTracker.SetWithXYValue(0, i);
                 writingSection = new ArraySegment<Pixels>(result, (int)positionTracker.Position, header.Width);
                 while (writingIndex < header.Width)
                 {
                     _fileStream.ReadExactly(pixel);
                     reader.Decode(writingSection, pixel, ref writingIndex);
                 }
+                positionTracker.UpdatePositionToNextRowStart();
             }
         }
         else
@@ -115,7 +115,7 @@ internal class BmpDecoder : IImageDecoder
             var rleProcesser = new DecodeRLEOfBMP2(_fileStream);
             Span<byte> readSection = [];
 
-            while (true)
+            while (_fileStream.Length >= _fileStream.Position)
             {
                 var command = rleProcesser.GetCommand();
                 if (command.CommandType == RLECommandType.Default)

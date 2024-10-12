@@ -28,9 +28,6 @@ internal abstract class BaseRLEColorReader : BaseColorReader
     protected abstract void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte);
     protected abstract void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex);
 
-    // TODO: REMOVE THIS BS.
-    private int _row = 1;
-
     public void ProcessActualCommand(ArraySegment<Pixels> result, ref RLECommand command, Span<byte> readByte, ref RLEPositionTracker positionTracker)
     {
         switch (command.CommandType)
@@ -46,7 +43,8 @@ internal abstract class BaseRLEColorReader : BaseColorReader
             case RLECommandType.EOL:
                 result.AsSpan(positionTracker.XWWidth, HeaderDetails.Width - positionTracker.XWWidth)
                     .Fill(DefaultPixel);
-                positionTracker.SetWithXYValue(0, _row++);
+                positionTracker.SetWithPositionAsRelative(-1);
+                positionTracker.UpdatePositionToNextRowStart();
                 break;
             case RLECommandType.EOF:
                 if (positionTracker.Position == HeaderDetails.Width)
@@ -56,6 +54,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                     .Fill(DefaultPixel);
                 break;
             case RLECommandType.Delta:
+                // TODO: Delta calculation might be broken
                 Span<byte> deltaValues = stackalloc byte[2];
                 if (_stream.Read(deltaValues) != deltaValues.Length)
                     throw new BadImageException();
@@ -83,8 +82,8 @@ internal abstract class BaseRLEColorReader : BaseColorReader
             RLECommandType.Fill => new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data1),
             RLECommandType.Default => new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data2),
             RLECommandType.EOF => HeaderDetails.Height > 0
-                    ? new ArraySegment<Pixels>(result, 0, (int)(positionTracker.Position - 0))
-                    : new ArraySegment<Pixels>(result, (int)positionTracker.Position, (int)(result.Length - positionTracker.Position)),
+                ? new ArraySegment<Pixels>(result, 0, (int)(positionTracker.Position - 0))
+                : new ArraySegment<Pixels>(result, (int)positionTracker.Position, (int)(result.Length - positionTracker.Position)),
             _ => new ArraySegment<Pixels>(result)
         };
 }

@@ -32,16 +32,25 @@ internal struct RLEPositionTracker
 
     public void SetWithPositionAsRelative(int position)
     {
-        XWWidth = (int)(position % _width);
-        YHHeight = (int)(position / _width);
         Position += position;
+        XWWidth = (int)(Position % _width);
+        YHHeight = (int)(Position / _width);
     }
 
+    public void UpdatePositionToNextRowStart()
+    {
+        XWWidth = 0;
+        if (_isTopToBottom)
+            YHHeight++;
+        else
+            YHHeight--;
+        Position = YHHeight * _width + XWWidth;
+    }
 
     public void SetWithXYAsRelative(int x, int y)
     {
         XWWidth += x;
-        YHHeight = GetNormalizeYPosition(_isTopToBottom, _height, YHHeight + y);
+        YHHeight = GetNormalizeYPosition(_isTopToBottom, _height, (YHHeight + y));
         Position = YHHeight * _width + XWWidth;
     }
     private static int GetNormalizeYPosition(bool isTopToBottom, int height, int position) =>
