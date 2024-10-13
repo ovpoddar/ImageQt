@@ -29,7 +29,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
     protected abstract void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte);
     protected abstract void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex);
 
-    public void ProcessActualCommand(ArraySegment<Pixels> result, ref RLECommand command, Span<byte> readByte, ref RLEPositionTracker positionTracker)
+    public void ProcessActualCommand(ArraySegment<Pixels> result, Span<byte> processByte, ref RLECommand command, ref RLEPositionTracker positionTracker)
     {
         switch (command.CommandType)
         {
@@ -38,7 +38,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data1);
                 break;
             case RLECommandType.Default:
-                ProcessDefault(result, command.Data2, readByte);
+                ProcessDefault(result, command.Data2, processByte);
                 positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data2);
                 break;
             case RLECommandType.EOL:
@@ -75,14 +75,14 @@ internal abstract class BaseRLEColorReader : BaseColorReader
         }
     }
 
-    internal ArraySegment<Pixels> CalculateWriteSection(Pixels[] result, ref RLECommand command, RLEPositionTracker positionTracker) =>
+    internal ArraySegment<Pixels> CalculateWriteSection(Pixels[] result, ref RLECommand command, int position) =>
         command.CommandType switch
         {
-            RLECommandType.Fill => new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data1),
-            RLECommandType.Default => new ArraySegment<Pixels>(result, (int)positionTracker.Position, command.Data2),
+            RLECommandType.Fill => new ArraySegment<Pixels>(result, position, command.Data1),
+            RLECommandType.Default => new ArraySegment<Pixels>(result, position, command.Data2),
             RLECommandType.EOF => HeaderDetails.Height > 0
-                ? new ArraySegment<Pixels>(result, 0, (int)(positionTracker.Position - 0))
-                : new ArraySegment<Pixels>(result, (int)positionTracker.Position, (int)(result.Length - positionTracker.Position)),
+                ? new ArraySegment<Pixels>(result, 0, position - 0)
+                : new ArraySegment<Pixels>(result, position, result.Length - position),
             _ => new ArraySegment<Pixels>(result)
         };
 }
