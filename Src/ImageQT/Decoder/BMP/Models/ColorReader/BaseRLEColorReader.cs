@@ -79,10 +79,20 @@ internal abstract class BaseRLEColorReader : BaseColorReader
         command.CommandType switch
         {
             RLECommandType.Fill => new ArraySegment<Pixels>(result, position, command.Data1),
-            RLECommandType.Default => new ArraySegment<Pixels>(result, position, command.Data2),
+            RLECommandType.Default => new ArraySegment<Pixels>(result, position, MapByteCountToActualMemory(command.Data2, HeaderDetails.BitDepth)),
             RLECommandType.EOF => HeaderDetails.Height > 0
                 ? new ArraySegment<Pixels>(result, 0, position - 0)
                 : new ArraySegment<Pixels>(result, position, result.Length - position),
             _ => new ArraySegment<Pixels>(result)
         };
+
+    private static int MapByteCountToActualMemory(uint value, int bitDepth) =>
+       bitDepth switch
+       {
+           4 => (int)((value + 1) * .5),
+           8 => (int)(value),
+           24 => (int)(value * 3),
+           _ => throw new NotSupportedException()
+       };
+
 }

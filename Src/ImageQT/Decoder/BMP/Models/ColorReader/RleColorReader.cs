@@ -18,6 +18,8 @@ internal class RleColorReader : BaseRLEColorReader
 
     protected override void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte)
     {
+        if (HeaderDetails.BitDepth == 8)
+        {
         var i = 0;
         foreach (var item in readByte)
         {
@@ -27,10 +29,21 @@ internal class RleColorReader : BaseRLEColorReader
             result[i++] = _colorTable!.Value[item];
         }
     }
+        else if (HeaderDetails.BitDepth == 4)
+        {
 
     protected override void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex)
     {
+        if (HeaderDetails.BitDepth == 8)
+        {
         result.AsSpan(0, size)
             .Fill(_colorTable!.Value[colorIndex]);
+    }
+        else if (HeaderDetails.BitDepth == 4)
+        {
+            // move to a loop beacuse the color index have 2 index which go 
+            // 0000 | 1111 and it suppose to fill like 0000 1111 0000 1111 0000
+            // for                                     ^        size          ^
+        }
     }
 }

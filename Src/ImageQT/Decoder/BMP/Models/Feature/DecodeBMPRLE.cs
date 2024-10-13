@@ -33,18 +33,26 @@ internal class DecodeBMPRLE
         };
     }
 
-    internal byte[] DecodeValue(ref RLECommand command)
+    internal byte[] DecodeValue(ref RLECommand command, int bitDepth)
     {
         byte[] result = [];
         if (command.CommandType == RLECommandType.Default)
         {
-            result = new byte[command.Data2];
+            var unPaddedReadingByte = MapTotalRead(command.Data2, bitDepth);
+            result = new byte[unPaddedReadingByte];
             _stream.Read(result, 0, result.Length);
 
-            var padding = command.Data2 & 1;
+            var padding = unPaddedReadingByte & 1;
             _stream.Seek(padding, SeekOrigin.Current);
         }
 
         return result;
+    }
+
+    private static int MapTotalRead(int reading, int bitDepth)
+    {
+        var pixelsPerByte = 8 / bitDepth;
+        var bytesPerPixel = bitDepth / 8;
+        return (bitDepth < 16) ? ((reading + pixelsPerByte - 1) / pixelsPerByte) : (reading * bytesPerPixel);
     }
 }
