@@ -35,16 +35,17 @@ internal abstract class BaseRLEColorReader : BaseColorReader
         {
             case RLECommandType.Fill:
                 ProcessFill(result, command.Data1, command.Data2);
-                positionTracker.SetWithPositionAsRelative(command.Data1);
+                positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data1);
                 break;
             case RLECommandType.Default:
                 ProcessDefault(result, command.Data2, readByte);
-                positionTracker.SetWithPositionAsRelative(command.Data2);
+                positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data2);
                 break;
             case RLECommandType.EOL:
-                result.AsSpan(positionTracker.XWWidth, HeaderDetails.Width - positionTracker.XWWidth)
+                var currentX = positionTracker.GetCurrentX();
+                result.AsSpan(currentX, HeaderDetails.Width - currentX)
                     .Fill(DefaultPixel);
-                positionTracker.SetWithPositionAsRelative(-1);
+                positionTracker.SetWithPositionAsAbsolute(positionTracker.Position - 1);
                 positionTracker.UpdatePositionToNextRowStart();
                 break;
             case RLECommandType.EOF:
@@ -58,22 +59,21 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 Span<byte> deltaValues = stackalloc byte[2];
                 if (_stream.Read(deltaValues) != deltaValues.Length)
                     throw new BadImageException();
-                var size = deltaValues[1] * HeaderDetails.Width + deltaValues[0];
-                result.AsSpan((int)(HeaderDetails.Height < 0
-                    ? positionTracker.Position - size
-                    : positionTracker.Position), size)
+
+                var deltaX = deltaValues[0];
+                var deltaY = deltaValues[1];
+                var size = deltaY * HeaderDetails.Width + deltaX;
+
+                result.AsSpan(
+                    (int)(HeaderDetails.Height < 0 ? positionTracker.Position - size : positionTracker.Position),
+                    size)
                     .Fill(DefaultPixel);
-                positionTracker.SetWithXYAsRelative(deltaValues[0], deltaValues[1]);
+                positionTracker.SetWithXYAsRelative(deltaX, deltaY);
                 break;
             default:
                 throw new BadImageFormatException();
         }
     }
-
-    private int CalculateNormalizeIndex(int currentIndex, int x, int y) =>
-        currentIndex + x + (HeaderDetails.Height < 0
-            ? (HeaderDetails.GetNormalizeHeight() - 1 - y)
-            : y * HeaderDetails.Width * HeaderDetails.Width);
 
     internal ArraySegment<Pixels> CalculateWriteSection(Pixels[] result, ref RLECommand command, RLEPositionTracker positionTracker) =>
         command.CommandType switch

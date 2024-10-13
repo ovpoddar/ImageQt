@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,42 +21,32 @@ internal struct RLEPositionTracker
     }
 
     public long Position { get; private set; }
-    public int XWWidth { get; private set; }
-    public int YHHeight { get; private set; }
 
-    public void SetWithPositionAsRelative(int position)
-    {
-        Position += position;
-        XWWidth = (int)(Position % _width);
-        YHHeight = (int)(Position / _width);
-    }
+    public readonly int GetCurrentX() =>
+        (int)(Position % _width);
 
-    public void SetWithPositionAsAbsolute(int position)
-    {
+    public readonly int GetCurrentY() =>
+        (int)(Position / _width);
+
+    public void SetWithPositionAsAbsolute(long position) =>
         Position = position;
-        XWWidth = position % _width;
-        YHHeight = position / _width;
-    }
-    public void UpdatePositionToNextRowStart()
-    {
-        XWWidth = 0;
-        if (_isTopToBottom)
-            YHHeight++;
-        else
-            YHHeight--;
-        Position = YHHeight * _width + XWWidth;
-    }
+
+    public void UpdatePositionToNextRowStart() =>
+        Position = (_isTopToBottom ? GetCurrentY() + 1 : GetCurrentY() - 1) * _width;
 
     public void SetWithXYAsRelative(int x, int y)
     {
-        XWWidth += x;
-        YHHeight = y == 0 ? YHHeight : GetNormalizeYPosition(_isTopToBottom, _height, (YHHeight + y));
-        Position = YHHeight * _width + XWWidth;
+        var ey = y == 0
+            ? GetCurrentY()
+            : GetNormalizeYPosition(_isTopToBottom, _height, (GetCurrentY() + y));
+        var ep = ey * _width + GetCurrentX() + x;
+        SetWithPositionAsAbsolute(ep);
     }
 
     private static int GetNormalizeYPosition(bool isTopToBottom, int height, int position) =>
         isTopToBottom
             ? position
             : height - 1 - position;
+
 
 }
