@@ -59,10 +59,9 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 if (_stream.Read(deltaValues) != deltaValues.Length)
                     throw new BadImageException();
                 var size = deltaValues[1] * HeaderDetails.Width + deltaValues[0];
-                var start = (int)(HeaderDetails.Height < 0
+                result.AsSpan((int)(HeaderDetails.Height < 0
                     ? positionTracker.Position - size
-                    : positionTracker.Position);
-                result.AsSpan(start, size)
+                    : positionTracker.Position), size)
                     .Fill(DefaultPixel);
                 positionTracker.SetWithXYAsRelative(deltaValues[0], deltaValues[1]);
                 break;
