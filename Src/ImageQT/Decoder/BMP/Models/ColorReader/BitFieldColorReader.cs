@@ -28,7 +28,7 @@ internal class BitFieldColorReader : BaseColorReader
         _greenMaskSize = CalculateMaskSize(HeaderDetails.GreenMask, _greenShift);
     }
 
-    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex, bool _)
+    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex)
     {
         // 16
         if (HeaderDetails.BitDepth == 16)

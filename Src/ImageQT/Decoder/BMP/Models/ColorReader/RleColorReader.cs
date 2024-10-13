@@ -1,51 +1,64 @@
 ﻿using ImageQT.Models.ImagqQT;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.BMP.Models.ColorReader;
-internal class RleColorReader : BaseColorReader
+internal class RleColorReader : BaseRLEColorReader
 {
-    private readonly Pixels _defaultPixel;
     private readonly ColorTable? _colorTable;
 
-    public override bool IsRLE => true;
-    public RleColorReader(BMPHeader header, ColorTable? colorTable) : base(header)
-    {
+    public RleColorReader(Stream stream, BMPHeader header, ColorTable? colorTable) : base(stream, header) => 
         _colorTable = colorTable;
-        _defaultPixel = colorTable.HasValue ? colorTable.Value[0] : new Pixels();
-    }
 
-    internal override void Decode(ArraySegment<Pixels> result, Span<byte> pixel, ref int writingIndex, bool isUndefinedPixels)
+    protected override Pixels DefaultPixel => _colorTable.HasValue ? _colorTable.Value[0] : new Pixels();
+
+    protected override void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte)
     {
-        if (isUndefinedPixels)
+        if (HeaderDetails.BitDepth == 8)
         {
-            var availableSpace =  result.Count - writingIndex;
-            result.AsSpan(writingIndex, availableSpace < pixel.Length ? availableSpace : pixel.Length).Fill(_defaultPixel);
-            writingIndex += pixel.Length;
-            return;
+        var i = 0;
+        foreach (var item in readByte)
+        {
+            if (i > result.Count)
+                return;
+
+            result[i++] = _colorTable!.Value[item];
         }
-
-
-        foreach (var item in pixel)
+    }
+        else if (HeaderDetails.BitDepth == 4)
         {
-            if (HeaderDetails.BitDepth == 4)
+            var idx = 0;
+            for (var i = 0; i < size; i++)
             {
-                // each pixel of byte suppose to be 2 pixels
-                throw new Exception();
-            }
-            else if (HeaderDetails.BitDepth == 8)
-            {
-                if (writingIndex >= result.Count)
-                    return;
-
-                result[writingIndex++] = _colorTable!.Value[item];
-
+                result[i] = _colorTable!.Value[(readByte[idx] >> ((i % 2) * 4)) & 0xF];
+                if (i % 2 == 1) idx++;
             }
         }
-
     }
 
+    protected override void ProcessFill(ArraySegment<Pixels> result, byte colorIndex)
+    {
+        if (HeaderDetails.BitDepth == 8)
+        {
+            result.AsSpan(0, result.Count)
+            .Fill(_colorTable!.Value[colorIndex]);
+    }
+        else if (HeaderDetails.BitDepth == 4)
+        {
+            var rightPixel = _colorTable!.Value[colorIndex & 0xF];
+            var leftPixel = _colorTable!.Value[(colorIndex >> 4) & 0xF];
+
+            for (var i = 0; i < result.Count; i += 2)
+            {
+                result[i] = leftPixel;
+                if (i + 1 < result.Count)
+                    result[i + 1] = rightPixel;
+            }
+
+        }
+    }
 }

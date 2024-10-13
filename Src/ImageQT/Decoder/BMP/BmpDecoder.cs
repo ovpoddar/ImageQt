@@ -42,7 +42,7 @@ internal class BmpDecoder : IImageDecoder
             var fileHeader = _fileStream.FromStream<BmpFileHeader>();
             header = new BMPHeader(_fileStream);
             height = header.GetNormalizeHeight();
-            width = header.Width < 0 ? header.Width * -1 : header.Width;
+            width = header.Width < 0 ? header.Width * -1 : header.Width; // should not be valid.
             result = new Pixels[width * height];
 
             if (fileHeader.OffsetData != _fileStream.Position)
@@ -88,10 +88,11 @@ internal class BmpDecoder : IImageDecoder
         var reader = GetReader(header, colorTable);
         ArraySegment<Pixels> writingSection;
         var height = header.GetNormalizeHeight();
-        int writingIndex;
+        var positionTracker = new RLEPositionTracker(header.Height < 0, header.Width, height);
 
         if (!reader.IsRLE)
         {
+            int writingIndex;
             var rowWithPadding = reader.CalculationOfRowSize();
             Span<byte> pixel = stackalloc byte[header.GetMinimumPixelsSizeInByte()];
 
@@ -99,41 +100,31 @@ internal class BmpDecoder : IImageDecoder
             {
                 writingIndex = 0;
                 _fileStream.Seek(i * rowWithPadding + currentPos, SeekOrigin.Begin);
-                writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(i, header), header.Width);
+                writingSection = new ArraySegment<Pixels>(result, (int)positionTracker.Position, header.Width);
                 while (writingIndex < header.Width)
                 {
                     _fileStream.ReadExactly(pixel);
                     reader.Decode(writingSection, pixel, ref writingIndex);
                 }
+                positionTracker.UpdatePositionToNextRowStart();
             }
         }
         else
         {
-            // TODO:UPDATE not happy with the implementation find other way also possible 
-            // to not to allocate bunch of arrey on each write due to default pixels
-            var row = 0;
-            writingIndex = 0;
-            writingSection = new();
-            var rleDecoder = new DecodeRLEOfBMP(_fileStream, header);
-            while (writingIndex < result.Length)
-            {
-                if (writingSection.Count == 0 || writingIndex == writingSection.Count)
-                {
-                    writingSection = new ArraySegment<Pixels>(result, GetWritingOffset(row++, header), header.Width);
-                    writingIndex = 0;
-                }
-                var (count, isUndefinedPixel) = rleDecoder.GetReadSize(writingIndex, row);
-                var unProcessedPixels = ArrayPool<byte>.Shared.Rent(count);
-                var totalRead = rleDecoder.Read(unProcessedPixels, 0, count);
-                // could possible it did not write all the data
-                reader.Decode(writingSection, unProcessedPixels.AsSpan(0, count), ref writingIndex, isUndefinedPixel);
-                ArrayPool<byte>.Shared.Return(unProcessedPixels);
+            var rleReader = (BaseRLEColorReader)reader;
+            var rleProcesser = new DecodeBMPRLE(_fileStream);
+            Span<byte> readSection = [];
 
-                if (totalRead == -1 ||
-                    (writingIndex == header.Width && row == header.Height))
-                {
-                    break;
-                }
+            while (_fileStream.Length >= _fileStream.Position)
+            {
+                var command = rleProcesser.GetCommand();
+                if (command.CommandType == RLECommandType.Default)
+                    readSection = rleProcesser.DecodeValue(ref command, header.BitDepth);
+
+                writingSection = rleReader.CalculateWriteSection(result, ref command, (int)positionTracker.Position);
+                rleReader.Decode(writingSection, readSection, ref command, ref positionTracker);
+
+                if (command.CommandType == RLECommandType.EOF) break;
             }
         }
     }
@@ -150,7 +141,7 @@ internal class BmpDecoder : IImageDecoder
         {
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
             HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
-            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(header, colorTable),
+            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(_fileStream, header, colorTable),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
     }
