@@ -27,14 +27,14 @@ internal abstract class BaseRLEColorReader : BaseColorReader
     }
 
     protected abstract void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte);
-    protected abstract void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex);
+    protected abstract void ProcessFill(ArraySegment<Pixels> result, byte colorIndex);
 
     public void Decode(ArraySegment<Pixels> result, Span<byte> processByte, ref RLECommand command, ref RLEPositionTracker positionTracker)
     {
         switch (command.CommandType)
         {
             case RLECommandType.Fill:
-                ProcessFill(result, command.Data1, command.Data2);
+                ProcessFill(result, command.Data2);
                 positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data1);
                 break;
             case RLECommandType.Default:
@@ -89,8 +89,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
     private static int MapByteCountToActualMemory(uint value, int bitDepth) =>
        bitDepth switch
        {
-           4 => (int)((value + 1) * .5),
-           8 => (int)(value),
+           4 or 8 => (int)(value),
            24 => (int)(value * 3),
            _ => throw new NotSupportedException()
        };
