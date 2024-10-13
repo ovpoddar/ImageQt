@@ -75,15 +75,15 @@ internal abstract class BaseRLEColorReader : BaseColorReader
         }
     }
 
-    internal ArraySegment<Pixels> CalculateWriteSection(Pixels[] result, ref RLECommand command, int position) =>
+    internal (int position, int count) CalculateWriteSection(int totalSize, int position, ref RLECommand command) =>
         command.CommandType switch
         {
-            RLECommandType.Fill => new ArraySegment<Pixels>(result, position, command.Data1),
-            RLECommandType.Default => new ArraySegment<Pixels>(result, position, MapByteCountToActualMemory(command.Data2, HeaderDetails.BitDepth)),
+            RLECommandType.Fill => (position, command.Data1),
+            RLECommandType.Default => (position, MapByteCountToActualMemory(command.Data2, HeaderDetails.BitDepth)),
             RLECommandType.EOF => HeaderDetails.Height > 0
-                ? new ArraySegment<Pixels>(result, 0, position - 0)
-                : new ArraySegment<Pixels>(result, position, result.Length - position),
-            _ => new ArraySegment<Pixels>(result)
+                ? (0, position - 0)
+                : (position, totalSize - position),
+            _ => (0, totalSize)
         };
 
     private static int MapByteCountToActualMemory(uint value, int bitDepth) =>

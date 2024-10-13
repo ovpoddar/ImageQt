@@ -121,7 +121,8 @@ internal class BmpDecoder : IImageDecoder
                 if (command.CommandType == RLECommandType.Default)
                     readSection = rleProcesser.DecodeValue(ref command, header.BitDepth);
 
-                writingSection = rleReader.CalculateWriteSection(result, ref command, (int)positionTracker.Position);
+                var (position, count) = rleReader.CalculateWriteSection(result.Length, (int)positionTracker.Position, ref command);
+                writingSection = new ArraySegment<Pixels>(result, position, count);
                 rleReader.Decode(writingSection, readSection, ref command, ref positionTracker);
 
                 if (command.CommandType == RLECommandType.EOF) break;
