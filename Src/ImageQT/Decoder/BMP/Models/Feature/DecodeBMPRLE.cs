@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Decoder.BMP.Models.Feature;
-internal class DecodeRLEOfBMP2
+internal class DecodeBMPRLE
 {
     private readonly Stream _stream;
     private readonly byte[] _data = new byte[2];
 
-    public DecodeRLEOfBMP2(Stream stream) =>
+    public DecodeBMPRLE(Stream stream) =>
         _stream = stream;
 
     public RLECommand GetCommand()

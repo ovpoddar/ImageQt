@@ -112,7 +112,7 @@ internal class BmpDecoder : IImageDecoder
         else
         {
             var rleReader = (BaseRLEColorReader)reader;
-            var rleProcesser = new DecodeRLEOfBMP2(_fileStream);
+            var rleProcesser = new DecodeBMPRLE(_fileStream);
             Span<byte> readSection = [];
 
             while (_fileStream.Length >= _fileStream.Position)
@@ -121,8 +121,8 @@ internal class BmpDecoder : IImageDecoder
                 if (command.CommandType == RLECommandType.Default)
                     readSection = rleProcesser.DecodeValue(ref command);
 
-                writingSection = rleReader.CalculateWriteSection(result, ref command, positionTracker);
-                rleReader.ProcessActualCommand(writingSection, ref command, readSection, ref positionTracker);
+                writingSection = rleReader.CalculateWriteSection(result, ref command, (int)positionTracker.Position);
+                rleReader.Decode(writingSection, readSection, ref command, ref positionTracker);
 
                 if (command.CommandType == RLECommandType.EOF) break;
             }

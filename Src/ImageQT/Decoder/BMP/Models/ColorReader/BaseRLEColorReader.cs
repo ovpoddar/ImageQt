@@ -29,7 +29,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
     protected abstract void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte);
     protected abstract void ProcessFill(ArraySegment<Pixels> result, byte size, byte colorIndex);
 
-    public void ProcessActualCommand(ArraySegment<Pixels> result, Span<byte> processByte, ref RLECommand command, ref RLEPositionTracker positionTracker)
+    public void Decode(ArraySegment<Pixels> result, Span<byte> processByte, ref RLECommand command, ref RLEPositionTracker positionTracker)
     {
         switch (command.CommandType)
         {
