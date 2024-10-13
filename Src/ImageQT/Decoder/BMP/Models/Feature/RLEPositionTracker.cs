@@ -50,7 +50,7 @@ internal struct RLEPositionTracker
     public void SetWithXYAsRelative(int x, int y)
     {
         XWWidth += x;
-        YHHeight = GetNormalizeYPosition(_isTopToBottom, _height, (YHHeight + y));
+        YHHeight = y == 0 ? YHHeight : GetNormalizeYPosition(_isTopToBottom, _height, (YHHeight + y));
         Position = YHHeight * _width + XWWidth;
     }
     private static int GetNormalizeYPosition(bool isTopToBottom, int height, int position) =>

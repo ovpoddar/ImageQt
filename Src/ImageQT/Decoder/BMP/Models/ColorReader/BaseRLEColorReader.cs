@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -54,14 +55,13 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                     .Fill(DefaultPixel);
                 break;
             case RLECommandType.Delta:
-                // TODO: Delta calculation might be broken
                 Span<byte> deltaValues = stackalloc byte[2];
                 if (_stream.Read(deltaValues) != deltaValues.Length)
                     throw new BadImageException();
-                // can be simplifyed to do investigate
-                var newRelativePosition = CalculateNormalizeIndex((int)positionTracker.Position, deltaValues[0], deltaValues[1]);
-                var start = Math.Min(newRelativePosition, (int)positionTracker.Position);
-                var size = Math.Max(newRelativePosition, (int)positionTracker.Position) - start;
+                var size = deltaValues[1] * HeaderDetails.Width + deltaValues[0];
+                var start = (int)(HeaderDetails.Height < 0
+                    ? positionTracker.Position - size
+                    : positionTracker.Position);
                 result.AsSpan(start, size)
                     .Fill(DefaultPixel);
                 positionTracker.SetWithXYAsRelative(deltaValues[0], deltaValues[1]);
