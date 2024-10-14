@@ -78,7 +78,6 @@ internal class BmpDecoder : IImageDecoder
             throw new BadImageException();
 
         ProcessImage(result, header, colorTable);
-        Console.WriteLine($"R: {result[result.Length - 10].Red} G: {result[result.Length - 10].Green} B: {result[result.Length - 10].Blue}");
         return ImageLoader.LoadImage(width, height, ref result);
     }
 
@@ -129,12 +128,6 @@ internal class BmpDecoder : IImageDecoder
             }
         }
     }
-
-
-    private static int GetWritingOffset(int i, BMPHeader header) =>
-        header.Height < 0
-            ? i * header.Width
-            : (header.GetNormalizeHeight() - 1 - i) * header.Width;
 
     private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable)
     {

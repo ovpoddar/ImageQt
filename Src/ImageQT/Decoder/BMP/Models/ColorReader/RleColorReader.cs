@@ -34,7 +34,7 @@ internal class RleColorReader : BaseRLEColorReader
             var idx = 0;
             for (var i = 0; i < size; i++)
             {
-                result[i] = _colorTable!.Value[(readByte[idx] >> ((i % 2) * 4)) & 0xF];
+                result[i] = _colorTable!.Value[readByte[idx] >> (((i + 1) % 2) * 4) & 0xF];
                 if (i % 2 == 1) idx++;
             }
         }
