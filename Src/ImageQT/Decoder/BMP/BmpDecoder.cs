@@ -129,16 +129,17 @@ internal class BmpDecoder : IImageDecoder
         }
     }
 
-    private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable)
-    {
-        return header.Compression switch
+    // TODO:IMPLEMENTATION:https://www.fileformat.info/format/os2bmp/egff.htm according to this their suppose to be 24 rle but don't know about header type.
+    // if found a image then might revisit this station
+    private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable) =>
+        header.Compression switch
         {
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
             HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
-            HeaderCompression.Rle4 or HeaderCompression.Rle8 => new RleColorReader(_fileStream, header, colorTable),
+            HeaderCompression.Rle4 => new Rle4BitColorReader(_fileStream, header, colorTable),
+            HeaderCompression.Rle8 => new Rle4BitColorReader(_fileStream, header, colorTable),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
-    }
 }
 
 
