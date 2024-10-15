@@ -42,7 +42,6 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data2);
                 break;
             case RLECommandType.EOL:
-                // assuming should be left along, but still have some pixels left filling with default color sounds a good idea
                 var currentX = positionTracker.GetCurrentX();
                 result.AsSpan(currentX, HeaderDetails.Width - currentX)
                     .Fill(DefaultPixel);
@@ -51,7 +50,6 @@ internal abstract class BaseRLEColorReader : BaseColorReader
             case RLECommandType.EOF:
                 if (positionTracker.Position == HeaderDetails.Width)
                     return;
-                // assuming should be left along, but still have some pixels left filling with default color sounds a good idea
                 result.AsSpan()
                     .Fill(DefaultPixel);
                 break;
@@ -73,7 +71,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
             RLECommandType.Fill => (position, command.Data1),
             RLECommandType.Default => (position, MapByteCountToActualMemory(command.Data2, HeaderDetails.BitDepth)),
             RLECommandType.EOF => HeaderDetails.Height > 0
-                ? (0, position - 0)
+                ? (0, Math.Max(position - 0, 0))
                 : (position, totalSize - position),
             _ => (0, totalSize)
         };
