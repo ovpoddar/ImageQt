@@ -42,22 +42,16 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 positionTracker.SetWithPositionAsAbsolute(positionTracker.Position + command.Data2);
                 break;
             case RLECommandType.EOL:
+                // assuming should be left along, but still have some pixels left filling with default color sounds a good idea
                 var currentX = positionTracker.GetCurrentX();
                 result.AsSpan(currentX, HeaderDetails.Width - currentX)
                     .Fill(DefaultPixel);
-                positionTracker.SetWithPositionAsAbsolute(positionTracker.Position - 1);
-                positionTracker.UpdatePositionToNextRowStart();
+                positionTracker.UpdatePositionToNextRowStart(-1);
                 break;
             case RLECommandType.EOF:
                 if (positionTracker.Position == HeaderDetails.Width)
                     return;
-                // TODO:INVESTIGATE: SO if i encounter Delta I'm not gonna write any thing
-                // SO most probably that want means according to pre processing the rle data
-                // i should check the full implementation. but due to some off calculation like
-                // image start it make wonder 1. do i need to do any thing if i encounter eof
-                // or peaceably eol too. 2. if i process the eof and calculate the image end should 
-                // i add just a if or be more strict about it like if image first command is eof, eol
-                // or delta then set it position to the end file other wise set it to begin of the row
+                // assuming should be left along, but still have some pixels left filling with default color sounds a good idea
                 result.AsSpan()
                     .Fill(DefaultPixel);
                 break;
