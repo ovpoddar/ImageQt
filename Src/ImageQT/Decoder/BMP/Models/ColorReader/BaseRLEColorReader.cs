@@ -65,7 +65,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 var size = deltaY * HeaderDetails.Width + deltaX;
 
                 result.AsSpan(
-                    (int)(HeaderDetails.Height < 0 ? positionTracker.Position - size : positionTracker.Position),
+                    (int)(HeaderDetails.Height < 0 ? positionTracker.Position : positionTracker.Position - size),
                     size)
                     .Fill(DefaultPixel);
                 positionTracker.SetWithXYAsRelative(deltaX, deltaY);

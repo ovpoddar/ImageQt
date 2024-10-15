@@ -11,8 +11,9 @@ internal class Rle8BitColorReader : BaseRLEColorReader
     private readonly ColorTable? _colorTable;
     public Rle8BitColorReader(Stream stream, BMPHeader header, ColorTable? colorTable) : base(stream, header) =>
         _colorTable = colorTable;
-
-    protected override Pixels DefaultPixel => _colorTable.HasValue ? _colorTable.Value[0] : new Pixels();
+    // For most of my test i could not found any image which works with _colorTable.Value[0]
+    // most image assume its a black pixels. so I'm setting to black too
+    protected override Pixels DefaultPixel => new Pixels();
 
     protected override void ProcessDefault(ArraySegment<Pixels> result, byte size, Span<byte> readByte)
     {

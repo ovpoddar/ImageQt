@@ -36,11 +36,10 @@ internal struct RLEPositionTracker
 
     public void SetWithXYAsRelative(int x, int y)
     {
-        var ey = y == 0
-            ? GetCurrentY()
-            : GetNormalizeYPosition(_isTopToBottom, _height, (GetCurrentY() + y));
-        var ep = ey * _width + GetCurrentX() + x;
-        SetWithPositionAsAbsolute(ep);
+        var nx = GetCurrentX() + x;
+        var ny = _isTopToBottom ? GetCurrentY() + y : GetCurrentY() - y;
+        var newPosition = ny * _width + nx;
+        SetWithPositionAsAbsolute(newPosition);
     }
 
     private static int GetNormalizeYPosition(bool isTopToBottom, int height, int position) =>
