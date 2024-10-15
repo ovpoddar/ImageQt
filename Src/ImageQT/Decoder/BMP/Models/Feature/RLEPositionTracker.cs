@@ -17,7 +17,7 @@ internal struct RLEPositionTracker
         _isTopToBottom = isTopToBottom;
         _width = width;
         _height = height;
-        GotoStart();
+        SetWithPositionAsAbsolute(_isTopToBottom ? 0 : _width * (_height - 1));
     }
 
     public long Position { get; private set; }
@@ -36,9 +36,6 @@ internal struct RLEPositionTracker
         Position += addDefault;
         Position = (_isTopToBottom ? GetCurrentY() + 1 : GetCurrentY() - 1) * _width;
     }
-
-    public void GotoStart(bool isAbsolute = false) =>
-        SetWithPositionAsAbsolute(_isTopToBottom ? 0 : _width * (_height - (isAbsolute ? 0 : 1)));
 
     public void SetWithXYAsRelative(int x, int y)
     {
