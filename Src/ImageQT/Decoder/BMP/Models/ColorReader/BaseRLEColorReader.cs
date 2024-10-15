@@ -65,7 +65,15 @@ internal abstract class BaseRLEColorReader : BaseColorReader
         }
     }
 
-    internal (int position, int count) CalculateWriteSection(int totalSize, int position, ref RLECommand command) =>
+    internal (int position, int count) CalculateWriteSection(int totalSize, int position, ref RLECommand command)
+    {
+        var result = GetWriteSection(totalSize, position, ref command);
+        if (result.position +  result.count > totalSize)
+            throw new BadImageException();
+        return result;
+    }
+
+    private (int position, int count) GetWriteSection(int totalSize, int position, ref RLECommand command) =>
         command.CommandType switch
         {
             RLECommandType.Fill => (position, command.Data1),
