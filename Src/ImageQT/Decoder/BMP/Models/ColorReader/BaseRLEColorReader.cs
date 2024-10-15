@@ -51,7 +51,6 @@ internal abstract class BaseRLEColorReader : BaseColorReader
             case RLECommandType.EOF:
                 if (positionTracker.Position == HeaderDetails.Width)
                     return;
-
                 result.AsSpan()
                     .Fill(DefaultPixel);
                 break;
@@ -60,15 +59,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 if (_stream.Read(deltaValues) != deltaValues.Length)
                     throw new BadImageException();
 
-                var deltaX = deltaValues[0];
-                var deltaY = deltaValues[1];
-                var size = deltaY * HeaderDetails.Width + deltaX;
-
-                result.AsSpan(
-                    (int)(HeaderDetails.Height < 0 ? positionTracker.Position : positionTracker.Position - size),
-                    size)
-                    .Fill(DefaultPixel);
-                positionTracker.SetWithXYAsRelative(deltaX, deltaY);
+                positionTracker.SetWithXYAsRelative(deltaValues[0], deltaValues[1]);
                 break;
             default:
                 throw new BadImageFormatException();
