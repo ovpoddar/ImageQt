@@ -51,6 +51,13 @@ internal abstract class BaseRLEColorReader : BaseColorReader
             case RLECommandType.EOF:
                 if (positionTracker.Position == HeaderDetails.Width)
                     return;
+                // TODO:INVESTIGATE: SO if i encounter Delta I'm not gonna write any thing
+                // SO most probably that want means according to pre processing the rle data
+                // i should check the full implementation. but due to some off calculation like
+                // image start it make wonder 1. do i need to do any thing if i encounter eof
+                // or peaceably eol too. 2. if i process the eof and calculate the image end should 
+                // i add just a if or be more strict about it like if image first command is eof, eol
+                // or delta then set it position to the end file other wise set it to begin of the row
                 result.AsSpan()
                     .Fill(DefaultPixel);
                 break;
