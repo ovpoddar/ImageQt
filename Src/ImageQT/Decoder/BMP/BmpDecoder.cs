@@ -5,6 +5,7 @@ using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.BMP.Models.Feature;
 using ImageQT.Decoder.Helpers;
+using ImageQT.Decoder.PNG;
 using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
 using System.Buffers;
@@ -43,7 +44,9 @@ internal class BmpDecoder : IImageDecoder
             header = new BMPHeader(_fileStream);
             height = header.GetNormalizeHeight();
             width = header.Width < 0 ? header.Width * -1 : header.Width; // should not be valid.
-            result = new Pixels[width * height];
+            result = header.IsDependsOnExternalDecoding()
+                ? []
+                : new Pixels[width * height];
 
             if (fileHeader.OffsetData != _fileStream.Position)
             {
@@ -77,8 +80,28 @@ internal class BmpDecoder : IImageDecoder
         if (header.BitDepth > 64)
             throw new BadImageException();
 
-        ProcessImage(result, header, colorTable);
-        return ImageLoader.LoadImage(width, height, ref result);
+        if (header.IsDependsOnExternalDecoding())
+            return ProcessedImageWithExternalDecoding(ref header);
+        else
+        {
+            ProcessImage(result, header, colorTable);
+            return ImageLoader.LoadImage(width, height, ref result);
+        }
+    }
+
+    private Image ProcessedImageWithExternalDecoding(ref BMPHeader header)
+    {
+        switch (header.Compression)
+        {
+            case HeaderCompression.Png:
+                var decoder = new PngDecoder(_fileStream);
+                decoder.CanProcess();
+                return decoder.Decode();
+            case HeaderCompression.Jpeg:
+                throw new NotImplementedException($"************************************{header.Compression}************************************");
+            default:
+                throw new ShouldNotBeCalledException();
+        }
     }
 
     private void ProcessImage(Pixels[] result, BMPHeader header, ColorTable? colorTable)
@@ -137,7 +160,8 @@ internal class BmpDecoder : IImageDecoder
             HeaderCompression.Rgb => new RgbColorReader(header, colorTable),
             HeaderCompression.BitFields or HeaderCompression.AlphaBitFields => new BitFieldColorReader(header),
             HeaderCompression.Rle4 => new Rle4BitColorReader(_fileStream, header, colorTable),
-            HeaderCompression.Rle8 => new Rle8BitColorReader(_fileStream, header, colorTable),
+            HeaderCompression.Rle8 => new Rle8BitColorReader(_fileStream, header, colorTable),        
+            HeaderCompression.Png or HeaderCompression.Jpeg => throw new ShouldNotBeCalledException(),
             _ => throw new NotImplementedException($"************************************{header.Compression}************************************")
         };
 }

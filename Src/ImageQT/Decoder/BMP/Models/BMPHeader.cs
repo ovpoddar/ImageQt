@@ -139,4 +139,7 @@ internal struct BMPHeader
 
     public readonly int CalculatePixelSize() => 
         this.Type is BMPHeaderType.BitMapCore ? 3 : 4;
+
+    public readonly bool IsDependsOnExternalDecoding() =>
+        this.Compression is HeaderCompression.Png or HeaderCompression.Jpeg;
 }
