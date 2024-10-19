@@ -26,7 +26,8 @@ internal class DecodeBMPRLE
             Data2 = _data[1],
             CommandType = readCommand switch
             {
-                > 0 and < 3 => (RLECommandType)readCommand,
+                < 0 => RLECommandType.Fill,
+                < 3 => (RLECommandType)readCommand,
                 < 256 => RLECommandType.Default,
                 _ => RLECommandType.Fill,
             }
