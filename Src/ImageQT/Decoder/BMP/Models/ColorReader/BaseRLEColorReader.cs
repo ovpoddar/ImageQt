@@ -61,7 +61,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
                 positionTracker.SetWithXYAsRelative(deltaValues[0], deltaValues[1]);
                 break;
             default:
-                throw new BadImageFormatException();
+                throw new BadImageException();
         }
     }
 
