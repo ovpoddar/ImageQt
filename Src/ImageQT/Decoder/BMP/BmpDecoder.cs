@@ -154,6 +154,10 @@ internal class BmpDecoder : IImageDecoder
 
     // TODO:IMPLEMENTATION:https://www.fileformat.info/format/os2bmp/egff.htm according to this their suppose to be 24 rle but don't know about header type.
     // if found a image then might revisit this station
+    // found a 32 bit rle image some how
+    // from some docs on Microsoft the CMYK format is for printer and i don't have any image to test on but i guess i some idea how its works
+    // which cant be confirmed due to not enough image sample. so i will skip this if i found any image to test one i might wanna implement that
+    // until then lest skip it.
     private BaseColorReader GetReader(BMPHeader header, ColorTable? colorTable) =>
         header.Compression switch
         {

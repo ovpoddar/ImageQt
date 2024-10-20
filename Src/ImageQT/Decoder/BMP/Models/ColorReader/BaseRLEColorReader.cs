@@ -89,7 +89,7 @@ internal abstract class BaseRLEColorReader : BaseColorReader
        {
            4 or 8 => (int)(value),
            24 => (int)(value * 3),
-           _ => throw new NotSupportedException()
+           _ => throw new BadImageException()
        };
 
 }
