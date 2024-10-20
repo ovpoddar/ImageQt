@@ -1,13 +1,15 @@
 ﻿// Ignore Spelling: Mipmaps
 
+using System.Runtime.InteropServices;
+
 namespace ImageQT.Models.ImagqQT;
 
-public readonly struct Image
+internal sealed record Image<T>(int Width, int Height, int Mipmaps, int Format, short BitCount, T[] ActualBytes) : Image(Width, Height, Mipmaps, Format, BitCount)
 {
-    public required IntPtr Id { get; init; }
-    public required int Width { get; init; }
-    public required int Height { get; init; }
-    public required int Mipmaps { get; init; }
-    public required int Format { get; init; }
-    public required short BitCount { get; init; }
+    public override IntPtr Id => Marshal.UnsafeAddrOfPinnedArrayElement(ActualBytes, 0);
+}
+
+public abstract record Image(int Width, int Height, int Mipmaps, int Format, short BitCount)
+{
+    public abstract IntPtr Id { get; }
 }

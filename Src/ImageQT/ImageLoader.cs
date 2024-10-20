@@ -14,15 +14,9 @@ public static class ImageLoader
 
         if (bytes.Length != width * height)
             throw new Exception("Insufficent data");
-        var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-        return new Image()
+        return new Image<int>(width, height, 1, 1, sizeof(int) * 8, default)
         {
-            Height = height,
-            Width = width,
-            Id = imageData,
-            Format = 1,
-            Mipmaps = 1,
-            BitCount = sizeof(int) * 8
+            ActualBytes = bytes
         };
     }
 
@@ -35,16 +29,9 @@ public static class ImageLoader
         if (bytes.Length != width * height * 4)
             throw new Exception("Insufficient data");
 
-        var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-
-        return new Image()
+        return new Image<byte>(width, height, 1, 1, sizeof(int) * 8, default)
         {
-            Height = height,
-            Width = width,
-            Id = imageData,
-            Format = 1,
-            Mipmaps = 1,
-            BitCount = sizeof(int) * 8
+            ActualBytes = bytes
         };
     }
 
@@ -55,17 +42,9 @@ public static class ImageLoader
 
         if (bytes.Length != width * height)
             throw new Exception("Insufficent data");
-
-        var imageData = Marshal.UnsafeAddrOfPinnedArrayElement(bytes, 0);
-
-        return new Image()
+        return new Image<Pixels>(width, height, 1, 1, sizeof(int) * 8, default)
         {
-            Height = height,
-            Width = width,
-            Id = imageData,
-            Format = 1,
-            Mipmaps = 1,
-            BitCount = sizeof(int) * 8
+            ActualBytes = bytes
         };
     }
 
