@@ -57,9 +57,6 @@ internal partial class LibX11
     public static partial int XSetWMProtocols(IntPtr display, ulong window, IntPtr atom, int count);
 
     [LibraryImport(_dllName)]
-    public static partial int XDestroyWindow(IntPtr display, ulong window);
-
-    [LibraryImport(_dllName)]
     public static partial IntPtr XCreateGC(IntPtr display, ulong window, ulong valueMask, IntPtr values);
 
     [LibraryImport(_dllName)]
@@ -117,6 +114,6 @@ internal partial class LibX11
     public static partial void XFreeGC(IntPtr display, IntPtr gc);
 
     [LibraryImport(_dllName)]
-    public static partial void XDestroyImage(IntPtr xImage);
+    public static partial void XFree(IntPtr display);
 }
 #endif

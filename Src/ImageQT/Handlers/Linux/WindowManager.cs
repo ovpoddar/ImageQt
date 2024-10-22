@@ -48,13 +48,13 @@ internal class WindowManager : INativeWindowManager
         if (!_window.HasValue)
             return;
 
-        LibX11.XDestroyWindow(_display, _window.Value);
+        if (_image.HasValue)
+            LibX11.XFree(_image.Value);
 
-        //if (_image.HasValue)
-        //    LibX11.XDestroyImage(_image.Value);
+        if (_pixmap.HasValue)
+            LibX11.XFreePixmap(_display, _pixmap.Value);
 
-        //if (_pixmap.HasValue)
-        //    LibX11.XFreePixmap(_display, _pixmap.Value);
+        _ = LibX11.XCloseDisplay(_display);
         GC.SuppressFinalize(this);
     }
 
@@ -76,7 +76,6 @@ internal class WindowManager : INativeWindowManager
             if (closeTime != null && closeTime.Value < DateTime.Now
                 || @event.type == Event.ClientMessage && @event.xclient.data.l == (int)_atomDelete)
             {
-                LibX11.XCloseDisplay(_display);
                 break;
             }
             else
