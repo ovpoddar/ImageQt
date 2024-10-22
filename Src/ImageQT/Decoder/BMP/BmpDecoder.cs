@@ -5,11 +5,13 @@ using ImageQT.Decoder.BMP.Models.ColorReader;
 using ImageQT.Decoder.BMP.Models.DIbFileHeader;
 using ImageQT.Decoder.BMP.Models.Feature;
 using ImageQT.Decoder.Helpers;
+using ImageQT.Decoder.JPG;
 using ImageQT.Decoder.PNG;
 using ImageQT.Exceptions;
 using ImageQT.Models.ImagqQT;
 using System.Buffers;
 using System.Diagnostics;
+using System.Text;
 
 
 namespace ImageQT.Decoder.BMP;
@@ -91,16 +93,21 @@ internal class BmpDecoder : IImageDecoder
 
     private Image ProcessedImageWithExternalDecoding(ref BMPHeader header)
     {
-        switch (header.Compression)
+        if (header.Compression == HeaderCompression.Png)
         {
-            case HeaderCompression.Png:
-                var decoder = new PngDecoder(_fileStream);
-                decoder.CanProcess();
-                return decoder.Decode();
-            case HeaderCompression.Jpeg:
-                throw new NotImplementedException($"************************************{header.Compression}************************************");
-            default:
-                throw new ShouldNotBeCalledException();
+            var decoder = new PngDecoder(_fileStream);
+            decoder.CanProcess();
+            return decoder.Decode();
+        }
+        else if (header.Compression == HeaderCompression.Jpeg)
+        {
+            var decoder = new JpgDecoder(_fileStream);
+            decoder.CanProcess();
+            return decoder.Decode();
+        }
+        else
+        {
+            throw new ShouldNotBeCalledException();
         }
     }
 
