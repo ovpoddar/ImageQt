@@ -2,6 +2,7 @@
 using ImageQT.DllInterop.Linux;
 using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Linux;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace ImageQT.Handlers.Linux;
@@ -73,15 +74,16 @@ internal class WindowManager : INativeWindowManager
         {
             LibX11.XNextEvent(_display, ev);
             var @event = new XEvent(ref ev);
-            if (closeTime != null && closeTime.Value < DateTime.Now
-                || @event.type == Event.ClientMessage && @event.xclient.data.l == (int)_atomDelete)
+            if (@event.type == Event.Expose)
             {
-                break;
-            }
-            else
-            {
+                Debug.Assert(_display == @event.xexpose.display);
                 LibX11.XPutImage(_display, _pixmap.Value, graphicsContext, _image.Value, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
                 LibX11.XCopyArea(_display, _pixmap.Value, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
+                continue;
+            }
+            if (closeTime != null && closeTime.Value < DateTime.Now || @event.type == Event.ClientMessage && @event.xclient.data.l == (int)_atomDelete)
+            {
+                break;
             }
         }
         Marshal.FreeHGlobal(ev);
