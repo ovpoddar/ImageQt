@@ -6,11 +6,17 @@ namespace ImageQT.Models.ImagqQT;
 [StructLayout(LayoutKind.Sequential, Pack = 0, Size = sizeof(byte) * 4)]
 public struct Pixels
 {
+#if OSX
+    public byte Alfa { get; set; }
+    public byte Blue { get; set; }
+    public byte Green { get; set; }
+    public byte Red { get; set; }
+#else
     public byte Blue { get; set; }
     public byte Green { get; set; }
     public byte Red { get; set; }
     public byte Alfa { get; set; }
-
+#endif
     public Pixels(byte red, byte green, byte blue)
     {
         this.Red = red;
