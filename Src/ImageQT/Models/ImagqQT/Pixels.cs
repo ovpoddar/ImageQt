@@ -17,15 +17,16 @@ public struct Pixels
     public byte Red { get; set; }
     public byte Alfa { get; set; }
 #endif
+
     public Pixels(byte red, byte green, byte blue)
     {
         this.Red = red;
         this.Green = green;
         this.Blue = blue;
+        this.Alfa = 0;
 #if OSX
         this.Alfa = 255;
 #endif
-        this.Alfa = 0;
     }
 
 
@@ -34,9 +35,6 @@ public struct Pixels
         this.Red = red;
         this.Green = green;
         this.Blue = blue;
-#if OSX
-        this.Alfa = alpha;
-#endif
         this.Alfa = alpha;
     }
 
@@ -78,10 +76,9 @@ public struct Pixels
                 break;
         }
 
+        this.Alfa = 0;
 #if OSX
         this.Alfa = 255;
-#else
-        this.Alfa = 0;
 #endif
     }
 }
