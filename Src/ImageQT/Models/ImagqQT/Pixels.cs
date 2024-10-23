@@ -7,7 +7,7 @@ namespace ImageQT.Models.ImagqQT;
 public struct Pixels
 {
 #if OSX
-    public byte Alfa { get; set; }
+    public byte Alpha { get; set; }
     public byte Blue { get; set; }
     public byte Green { get; set; }
     public byte Red { get; set; }
@@ -15,7 +15,7 @@ public struct Pixels
     public byte Blue { get; set; }
     public byte Green { get; set; }
     public byte Red { get; set; }
-    public byte Alfa { get; set; }
+    public byte Alpha { get; set; }
 #endif
 
     public Pixels(byte red, byte green, byte blue)
@@ -23,9 +23,9 @@ public struct Pixels
         this.Red = red;
         this.Green = green;
         this.Blue = blue;
-        this.Alfa = 0;
+        this.Alpha = 0;
 #if OSX
-        this.Alfa = 255;
+        this.Alpha = 255;
 #endif
     }
 
@@ -35,7 +35,7 @@ public struct Pixels
         this.Red = red;
         this.Green = green;
         this.Blue = blue;
-        this.Alfa = alpha;
+        this.Alpha = alpha;
     }
 
     public Pixels(int color, PixelFormat format)
@@ -76,9 +76,9 @@ public struct Pixels
                 break;
         }
 
-        this.Alfa = 0;
+        this.Alpha = 0;
 #if OSX
-        this.Alfa = 255;
+        this.Alpha = 255;
 #endif
     }
 }
