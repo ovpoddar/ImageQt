@@ -16,7 +16,7 @@ internal class JpgDecoder : IImageDecoder
 
     public bool CanProcess()
     {
-        throw new NotImplementedException();
+        return false;
     }
 
     public Image Decode()
