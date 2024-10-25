@@ -22,5 +22,10 @@ internal class NSWindow : SafeHandleBaseZeroInvalid
             false));
     }
 
+    public IntPtr GetContentView()
+    {
+        var selector = ObjectCRuntime.SelGetUid("contentView");
+        return ObjectCRuntime.PointerObjCMsgSend(this.DangerousGetHandle(), selector);
+    }
 }
 #endif

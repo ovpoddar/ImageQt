@@ -9,7 +9,7 @@ internal sealed class WindowManager : INativeWindowManager
     private bool _isRunning;
     private readonly NSApplication _application;
     private CGRect? _cGRect;
-    private NSImage? _image;
+    private NSImageView? _imageView;
 
     public WindowManager()
     {
@@ -40,7 +40,7 @@ internal sealed class WindowManager : INativeWindowManager
 
     public Task Show(DateTime? closeTime = null)
     {
-        if (!_cGRect.HasValue || _image is null)
+        if (!_cGRect.HasValue || _imageView is null)
             return Task.CompletedTask;
 
         using var window = new NSWindow(_cGRect.Value);
@@ -53,9 +53,8 @@ internal sealed class WindowManager : INativeWindowManager
         using var time = new NSDate().DistantPast;
         using var mode = new NSString("kCFRunLoopDefaultMode");
 
-        var color = new NSColor(_image);
-        selector = ObjectCRuntime.SelGetUid("setBackgroundColor:");
-        ObjectCRuntime.ObjCMsgSend(window, selector, color);
+        selector = ObjectCRuntime.SelGetUid("addSubview:");
+        ObjectCRuntime.ObjCMsgSend(window.GetContentView(), selector, _imageView);
 
         while (_isRunning)
         {
@@ -92,6 +91,10 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void SetUpImage(Image image)
     {
+        if (_cGRect == null)
+            return;
+
+        _imageView = new NSImageView(_cGRect.Value);
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
         using var imageRep = new NSBitmapImageRep(
             [image.Id],
@@ -102,10 +105,11 @@ internal sealed class WindowManager : INativeWindowManager
             colorSpace,
             image.Width * 4,
             32);
-        _image = new NSImage(new(image.Width, image.Height));
-
+        using var nsImage = new NSImage(new(image.Width, image.Height));
         var selector = ObjectCRuntime.SelGetUid("addRepresentation:");
-        ObjectCRuntime.ObjCMsgSend(_image, selector, imageRep);
+        ObjectCRuntime.ObjCMsgSend(nsImage, selector, imageRep);
+        selector = ObjectCRuntime.SelGetUid("setImage:");
+        ObjectCRuntime.ObjCMsgSend(_imageView, selector, nsImage);
     }
 }
 #endif
