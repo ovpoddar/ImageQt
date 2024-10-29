@@ -22,8 +22,8 @@ internal sealed class WindowManager : INativeWindowManager
         _cGRect = new(0, 0, width, height);
         var setActivationPolicy = ObjectCRuntime.SelGetUid("setActivationPolicy:");
         ObjectCRuntime.BoolObjCMsgSend(_application, setActivationPolicy, 0);
-        var makeitTop = ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:");
-        ObjectCRuntime.ObjCMsgSend(_application, makeitTop, true);
+        var makeItTop = ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:");
+        ObjectCRuntime.ObjCMsgSend(_application, makeItTop, true);
 
         return default;
     }
@@ -44,7 +44,7 @@ internal sealed class WindowManager : INativeWindowManager
             return Task.CompletedTask;
 
         using var window = new NSWindow(_cGRect.Value);
-        using var methodDelegate = new NSWindowDelegateImplementation(windowWillClose);
+        using var methodDelegate = new NSWindowDelegateImplementation(WindowWillClose);
         var selector = ObjectCRuntime.SelGetUid("setDelegate:");
         ObjectCRuntime.ObjCMsgSend(window, selector, methodDelegate);
         selector = ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:");
@@ -81,7 +81,7 @@ internal sealed class WindowManager : INativeWindowManager
         return Task.CompletedTask;
     }
 
-    void windowWillClose(IntPtr receiver, IntPtr selector, IntPtr arguments)
+    void WindowWillClose(IntPtr receiver, IntPtr selector, IntPtr arguments)
     {
         if (_isRunning)
         {
