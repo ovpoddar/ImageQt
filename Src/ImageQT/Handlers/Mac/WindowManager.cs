@@ -46,7 +46,7 @@ internal sealed class WindowManager : INativeWindowManager
             "CustomClass",
             0);
         if (customClass == IntPtr.Zero)
-            return Task.FromResult(false);
+            return Task.CompletedTask;
 
         ObjectCRuntime.ClassAddMethod(
            customClass,
