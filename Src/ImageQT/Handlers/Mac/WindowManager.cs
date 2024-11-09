@@ -87,29 +87,26 @@ internal sealed class WindowManager : INativeWindowManager
             ObjectCRuntime.ObjCGetClass("NSString"),
             ObjectCRuntime.SelGetUid("stringWithUTF8String:"),
             "kCFRunLoopDefaultMode");
-        var time = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.ObjCGetClass("NSDate"),
-            ObjectCRuntime.SelGetUid("distantPast"));
-
-        while (this._isRunning)
+        using (var time = new NSDate())
         {
-            for (; ; )
+            while (this._isRunning)
             {
-                var evnt = ObjectCRuntime.PointerObjCMsgSend(
-                    app,
-                    ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
-                    ulong.MaxValue,
-                    time,
-                    mode,
-                    true);
-                if (evnt == IntPtr.Zero) break;
+                for (; ; )
+                {
+                    var evnt = ObjectCRuntime.PointerObjCMsgSend(
+                        app,
+                        ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
+                        ulong.MaxValue,
+                        time,
+                        mode,
+                        true);
+                    if (evnt == IntPtr.Zero) break;
 
-                ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
-                ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
+                    ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
+                    ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
+                }
             }
         }
-
-        ObjectCRuntime.ObjCMsgSend(time, PreSelector.Release);
         ObjectCRuntime.ObjCMsgSend(mode, PreSelector.Release);
         ObjectCRuntime.ObjCMsgSend(delegateClass, PreSelector.Release);
         ObjectCRuntime.ObjCDisposeClassPair(customClass);
