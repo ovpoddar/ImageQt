@@ -19,10 +19,9 @@ internal sealed class WindowManager : INativeWindowManager
         _isRunning = true;
     }
 
-    public nint CreateWindow(uint height, uint width)
+    public void CreateWindow(uint height, uint width)
     {
         _rect = new CGRect(0, 0, width, height);
-        return IntPtr.Zero;
     }
 
     public void Dispose()

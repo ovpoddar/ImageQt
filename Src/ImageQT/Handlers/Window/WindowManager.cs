@@ -22,7 +22,7 @@ internal sealed class WindowManager : INativeWindowManager
         _wndProcDelegate = CustomWndProc;
     }
 
-    public nint CreateWindow(uint height, uint width)
+    public void CreateWindow(uint height, uint width)
     {
         var module = Kernel32.GetModuleHandleA(null);
         WndClassExW wc = new()
@@ -57,8 +57,6 @@ internal sealed class WindowManager : INativeWindowManager
             IntPtr.Zero,
             module,
             IntPtr.Zero);
-        return default;
-
     }
 
     public void Dispose()
