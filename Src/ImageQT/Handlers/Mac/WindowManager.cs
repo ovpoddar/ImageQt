@@ -22,6 +22,10 @@ internal sealed class WindowManager : INativeWindowManager
     public void CreateWindow(uint height, uint width)
     {
         _rect = new CGRect(0, 0, width, height);
+        _nsView = ObjectCRuntime.PointerObjCMsgSend(
+            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImageView"), PreSelector.Alloc),
+            ObjectCRuntime.SelGetUid("initWithFrame:"),
+            _rect.Value);
     }
 
     public void Dispose()
@@ -128,10 +132,6 @@ internal sealed class WindowManager : INativeWindowManager
             return;
         }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
-        _nsView = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImageView"), PreSelector.Alloc),
-            ObjectCRuntime.SelGetUid("initWithFrame:"),
-            _rect.Value);
         var rep = ObjectCRuntime.PointerObjCMsgSend(
             ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSBitmapImageRep"), PreSelector.Alloc),
             ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:"),
