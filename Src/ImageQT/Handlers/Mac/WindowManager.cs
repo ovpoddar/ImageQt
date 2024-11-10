@@ -44,9 +44,19 @@ internal sealed class WindowManager : INativeWindowManager
         var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
         ObjectCRuntime.BoolObjCMsgSend(app, ObjectCRuntime.SelGetUid("setActivationPolicy:"), 0);
 
-        var customClass = new NSCustomClass();
-        customClass.WindowWillClose =  WindowWillClose;
-        customClass.RegisterCustomClass();
+        var customClass = ObjectCRuntime.ObjCAllocateClassPair(
+            ObjectCRuntime.ObjCGetClass("NSObject"),
+            "CustomClass",
+            0);
+        if (customClass == IntPtr.Zero)
+            return Task.CompletedTask;
+
+        ObjectCRuntime.ClassAddMethod(
+           customClass,
+           ObjectCRuntime.SelGetUid("WindowWillClose:"),
+           WindowWillClose,
+           "V@:@");
+        ObjectCRuntime.ObjCRegisterClassPair(customClass);
 
         var window = ObjectCRuntime.PointerObjCMsgSend(
             ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSWindow"), PreSelector.Alloc),
@@ -100,7 +110,7 @@ internal sealed class WindowManager : INativeWindowManager
             }
         }
         ObjectCRuntime.ObjCMsgSend(delegateClass, PreSelector.Release);
-        customClass.UnregisterCustomClass();
+        ObjectCRuntime.ObjCDisposeClassPair(customClass);
         ObjectCRuntime.ObjCMsgSend(_nsView, PreSelector.Release);
         ObjectCRuntime.ObjCMsgSend(window, PreSelector.Release);
         return Task.CompletedTask;
