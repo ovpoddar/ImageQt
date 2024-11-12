@@ -57,6 +57,7 @@ internal sealed class WindowManager : INativeWindowManager
         using (var delegateClass = new NSCustomClass(WindowWillClose))
         {
 
+
             ObjectCRuntime.ObjCMsgSend(window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
 
             ObjectCRuntime.ObjCMsgSend(
@@ -73,27 +74,23 @@ internal sealed class WindowManager : INativeWindowManager
               ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:"),
               false);
 
-            using (var mode = new NSString("kCFRunLoopDefaultMode"))
+            using var mode = new NSString("kCFRunLoopDefaultMode");
+            using var time = new NSDate();
+            while (this._isRunning)
             {
-                using (var time = new NSDate())
+                for (; ; )
                 {
-                    while (this._isRunning)
-                    {
-                        for (; ; )
-                        {
-                            var evnt = ObjectCRuntime.PointerObjCMsgSend(
-                                app,
-                                ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
-                                ulong.MaxValue,
-                                time,
-                                mode,
-                                true);
-                            if (evnt == IntPtr.Zero) break;
+                    var evnt = ObjectCRuntime.PointerObjCMsgSend(
+                        app,
+                        ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
+                        ulong.MaxValue,
+                        time,
+                        mode,
+                        true);
+                    if (evnt == IntPtr.Zero) break;
 
-                            ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
-                            ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
-                        }
-                    }
+                    ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
+                    ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
                 }
             }
         }
