@@ -21,6 +21,9 @@ internal partial class ObjectCRuntime
     public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector, CustomMethodDelegate arg1);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.Bool)] bool arg1);
 
 

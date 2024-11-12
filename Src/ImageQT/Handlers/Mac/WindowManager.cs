@@ -66,50 +66,49 @@ internal sealed class WindowManager : INativeWindowManager
             2,
             false);
 
-        var delegateClass = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(customClass, PreSelector.Alloc),
-            PreSelector.Init);
-
-        ObjectCRuntime.ObjCMsgSend(window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
-
-        ObjectCRuntime.ObjCMsgSend(
-           ObjectCRuntime.PointerObjCMsgSend(window, ObjectCRuntime.SelGetUid("contentView")),
-           ObjectCRuntime.SelGetUid("addSubview:"),
-           _nsView);
-        ObjectCRuntime.ObjCMsgSend(
-          window,
-          ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:"),
-          IntPtr.Zero);
-
-        ObjectCRuntime.ObjCMsgSend(
-          app,
-          ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:"),
-          false);
-
-        using (var mode = new NSString("kCFRunLoopDefaultMode"))
+        using (var delegateClass = new CustomMethodDelegate(customClass))
         {
-            using (var time = new NSDate())
-            {
-                while (this._isRunning)
-                {
-                    for (; ; )
-                    {
-                        var evnt = ObjectCRuntime.PointerObjCMsgSend(
-                            app,
-                            ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
-                            ulong.MaxValue,
-                            time,
-                            mode,
-                            true);
-                        if (evnt == IntPtr.Zero) break;
 
-                        ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
-                        ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
+            ObjectCRuntime.ObjCMsgSend(window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
+
+            ObjectCRuntime.ObjCMsgSend(
+               ObjectCRuntime.PointerObjCMsgSend(window, ObjectCRuntime.SelGetUid("contentView")),
+               ObjectCRuntime.SelGetUid("addSubview:"),
+               _nsView);
+            ObjectCRuntime.ObjCMsgSend(
+              window,
+              ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:"),
+              IntPtr.Zero);
+
+            ObjectCRuntime.ObjCMsgSend(
+              app,
+              ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:"),
+              false);
+
+            using (var mode = new NSString("kCFRunLoopDefaultMode"))
+            {
+                using (var time = new NSDate())
+                {
+                    while (this._isRunning)
+                    {
+                        for (; ; )
+                        {
+                            var evnt = ObjectCRuntime.PointerObjCMsgSend(
+                                app,
+                                ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
+                                ulong.MaxValue,
+                                time,
+                                mode,
+                                true);
+                            if (evnt == IntPtr.Zero) break;
+
+                            ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
+                            ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
+                        }
                     }
                 }
             }
         }
-        ObjectCRuntime.ObjCMsgSend(delegateClass, PreSelector.Release);
         ObjectCRuntime.ObjCDisposeClassPair(customClass);
         ObjectCRuntime.ObjCMsgSend(_nsView, PreSelector.Release);
         ObjectCRuntime.ObjCMsgSend(window, PreSelector.Release);
