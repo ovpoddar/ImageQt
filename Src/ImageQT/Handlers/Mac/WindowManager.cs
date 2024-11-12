@@ -46,20 +46,6 @@ internal sealed class WindowManager : INativeWindowManager
         var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
         ObjectCRuntime.BoolObjCMsgSend(app, ObjectCRuntime.SelGetUid("setActivationPolicy:"), 0);
 
-        var customClass = ObjectCRuntime.ObjCAllocateClassPair(
-            ObjectCRuntime.ObjCGetClass("NSObject"),
-            "CustomClass",
-            0);
-        if (customClass == IntPtr.Zero)
-            return Task.CompletedTask;
-
-        ObjectCRuntime.ClassAddMethod(
-           customClass,
-           ObjectCRuntime.SelGetUid("windowWillClose:"),
-           WindowWillClose,
-           "V@:@");
-        ObjectCRuntime.ObjCRegisterClassPair(customClass);
-
         var window = ObjectCRuntime.PointerObjCMsgSend(
             ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSWindow"), PreSelector.Alloc),
             ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:"),
@@ -68,7 +54,7 @@ internal sealed class WindowManager : INativeWindowManager
             2,
             false);
 
-        using (var delegateClass = new CustomMethodDelegate(customClass))
+        using (var delegateClass = new NSCustomClass(WindowWillClose))
         {
 
             ObjectCRuntime.ObjCMsgSend(window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
@@ -111,7 +97,6 @@ internal sealed class WindowManager : INativeWindowManager
                 }
             }
         }
-        ObjectCRuntime.ObjCDisposeClassPair(customClass);
         ObjectCRuntime.ObjCMsgSend(_nsView, PreSelector.Release);
         ObjectCRuntime.ObjCMsgSend(window, PreSelector.Release);
         return Task.CompletedTask;
@@ -159,35 +144,6 @@ internal sealed class WindowManager : INativeWindowManager
             _nsView,
             ObjectCRuntime.SelGetUid("setImage:"),
             nsImage);
-    }
-}
-
-internal class NSWindowDelegateImplementation : SafeHandleBaseZeroInvalid
-{
-    private readonly IntPtr _customClassPointer;
-    public NSWindowDelegateImplementation(windowWillClose actionDelegate) : base(true)
-    {
-        var nsObjectClass = ObjectCRuntime.ObjCGetClass("NSObject");
-        _customClassPointer = ObjectCRuntime.ObjCAllocateClassPair(nsObjectClass, "NSCustomClass", 0);
-        if (nsObjectClass == IntPtr.Zero)
-        {
-            Debug.WriteLine("fail to create class.find a unique name for this class");
-            Debug.Assert(nsObjectClass != IntPtr.Zero);
-        }
-        var methodSelector = ObjectCRuntime.SelGetUid("windowWillClose:");
-        ObjectCRuntime.ClassAddMethod(_customClassPointer, methodSelector, actionDelegate, "V@:@");
-        ObjectCRuntime.ObjCRegisterClassPair(_customClassPointer);
-
-        var appDelegateInstance = ObjectCRuntime.PointerObjCMsgSend(_customClassPointer, PreSelector.Alloc);
-        SetHandle(ObjectCRuntime.PointerObjCMsgSend(appDelegateInstance, PreSelector.Init));
-    }
-
-    protected override bool ReleaseHandle()
-    {
-        var responce = base.ReleaseHandle();
-        if (_customClassPointer != IntPtr.Zero)
-            ObjectCRuntime.ObjCDisposeClassPair(_customClassPointer);
-        return responce;
     }
 }
 #endif
