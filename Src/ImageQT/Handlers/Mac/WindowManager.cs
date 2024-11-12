@@ -4,8 +4,10 @@ using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Mac;
 using ImageQT.Models.Windows;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using static ImageQT.Models.Mac.WindowDelegate;
 
 namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager
@@ -157,6 +159,35 @@ internal sealed class WindowManager : INativeWindowManager
             _nsView,
             ObjectCRuntime.SelGetUid("setImage:"),
             nsImage);
+    }
+}
+
+internal class NSWindowDelegateImplementation : SafeHandleBaseZeroInvalid
+{
+    private readonly IntPtr _customClassPointer;
+    public NSWindowDelegateImplementation(windowWillClose actionDelegate) : base(true)
+    {
+        var nsObjectClass = ObjectCRuntime.ObjCGetClass("NSObject");
+        _customClassPointer = ObjectCRuntime.ObjCAllocateClassPair(nsObjectClass, "NSCustomClass", 0);
+        if (nsObjectClass == IntPtr.Zero)
+        {
+            Debug.WriteLine("fail to create class.find a unique name for this class");
+            Debug.Assert(nsObjectClass != IntPtr.Zero);
+        }
+        var methodSelector = ObjectCRuntime.SelGetUid("windowWillClose:");
+        ObjectCRuntime.ClassAddMethod(_customClassPointer, methodSelector, actionDelegate, "V@:@");
+        ObjectCRuntime.ObjCRegisterClassPair(_customClassPointer);
+
+        var appDelegateInstance = ObjectCRuntime.PointerObjCMsgSend(_customClassPointer, PreSelector.Alloc);
+        SetHandle(ObjectCRuntime.PointerObjCMsgSend(appDelegateInstance, PreSelector.Init));
+    }
+
+    protected override bool ReleaseHandle()
+    {
+        var responce = base.ReleaseHandle();
+        if (_customClassPointer != IntPtr.Zero)
+            ObjectCRuntime.ObjCDisposeClassPair(_customClassPointer);
+        return responce;
     }
 }
 #endif
