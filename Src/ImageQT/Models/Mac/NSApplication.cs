@@ -22,9 +22,26 @@ internal sealed class NSApplication
         _instance ??= new NSApplication();
 
     public bool SetSetActivationPolicy(NSApplicationActivationPolicy value) =>
-        ObjectCRuntime.BoolObjCMsgSend(this._handle, ObjectCRuntime.SelGetUid("setActivationPolicy:"), value);
+        ObjectCRuntime.BoolObjCMsgSend(this, ObjectCRuntime.SelGetUid("setActivationPolicy:"), value);
 
     public static implicit operator IntPtr(NSApplication nsApplication) =>
         nsApplication._handle;
 
+    // TODO: can be trimmed for release.
+    public void ActivateIgnoringOtherApps(bool ignoreOtherApps)
+    {
+        if (OperatingSystem.IsMacCatalystVersionAtLeast(14, 10))
+        {
+            ObjectCRuntime.ObjCMsgSend(
+             this,
+             ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:"),
+             ignoreOtherApps);
+        }
+        else
+        {
+            ObjectCRuntime.ObjCMsgSend(
+                this,
+                ObjectCRuntime.SelGetUid("activate"));
+        }
+    }
 }

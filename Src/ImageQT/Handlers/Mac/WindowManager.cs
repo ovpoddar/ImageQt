@@ -18,10 +18,9 @@ internal sealed class WindowManager : INativeWindowManager
 
     public WindowManager()
     {
-        // TODO: verify the changes. make a static class for nsApplication
+        _isRunning = true;
         var app = NSApplication.SharedApplication;
         app.SetSetActivationPolicy(NSApplicationActivationPolicy.Regular);
-        _isRunning = true;
     }
 
     public void CreateWindow(uint height, uint width)
@@ -71,10 +70,7 @@ internal sealed class WindowManager : INativeWindowManager
               ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:"),
               IntPtr.Zero);
 
-            ObjectCRuntime.ObjCMsgSend(
-              app,
-              ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:"),
-              false);
+            app.ActivateIgnoringOtherApps(true);
 
             using var mode = new NSString("kCFRunLoopDefaultMode");
             using var time = new NSDate();
