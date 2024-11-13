@@ -14,7 +14,7 @@ internal sealed class WindowManager : INativeWindowManager
     private bool _isRunning;
     private CGRect? _rect;
     private IntPtr? _nsView;
-    private NSWindow _window;
+    private NSWindow? _window;
 
     public WindowManager()
     {
@@ -38,14 +38,14 @@ internal sealed class WindowManager : INativeWindowManager
         if (_nsView.HasValue && _nsView != IntPtr.Zero)
             ObjectCRuntime.ObjCMsgSend(_nsView.Value, PreSelector.Release);
 
-        if(!_window.IsClosed)
+        if(_window != null && !_window.IsClosed)
             _window.Dispose();
         GC.SuppressFinalize(this);
     }
 
     public Task Show(DateTime? closeTime = null)
     {
-        if (_window.IsClosed || _window.IsInvalid || !_nsView.HasValue)
+        if (_window == null || _window.IsClosed || _window.IsInvalid || !_nsView.HasValue)
         {
             return Task.CompletedTask;
         }
