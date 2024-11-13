@@ -14,7 +14,7 @@ internal sealed class WindowManager : INativeWindowManager
     private bool _isRunning;
     private CGRect? _rect;
     private IntPtr? _nsView;
-    private IntPtr? _window;
+    private NSWindow _window;
 
     public WindowManager()
     {
@@ -30,27 +30,22 @@ internal sealed class WindowManager : INativeWindowManager
             ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImageView"), PreSelector.Alloc),
             ObjectCRuntime.SelGetUid("initWithFrame:"),
             _rect.Value);
-        _window = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSWindow"), PreSelector.Alloc),
-            ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:"),
-            _rect.Value,
-            11,
-            2,
-            false);
+        _window = new NSWindow(_rect.Value);
     }
 
     public void Dispose()
     {
         if (_nsView.HasValue && _nsView != IntPtr.Zero)
             ObjectCRuntime.ObjCMsgSend(_nsView.Value, PreSelector.Release);
-        if (_window.HasValue && _window != IntPtr.Zero)
-            ObjectCRuntime.ObjCMsgSend(_window.Value, PreSelector.Release);
+
+        if(!_window.IsClosed)
+            _window.Dispose();
         GC.SuppressFinalize(this);
     }
 
     public Task Show(DateTime? closeTime = null)
     {
-        if (!_window.HasValue || !_nsView.HasValue)
+        if (_window.IsClosed || _window.IsInvalid || !_nsView.HasValue)
         {
             return Task.CompletedTask;
         }
@@ -59,14 +54,14 @@ internal sealed class WindowManager : INativeWindowManager
         using (var delegateClass = new NSCustomClass(WindowWillClose))
         {
 
-            ObjectCRuntime.ObjCMsgSend(_window.Value, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
+            ObjectCRuntime.ObjCMsgSend(_window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
 
             ObjectCRuntime.ObjCMsgSend(
-               ObjectCRuntime.PointerObjCMsgSend(_window.Value, ObjectCRuntime.SelGetUid("contentView")),
+               ObjectCRuntime.PointerObjCMsgSend(_window, ObjectCRuntime.SelGetUid("contentView")),
                ObjectCRuntime.SelGetUid("addSubview:"),
                _nsView.Value);
             ObjectCRuntime.ObjCMsgSend(
-              _window.Value,
+              _window,
               ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:"),
               IntPtr.Zero);
 
@@ -137,29 +132,6 @@ internal sealed class WindowManager : INativeWindowManager
             _nsView.Value,
             ObjectCRuntime.SelGetUid("setImage:"),
             nsImage);
-    }
-}
-
-internal class NSWindow : SafeHandleBaseZeroInvalid
-{
-    public NSWindow(CGRect cgRect) : base(true)
-    {
-        var nsWindow = Appkit.ObjCGetClass("NSWindow");
-        var window = ObjectCRuntime.PointerObjCMsgSend(nsWindow, PreSelector.Alloc);
-
-        var selector = ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:");
-        SetHandle(ObjectCRuntime.PointerObjCMsgSend(window,
-            selector,
-            cgRect,
-            NSWindowStyle.Borderless | NSWindowStyle.Titled | NSWindowStyle.Closable | NSWindowStyle.Miniaturizable | NSWindowStyle.Resizable,
-            NSBackingStore.Buffered,
-            false));
-    }
-
-    public IntPtr GetContentView()
-    {
-        var selector = ObjectCRuntime.SelGetUid("contentView");
-        return ObjectCRuntime.PointerObjCMsgSend(this.DangerousGetHandle(), selector);
     }
 }
 #endif
