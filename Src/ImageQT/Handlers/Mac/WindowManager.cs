@@ -144,3 +144,29 @@ internal sealed class WindowManager : INativeWindowManager
     }
 }
 #endif
+
+internal class NSImage : SafeHandleBaseZeroInvalid
+{
+    public NSImage(CGSize size) : base(true)
+    {
+        var nsImage = Appkit.ObjCGetClass("NSImage");
+        var image = ObjectCRuntime.PointerObjCMsgSend(nsImage, PreSelector.Alloc);
+        var selector = ObjectCRuntime.SelGetUid("initWithSize:");
+        SetHandle(ObjectCRuntime.PointerObjCMsgSend(image, selector, size));
+    }
+}
+
+internal class NSApplication
+{
+    private IntPtr _handle;
+    public NSApplication SharedApplication()
+    {
+        var nsApplication = Appkit.ObjCGetClass("NSApplication");
+        var selector = ObjectCRuntime.SelGetUid("sharedApplication");
+        _handle = ObjectCRuntime.PointerObjCMsgSend(nsApplication, selector);
+        return this;
+    }
+
+    public static implicit operator IntPtr(NSApplication self) =>
+        self._handle;
+}
