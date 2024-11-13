@@ -7,17 +7,20 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using static ImageQT.Models.Mac.WindowDelegate;
 
 namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager
 {
     private bool _isRunning;
     private CGRect? _rect;
-    private IntPtr _nsView;
+    private IntPtr? _nsView;
+    private IntPtr? _window;
 
     public WindowManager()
     {
+        // TODO: verify the changes. make a static class for nsApplication
+        var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
+        ObjectCRuntime.BoolObjCMsgSend(app, ObjectCRuntime.SelGetUid("setActivationPolicy:"), 0);
         _isRunning = true;
     }
 
@@ -28,44 +31,43 @@ internal sealed class WindowManager : INativeWindowManager
             ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImageView"), PreSelector.Alloc),
             ObjectCRuntime.SelGetUid("initWithFrame:"),
             _rect.Value);
-    }
-
-    public void Dispose()
-    {
-
-        GC.SuppressFinalize(this);
-    }
-
-    public Task Show(DateTime? closeTime = null)
-    {
-        if (!_rect.HasValue)
-        {
-            return Task.CompletedTask;
-        }
-
-        var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
-        ObjectCRuntime.BoolObjCMsgSend(app, ObjectCRuntime.SelGetUid("setActivationPolicy:"), 0);
-
-        var window = ObjectCRuntime.PointerObjCMsgSend(
+        _window = ObjectCRuntime.PointerObjCMsgSend(
             ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSWindow"), PreSelector.Alloc),
             ObjectCRuntime.SelGetUid("initWithContentRect:styleMask:backing:defer:"),
             _rect.Value,
             11,
             2,
             false);
+    }
 
+    public void Dispose()
+    {
+        if (_nsView.HasValue && _nsView != IntPtr.Zero)
+            ObjectCRuntime.ObjCMsgSend(_nsView.Value, PreSelector.Release);
+        if (_window.HasValue && _window != IntPtr.Zero)
+            ObjectCRuntime.ObjCMsgSend(_window.Value, PreSelector.Release);
+        GC.SuppressFinalize(this);
+    }
+
+    public Task Show(DateTime? closeTime = null)
+    {
+        if (!_window.HasValue || !_nsView.HasValue)
+        {
+            return Task.CompletedTask;
+        }
+
+        var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
         using (var delegateClass = new NSCustomClass(WindowWillClose))
         {
 
-
-            ObjectCRuntime.ObjCMsgSend(window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
+            ObjectCRuntime.ObjCMsgSend(_window.Value, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
 
             ObjectCRuntime.ObjCMsgSend(
-               ObjectCRuntime.PointerObjCMsgSend(window, ObjectCRuntime.SelGetUid("contentView")),
+               ObjectCRuntime.PointerObjCMsgSend(_window.Value, ObjectCRuntime.SelGetUid("contentView")),
                ObjectCRuntime.SelGetUid("addSubview:"),
-               _nsView);
+               _nsView.Value);
             ObjectCRuntime.ObjCMsgSend(
-              window,
+              _window.Value,
               ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:"),
               IntPtr.Zero);
 
@@ -94,8 +96,6 @@ internal sealed class WindowManager : INativeWindowManager
                 }
             }
         }
-        ObjectCRuntime.ObjCMsgSend(_nsView, PreSelector.Release);
-        ObjectCRuntime.ObjCMsgSend(window, PreSelector.Release);
         return Task.CompletedTask;
 
     }
@@ -110,7 +110,7 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void SetUpImage(Image image)
     {
-        if (!_rect.HasValue)
+        if (!_rect.HasValue || !_nsView.HasValue)
         {
             return;
         }
@@ -138,7 +138,7 @@ internal sealed class WindowManager : INativeWindowManager
           ObjectCRuntime.SelGetUid("addRepresentation:"),
           rep);
         ObjectCRuntime.ObjCMsgSend(
-            _nsView,
+            _nsView.Value,
             ObjectCRuntime.SelGetUid("setImage:"),
             nsImage);
     }
