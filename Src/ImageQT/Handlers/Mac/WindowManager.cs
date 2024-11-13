@@ -156,17 +156,16 @@ internal class NSImage : SafeHandleBaseZeroInvalid
     }
 }
 
-internal class NSApplication
+internal static class NSApplication
 {
-    private IntPtr _handle;
-    public NSApplication SharedApplication()
+    public static IntPtr SharedApplication
     {
-        var nsApplication = Appkit.ObjCGetClass("NSApplication");
-        var selector = ObjectCRuntime.SelGetUid("sharedApplication");
-        _handle = ObjectCRuntime.PointerObjCMsgSend(nsApplication, selector);
-        return this;
+        get
+        {
+            var nsApplication = Appkit.ObjCGetClass("NSApplication");
+            var selector = ObjectCRuntime.SelGetUid("sharedApplication");
+            return ObjectCRuntime.PointerObjCMsgSend(nsApplication, selector);
+        }
     }
 
-    public static implicit operator IntPtr(NSApplication self) =>
-        self._handle;
 }
