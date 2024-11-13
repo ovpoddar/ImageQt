@@ -20,7 +20,7 @@ internal sealed class WindowManager : INativeWindowManager
     {
         // TODO: verify the changes. make a static class for nsApplication
         var app = NSApplication.SharedApplication;
-        ObjectCRuntime.BoolObjCMsgSend(app, ObjectCRuntime.SelGetUid("setActivationPolicy:"), 0);
+        app.SetSetActivationPolicy(NSApplicationActivationPolicy.Regular);
         _isRunning = true;
     }
 

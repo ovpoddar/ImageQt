@@ -56,7 +56,7 @@ internal partial class ObjectCRuntime
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool BoolObjCMsgSend(IntPtr receiver, IntPtr selector, int arg1);
+    public static partial bool BoolObjCMsgSend(IntPtr receiver, IntPtr selector, NSApplicationActivationPolicy arg1);
 
 
 
