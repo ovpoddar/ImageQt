@@ -39,6 +39,7 @@ internal sealed class NSApplication
         }
         else
         {
+            // TODO verify on latest m2
             ObjectCRuntime.ObjCMsgSend(
                 this,
                 ObjectCRuntime.SelGetUid("activate"));
