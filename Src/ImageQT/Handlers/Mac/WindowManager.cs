@@ -19,7 +19,7 @@ internal sealed class WindowManager : INativeWindowManager
     public WindowManager()
     {
         // TODO: verify the changes. make a static class for nsApplication
-        var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
+        var app = NSApplication.SharedApplication;
         ObjectCRuntime.BoolObjCMsgSend(app, ObjectCRuntime.SelGetUid("setActivationPolicy:"), 0);
         _isRunning = true;
     }
@@ -56,7 +56,7 @@ internal sealed class WindowManager : INativeWindowManager
             return Task.CompletedTask;
         }
 
-        var app = ObjectCRuntime.PointerObjCMsgSend(Appkit.ObjCGetClass("NSApplication"), ObjectCRuntime.SelGetUid("sharedApplication"));
+        var app = NSApplication.SharedApplication;
         using (var delegateClass = new NSCustomClass(WindowWillClose))
         {
 
@@ -145,27 +145,4 @@ internal sealed class WindowManager : INativeWindowManager
 }
 #endif
 
-internal class NSImage : SafeHandleBaseZeroInvalid
-{
-    public NSImage(CGSize size) : base(true)
-    {
-        var nsImage = Appkit.ObjCGetClass("NSImage");
-        var image = ObjectCRuntime.PointerObjCMsgSend(nsImage, PreSelector.Alloc);
-        var selector = ObjectCRuntime.SelGetUid("initWithSize:");
-        SetHandle(ObjectCRuntime.PointerObjCMsgSend(image, selector, size));
-    }
-}
 
-internal static class NSApplication
-{
-    public static IntPtr SharedApplication
-    {
-        get
-        {
-            var nsApplication = Appkit.ObjCGetClass("NSApplication");
-            var selector = ObjectCRuntime.SelGetUid("sharedApplication");
-            return ObjectCRuntime.PointerObjCMsgSend(nsApplication, selector);
-        }
-    }
-
-}
