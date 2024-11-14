@@ -38,7 +38,7 @@ internal sealed class WindowManager : INativeWindowManager
         if (_nsView.HasValue && _nsView != IntPtr.Zero)
             ObjectCRuntime.ObjCMsgSend(_nsView.Value, PreSelector.Release);
 
-        if(_window != null && !_window.IsClosed)
+        if (_window != null && !_window.IsClosed)
             _window.Dispose();
         GC.SuppressFinalize(this);
     }
@@ -56,14 +56,8 @@ internal sealed class WindowManager : INativeWindowManager
 
             ObjectCRuntime.ObjCMsgSend(_window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
 
-            ObjectCRuntime.ObjCMsgSend(
-               ObjectCRuntime.PointerObjCMsgSend(_window, ObjectCRuntime.SelGetUid("contentView")),
-               ObjectCRuntime.SelGetUid("addSubview:"),
-               _nsView.Value);
-            ObjectCRuntime.ObjCMsgSend(
-              _window,
-              ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:"),
-              IntPtr.Zero);
+            _window.ContentView.AddSubview(_nsView.Value);
+            _window.MakeKeyAndOrderFront(IntPtr.Zero);
 
             app.ActivateIgnoringOtherApps(true);
 
@@ -120,7 +114,7 @@ internal sealed class WindowManager : INativeWindowManager
             image.Width * Marshal.SizeOf<Pixels>(),
             32);
         var nsImage = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImage"), ObjectCRuntime.SelGetUid("alloc")),
+            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImage"), PreSelector.Alloc),
             ObjectCRuntime.SelGetUid("initWithSize:"),
             _rect.Value.Size);
 

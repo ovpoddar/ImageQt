@@ -22,9 +22,12 @@ internal class NSWindow : SafeHandleBaseZeroInvalid
             false));
     }
 
-    public IntPtr GetContentView()
+    public IntPtr ContentView =>
+        ObjectCRuntime.PointerObjCMsgSend(this, ObjectCRuntime.SelGetUid("contentView"));
+
+    public void MakeKeyAndOrderFront(IntPtr sender)
     {
-        var selector = ObjectCRuntime.SelGetUid("contentView");
-        return ObjectCRuntime.PointerObjCMsgSend(this.DangerousGetHandle(), selector);
+        var selector = ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:");
+        ObjectCRuntime.ObjCMsgSend(this, selector, sender);
     }
 }
