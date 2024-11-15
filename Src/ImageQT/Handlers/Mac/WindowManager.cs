@@ -28,7 +28,7 @@ internal sealed class WindowManager : INativeWindowManager
         _rect = new CGRect(0, 0, width, height);
         _nsView = new NSImageView(_rect.Value);
         _window = new NSWindow(_rect.Value);
-        _window.ContentView.AddSubview(_nsView.DangerousGetHandle());
+        _window.ContentView.AddSubview(_nsView);
     }
 
     public void Dispose()
@@ -118,21 +118,8 @@ internal sealed class WindowManager : INativeWindowManager
           nsImage,
           ObjectCRuntime.SelGetUid("addRepresentation:"),
           rep);
-        ObjectCRuntime.ObjCMsgSend(
-            _nsView.DangerousGetHandle(),
-            ObjectCRuntime.SelGetUid("setImage:"),
-            nsImage);
-    }
-}
 
-internal class NSImageView : SafeHandleBaseZeroInvalid
-{
-    public NSImageView(CGRect cgRect) : base(true)
-    {
-        var nsImageView = Appkit.ObjCGetClass("NSImageView");
-        var imageView = ObjectCRuntime.PointerObjCMsgSend(nsImageView, PreSelector.Alloc);
-        var selector = ObjectCRuntime.SelGetUid("initWithFrame:");
-        SetHandle(ObjectCRuntime.PointerObjCMsgSend(imageView, selector, cgRect));
+        _nsView.SetImage(nsImage);
     }
 }
 #endif

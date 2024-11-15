@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace ImageQT.Models.Mac;
 internal static class NSContentView
 {
-    public static void AddSubview(this IntPtr contentView, IntPtr nsImageView)
+    public static void AddSubview(this IntPtr contentView, NSImageView nsImageView)
     {
         ObjectCRuntime.ObjCMsgSend(
                contentView,
