@@ -31,6 +31,7 @@ internal sealed class WindowManager : INativeWindowManager
             ObjectCRuntime.SelGetUid("initWithFrame:"),
             _rect.Value);
         _window = new NSWindow(_rect.Value);
+        _window.ContentView.AddSubview(_nsView.Value);
     }
 
     public void Dispose()
@@ -45,41 +46,39 @@ internal sealed class WindowManager : INativeWindowManager
 
     public Task Show(DateTime? closeTime = null)
     {
-        if (_window == null || _window.IsClosed || _window.IsInvalid || !_nsView.HasValue)
+        if (_window == null || _window.IsClosed || _window.IsInvalid)
         {
             return Task.CompletedTask;
         }
 
+        using var delegateClass = new NSCustomClass(WindowWillClose);
+
+        ObjectCRuntime.ObjCMsgSend(_window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
+
+        _window.MakeKeyAndOrderFront(IntPtr.Zero);
+
         var app = NSApplication.SharedApplication;
-        using (var delegateClass = new NSCustomClass(WindowWillClose))
+        app.ActivateIgnoringOtherApps(true);
+
+        using var mode = new NSString("kCFRunLoopDefaultMode");
+        using var time = new NSDate();
+        while (this._isRunning)
         {
-
-            ObjectCRuntime.ObjCMsgSend(_window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
-
-            _window.ContentView.AddSubview(_nsView.Value);
-            _window.MakeKeyAndOrderFront(IntPtr.Zero);
-
-            app.ActivateIgnoringOtherApps(true);
-
-            using var mode = new NSString("kCFRunLoopDefaultMode");
-            using var time = new NSDate();
-            while (this._isRunning)
+            for (; ; )
             {
-                for (; ; )
-                {
-                    var evnt = ObjectCRuntime.PointerObjCMsgSend(
-                        app,
-                        ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
-                        ulong.MaxValue,
-                        time,
-                        mode,
-                        true);
-                    if (evnt == IntPtr.Zero) break;
+                var evnt = ObjectCRuntime.PointerObjCMsgSend(
+                    app,
+                    ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
+                    ulong.MaxValue,
+                    time,
+                    mode,
+                    true);
+                if (evnt == IntPtr.Zero) break;
 
-                    ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
-                    ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
-                }
+                ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
+                ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
             }
+
         }
         return Task.CompletedTask;
 
