@@ -95,79 +95,13 @@ internal sealed class WindowManager : INativeWindowManager
             return;
         }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
-        var rep = new NSBitmapImageRep(
-            [image.Id],
-            image.Width,
-            image.Height,
-            8,
-            4,
-            true,
-            false,
-            colorSpace,
-            image.Width * Marshal.SizeOf<Pixels>(),
-            32);
+        var rep = new NSBitmapImageRep([image.Id], image.Width, image.Height, 8, 4,
+            true, false, colorSpace, image.Width * Marshal.SizeOf<Pixels>(), 32);
         var nsImage = new NSImage(_rect.Value.Size);
         nsImage.AddRepresentation(rep);
 
         _nsView.SetImage(nsImage);
     }
-}
-
-internal class NSImage
-{
-    private readonly IntPtr _handle;
-    public NSImage(CGSize size)
-    {
-        var nsImage = Appkit.ObjCGetClass("NSImage");
-        var image = ObjectCRuntime.PointerObjCMsgSend(nsImage, PreSelector.Alloc);
-        var selector = ObjectCRuntime.SelGetUid("initWithSize:");
-        _handle = ObjectCRuntime.PointerObjCMsgSend(image, selector, size);
-    }
-
-    public void AddRepresentation(NSBitmapImageRep bitmapImageRep)
-    {
-        var selector = ObjectCRuntime.SelGetUid("addRepresentation:");
-        ObjectCRuntime.ObjCMsgSend(this, selector, bitmapImageRep);
-    }
-
-    public static implicit operator IntPtr(NSImage nsApplication) =>
-        nsApplication._handle;
-}
-
-internal class NSBitmapImageRep
-{
-    private readonly IntPtr _handle;
-    public NSBitmapImageRep(
-        IntPtr[] planes,
-        long width,
-        long height,
-        long bitsPerSample,
-        long samplesPerPixel,
-        bool hasAlpha,
-        bool isPlanar,
-        NSString colorSpaceName,
-        long bytesPerRow,
-        long bitsPerPixel)
-    {
-        var nsBitmapImageRep = Appkit.ObjCGetClass("NSBitmapImageRep");
-        var BitmapImageRep = ObjectCRuntime.PointerObjCMsgSend(nsBitmapImageRep, PreSelector.Alloc);
-        var selector = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
-        _handle = ObjectCRuntime.PointerObjCMsgSend(BitmapImageRep,
-            selector,
-            planes,
-            width,
-            height,
-            bitsPerSample,
-            samplesPerPixel,
-            hasAlpha,
-            isPlanar,
-            colorSpaceName,
-            bytesPerRow,
-            bitsPerPixel);
-    }
-
-    public static implicit operator IntPtr(NSBitmapImageRep nsApplication) =>
-        nsApplication._handle;
 }
 #endif
 
