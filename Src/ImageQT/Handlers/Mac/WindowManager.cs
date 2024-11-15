@@ -130,7 +130,7 @@ internal class NSImage
         var nsImage = Appkit.ObjCGetClass("NSImage");
         var image = ObjectCRuntime.PointerObjCMsgSend(nsImage, PreSelector.Alloc);
         var selector = ObjectCRuntime.SelGetUid("initWithSize:");
-        ObjectCRuntime.PointerObjCMsgSend(image, selector, size);
+        _handle = ObjectCRuntime.PointerObjCMsgSend(image, selector, size);
     }
 
     public void AddRepresentation(NSBitmapImageRep bitmapImageRep)
@@ -161,7 +161,7 @@ internal class NSBitmapImageRep
         var nsBitmapImageRep = Appkit.ObjCGetClass("NSBitmapImageRep");
         var BitmapImageRep = ObjectCRuntime.PointerObjCMsgSend(nsBitmapImageRep, PreSelector.Alloc);
         var selector = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
-        ObjectCRuntime.PointerObjCMsgSend(BitmapImageRep,
+        _handle = ObjectCRuntime.PointerObjCMsgSend(BitmapImageRep,
             selector,
             planes,
             width,
