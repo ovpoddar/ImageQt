@@ -17,8 +17,9 @@ internal class NSImageView : SafeHandleBaseZeroInvalid
         SetHandle(ObjectCRuntime.PointerObjCMsgSend(imageView, selector, cgRect));
     }
 
-    public void SetImage(IntPtr nsImage) => ObjectCRuntime.ObjCMsgSend(
-           this,
-           ObjectCRuntime.SelGetUid("setImage:"),
-           nsImage);
+    public void SetImage(IntPtr nsImage)
+    {
+        var selector = ObjectCRuntime.SelGetUid("setImage:");
+        ObjectCRuntime.ObjCMsgSend(this, selector, nsImage);
+    }
 }
