@@ -28,6 +28,7 @@ internal sealed class NSApplication
         nsApplication._handle;
 
     // TODO: can be trimmed for release.
+    // does not work either.
     public void ActivateIgnoringOtherApps(bool ignoreOtherApps)
     {
         if (OperatingSystem.IsMacCatalystVersionAtLeast(14, 10))

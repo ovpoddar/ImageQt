@@ -13,7 +13,7 @@ internal sealed class WindowManager : INativeWindowManager
 {
     private bool _isRunning;
     private CGRect? _rect;
-    private IntPtr? _nsView;
+    private NSImageView? _nsView;
     private NSWindow? _window;
 
     public WindowManager()
@@ -26,18 +26,15 @@ internal sealed class WindowManager : INativeWindowManager
     public void CreateWindow(uint height, uint width)
     {
         _rect = new CGRect(0, 0, width, height);
-        _nsView = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImageView"), PreSelector.Alloc),
-            ObjectCRuntime.SelGetUid("initWithFrame:"),
-            _rect.Value);
+        _nsView = new NSImageView(_rect.Value);
         _window = new NSWindow(_rect.Value);
-        _window.ContentView.AddSubview(_nsView.Value);
+        _window.ContentView.AddSubview(_nsView.DangerousGetHandle());
     }
 
     public void Dispose()
     {
-        if (_nsView.HasValue && _nsView != IntPtr.Zero)
-            ObjectCRuntime.ObjCMsgSend(_nsView.Value, PreSelector.Release);
+        if (_nsView != null && _nsView.IsClosed)
+            _nsView.Dispose();
 
         if (_window != null && !_window.IsClosed)
             _window.Dispose();
@@ -94,7 +91,7 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void SetUpImage(Image image)
     {
-        if (!_rect.HasValue || !_nsView.HasValue)
+        if (!_rect.HasValue || _nsView == null || _nsView.IsClosed || _nsView.IsInvalid)
         {
             return;
         }
@@ -122,9 +119,20 @@ internal sealed class WindowManager : INativeWindowManager
           ObjectCRuntime.SelGetUid("addRepresentation:"),
           rep);
         ObjectCRuntime.ObjCMsgSend(
-            _nsView.Value,
+            _nsView.DangerousGetHandle(),
             ObjectCRuntime.SelGetUid("setImage:"),
             nsImage);
+    }
+}
+
+internal class NSImageView : SafeHandleBaseZeroInvalid
+{
+    public NSImageView(CGRect cgRect) : base(true)
+    {
+        var nsImageView = Appkit.ObjCGetClass("NSImageView");
+        var imageView = ObjectCRuntime.PointerObjCMsgSend(nsImageView, PreSelector.Alloc);
+        var selector = ObjectCRuntime.SelGetUid("initWithFrame:");
+        SetHandle(ObjectCRuntime.PointerObjCMsgSend(imageView, selector, cgRect));
     }
 }
 #endif
