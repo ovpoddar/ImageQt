@@ -1,22 +1,19 @@
 ﻿#if DEBUG || OSX
 using ImageQT.DllInterop.Mac;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ImageQT.Models.Mac;
 internal class NSDate : SafeHandleBaseZeroInvalid
 {
-    public NSDate() : base(true) =>
-        SetHandle(IntPtr.Zero);
-
-    public NSDate DistantPast
+    public NSDate() : base(true)
     {
-        get
-        {
-            var nsDateClass = ObjectCRuntime.ObjCGetClass("NSDate");
-            var selector = ObjectCRuntime.SelGetUid("distantPast");
-            var distantPast = ObjectCRuntime.PointerObjCMsgSend(nsDateClass, selector);
-            SetHandle(ObjectCRuntime.PointerObjCMsgSend(distantPast, PreSelector.Retain));
-            return this;
-        }
+        var nsDate = ObjectCRuntime.ObjCGetClass("NSDate");
+        var distantPast = ObjectCRuntime.SelGetUid("distantPast");
+        SetHandle(ObjectCRuntime.PointerObjCMsgSend(nsDate, distantPast));
     }
 }
 #endif

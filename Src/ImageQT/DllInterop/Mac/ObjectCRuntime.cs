@@ -1,5 +1,6 @@
 ﻿#if DEBUG || OSX
 using ImageQT.Models.Mac;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using static ImageQT.Models.Mac.WindowDelegate;
 
@@ -17,27 +18,30 @@ internal partial class ObjectCRuntime
     public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial void ObjCMsgSend(NSWindow receiver, IntPtr selector, IntPtr arg1);
-
-    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial void ObjCMsgSend(NSImage receiver, IntPtr selector, NSBitmapImageRep arg1);
-
-    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial void ObjCMsgSend(NSImageView receiver, IntPtr selector, NSImage arg1);
+    public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector, NSImageView arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial void ObjCMsgSend(NSApplication receiver, IntPtr selector, [MarshalAs(UnmanagedType.Bool)] bool arg1);
+    public static partial void ObjCMsgSend(NSWindow receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial void ObjCMsgSend(NSWindow receiver, IntPtr selector, NSWindowDelegateImplementation arg1);
+    public static partial void ObjCMsgSend(NSImageView receiver, IntPtr selector, IntPtr arg1);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial void ObjCMsgSend(NSWindow receiver, IntPtr selector, NSCustomClass arg1);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.Bool)] bool arg1);
 
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial IntPtr PointerObjCMsgSend(NSWindow receiver, IntPtr selector);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, CGSize arg1);
@@ -46,10 +50,7 @@ internal partial class ObjectCRuntime
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, NSImage arg1);
-
-    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial IntPtr PointerObjCMsgSend(NSApplication receiver, IntPtr selector, IntPtr arg1);
+    public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr arg1);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, [MarshalAs(UnmanagedType.LPStr)] string arg1);
@@ -58,7 +59,7 @@ internal partial class ObjectCRuntime
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, CGRect arg1, NSWindowStyle arg2, NSBackingStore arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
-    public static partial IntPtr PointerObjCMsgSend(NSApplication receiver, IntPtr selector, NSEventMask arg1, NSDate arg2, NSString arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
+    public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, ulong arg1, NSDate arg2, NSString arg3, [MarshalAs(UnmanagedType.Bool)] bool arg4);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial IntPtr PointerObjCMsgSend(IntPtr receiver, IntPtr selector, IntPtr[] arg1, long arg2, long arg3, long arg4, long arg5, [MarshalAs(UnmanagedType.Bool)] bool arg6, [MarshalAs(UnmanagedType.Bool)] bool arg7, NSString arg8, long arg9, long arg10);
@@ -67,7 +68,7 @@ internal partial class ObjectCRuntime
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static partial bool BoolObjCMsgSend(NSApplication receiver, IntPtr selector, int arg1);
+    public static partial bool BoolObjCMsgSend(IntPtr receiver, IntPtr selector, NSApplicationActivationPolicy arg1);
 
 
 
@@ -95,7 +96,7 @@ internal partial class ObjectCRuntime
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool ClassAddMethod(IntPtr customClass,
         IntPtr name,
-        windowWillClose imp,
+        WindowWillClose imp,
         [MarshalAs(UnmanagedType.LPStr)] string types);
 }
 #endif

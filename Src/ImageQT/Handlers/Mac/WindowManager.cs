@@ -2,83 +2,82 @@
 using ImageQT.DllInterop.Mac;
 using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Mac;
+using ImageQT.Models.Windows;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
 
 namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager
 {
     private bool _isRunning;
-    private readonly NSApplication _application;
-    private CGRect? _cGRect;
-    private NSImageView? _imageView;
+    private CGRect? _rect;
+    private NSImageView? _nsView;
+    private NSWindow? _window;
 
     public WindowManager()
     {
         _isRunning = true;
-        _application = new NSApplication();
+        var app = NSApplication.SharedApplication;
+        app.SetSetActivationPolicy(NSApplicationActivationPolicy.Regular);
     }
 
-    public nint CreateWindow(uint height, uint width)
+    public void CreateWindow(uint height, uint width)
     {
-        _cGRect = new(0, 0, width, height);
-        var setActivationPolicy = ObjectCRuntime.SelGetUid("setActivationPolicy:");
-        ObjectCRuntime.BoolObjCMsgSend(_application, setActivationPolicy, 0);
-        var makeItTop = ObjectCRuntime.SelGetUid("activateIgnoringOtherApps:");
-        ObjectCRuntime.ObjCMsgSend(_application, makeItTop, true);
+        _rect = new CGRect(0, 0, width, height);
+        _nsView = new NSImageView(_rect.Value);
+        _window = new NSWindow(_rect.Value);
 
-        return default;
+        _window.ContentView.AddSubview(_nsView);
+        _window.MakeKeyAndOrderFront(IntPtr.Zero);
     }
 
     public void Dispose()
     {
+        if (_nsView != null && _nsView.IsClosed)
+            _nsView.Dispose();
 
-        if (!_application.IsInvalid)
-        {
-            _application.Dispose();
-        }
+        if (_window != null && !_window.IsClosed)
+            _window.Dispose();
         GC.SuppressFinalize(this);
     }
 
     public Task Show(DateTime? closeTime = null)
     {
-        if (!_cGRect.HasValue || _imageView is null)
+        if (_window == null || _window.IsClosed || _window.IsInvalid)
+        {
             return Task.CompletedTask;
+        }
 
-        using var window = new NSWindow(_cGRect.Value);
-        using var methodDelegate = new NSWindowDelegateImplementation(WindowWillClose);
-        var selector = ObjectCRuntime.SelGetUid("setDelegate:");
-        ObjectCRuntime.ObjCMsgSend(window, selector, methodDelegate);
-        selector = ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:");
-        ObjectCRuntime.ObjCMsgSend(window, selector, IntPtr.Zero);
+        using var delegateClass = new NSCustomClass(WindowWillClose);
+        _window.SetDelegate(delegateClass);
 
-        using var time = new NSDate().DistantPast;
+        var app = NSApplication.SharedApplication;
+        app.ActivateIgnoringOtherApps(true);
+
         using var mode = new NSString("kCFRunLoopDefaultMode");
-
-        selector = ObjectCRuntime.SelGetUid("addSubview:");
-        ObjectCRuntime.ObjCMsgSend(window.GetContentView(), selector, _imageView);
-
-        while (_isRunning)
+        using var time = new NSDate();
+        while (this._isRunning)
         {
             for (; ; )
             {
-                if (closeTime != null && closeTime.Value < DateTime.Now)
-                {
-                    _isRunning = false;
-                    break;
-                }
-                var @event = ObjectCRuntime.PointerObjCMsgSend(_application,
+                var evnt = ObjectCRuntime.PointerObjCMsgSend(
+                    app,
                     ObjectCRuntime.SelGetUid("nextEventMatchingMask:untilDate:inMode:dequeue:"),
-                    NSEventMask.AnyEvent,
+                    ulong.MaxValue,
                     time,
                     mode,
                     true);
+                if (evnt == IntPtr.Zero) break;
 
-                if (@event == IntPtr.Zero)
-                    break;
-
-                ObjectCRuntime.PointerObjCMsgSend(_application, ObjectCRuntime.SelGetUid("sendEvent:"), @event);
+                ObjectCRuntime.ObjCMsgSend(app, ObjectCRuntime.SelGetUid("sendEvent:"), evnt);
+                ObjectCRuntime.ObjCMsgSend(evnt, PreSelector.Release);
             }
+
         }
         return Task.CompletedTask;
+
     }
 
     void WindowWillClose(IntPtr receiver, IntPtr selector, IntPtr arguments)
@@ -91,25 +90,19 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void SetUpImage(Image image)
     {
-        if (_cGRect == null)
+        if (!_rect.HasValue || _nsView == null || _nsView.IsClosed || _nsView.IsInvalid)
+        {
             return;
-
-        _imageView = new NSImageView(_cGRect.Value);
+        }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
-        using var imageRep = new NSBitmapImageRep(
-            [image.Id],
-            image.Width,
-            image.Height,
-            8, 4,
-            true, false,
-            colorSpace,
-            image.Width * 4,
-            32);
-        using var nsImage = new NSImage(new(image.Width, image.Height));
-        var selector = ObjectCRuntime.SelGetUid("addRepresentation:");
-        ObjectCRuntime.ObjCMsgSend(nsImage, selector, imageRep);
-        selector = ObjectCRuntime.SelGetUid("setImage:");
-        ObjectCRuntime.ObjCMsgSend(_imageView, selector, nsImage);
+        var rep = new NSBitmapImageRep([image.Id], image.Width, image.Height, 8, 4,
+            true, false, colorSpace, image.Width * Marshal.SizeOf<Pixels>(), 32);
+        var nsImage = new NSImage(_rect.Value.Size);
+        nsImage.AddRepresentation(rep);
+
+        _nsView.SetImage(nsImage);
     }
 }
 #endif
+
+

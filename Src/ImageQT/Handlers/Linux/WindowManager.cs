@@ -22,7 +22,7 @@ internal class WindowManager : INativeWindowManager
         _screen = LibX11.XDefaultScreen(_display);
     }
 
-    public nint CreateWindow(uint height, uint width)
+    public void CreateWindow(uint height, uint width)
     {
         _window = LibX11.XCreateSimpleWindow(_display,
            LibX11.XRootWindow(_display, _screen),
@@ -40,8 +40,6 @@ internal class WindowManager : INativeWindowManager
         Marshal.WriteIntPtr(atomPointer, (IntPtr)_atomDelete);
         LibX11.XSetWMProtocols(_display, _window.Value, atomPointer, 1);
         Marshal.FreeHGlobal(atomPointer);
-
-        return IntPtr.Zero;
     }
 
     public void Dispose()
