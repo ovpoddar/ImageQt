@@ -37,5 +37,11 @@ internal class NSWindow : SafeHandleBaseZeroInvalid
         var selector = ObjectCRuntime.SelGetUid("setDelegate:");
         ObjectCRuntime.ObjCMsgSend(this, selector, delegateClass);
     }
+
+    public void WindowClose()
+    {
+        var selector = ObjectCRuntime.SelGetUid("close");
+        ObjectCRuntime.ObjCMsgSend(this, selector);
+    }
 }
 #endif

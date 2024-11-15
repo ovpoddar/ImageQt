@@ -15,6 +15,9 @@ internal partial class ObjectCRuntime
 
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
+    public static partial void ObjCMsgSend(NSWindow receiver, IntPtr selector);
+
+    [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
     public static partial void ObjCMsgSend(IntPtr receiver, IntPtr selector);
 
     [LibraryImport(_dllName, EntryPoint = "objc_msgSend")]
