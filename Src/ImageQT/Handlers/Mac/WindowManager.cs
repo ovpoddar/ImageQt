@@ -62,7 +62,6 @@ internal sealed class WindowManager : INativeWindowManager
         {
             if (closeTime != null && closeTime.Value < DateTime.Now)
             {
-                _isRunning = false;
                 _window.WindowClose();
             }
             for (; ; )
