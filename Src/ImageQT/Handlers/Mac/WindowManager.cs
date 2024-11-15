@@ -95,9 +95,7 @@ internal sealed class WindowManager : INativeWindowManager
             return;
         }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
-        var rep = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSBitmapImageRep"), PreSelector.Alloc),
-            ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:"),
+        var rep = new NSBitmapImageRep(
             [image.Id],
             image.Width,
             image.Height,
@@ -108,15 +106,8 @@ internal sealed class WindowManager : INativeWindowManager
             colorSpace,
             image.Width * Marshal.SizeOf<Pixels>(),
             32);
-        var nsImage = ObjectCRuntime.PointerObjCMsgSend(
-            ObjectCRuntime.PointerObjCMsgSend(ObjectCRuntime.ObjCGetClass("NSImage"), PreSelector.Alloc),
-            ObjectCRuntime.SelGetUid("initWithSize:"),
-            _rect.Value.Size);
-
-        ObjectCRuntime.ObjCMsgSend(
-          nsImage,
-          ObjectCRuntime.SelGetUid("addRepresentation:"),
-          rep);
+        var nsImage = new NSImage(_rect.Value.Size);
+        nsImage.AddRepresentation(rep);
 
         _nsView.SetImage(nsImage);
     }
