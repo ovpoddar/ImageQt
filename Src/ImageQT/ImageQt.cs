@@ -38,7 +38,7 @@ public class ImageQt
         if (_disposed)
             throw new AlreadyExecutedException();
 
-        await _windowManager.Show(time.HasValue ? DateTime.Now.Add(time.Value) : null);
+        await _windowManager.Show();
         _windowManager.Dispose();
         _disposed = true;
     }
