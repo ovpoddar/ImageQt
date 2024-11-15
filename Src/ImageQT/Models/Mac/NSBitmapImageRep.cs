@@ -24,7 +24,7 @@ internal class NSBitmapImageRep
         var nsBitmapImageRep = Appkit.ObjCGetClass("NSBitmapImageRep");
         var BitmapImageRep = ObjectCRuntime.PointerObjCMsgSend(nsBitmapImageRep, PreSelector.Alloc);
         var selector = ObjectCRuntime.SelGetUid("initWithBitmapDataPlanes:pixelsWide:pixelsHigh:bitsPerSample:samplesPerPixel:hasAlpha:isPlanar:colorSpaceName:bytesPerRow:bitsPerPixel:");
-        ObjectCRuntime.PointerObjCMsgSend(BitmapImageRep,
+        _handle = ObjectCRuntime.PointerObjCMsgSend(BitmapImageRep,
             selector,
             planes,
             width,
