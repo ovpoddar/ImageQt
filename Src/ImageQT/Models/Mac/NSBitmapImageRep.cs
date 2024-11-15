@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,3 +42,4 @@ internal class NSBitmapImageRep
     public static implicit operator IntPtr(NSBitmapImageRep nsApplication) =>
         nsApplication._handle;
 }
+#endif

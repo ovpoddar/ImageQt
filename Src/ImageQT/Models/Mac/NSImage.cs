@@ -1,4 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,3 +27,4 @@ internal class NSImage
     public static implicit operator IntPtr(NSImage nsApplication) =>
         nsApplication._handle;
 }
+#endif

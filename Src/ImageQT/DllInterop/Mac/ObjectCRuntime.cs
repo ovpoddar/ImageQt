@@ -96,7 +96,7 @@ internal partial class ObjectCRuntime
     [return: MarshalAs(UnmanagedType.Bool)]
     public static partial bool ClassAddMethod(IntPtr customClass,
         IntPtr name,
-        windowWillClose imp,
+        WindowWillClose imp,
         [MarshalAs(UnmanagedType.LPStr)] string types);
 }
 #endif
