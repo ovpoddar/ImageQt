@@ -28,7 +28,9 @@ internal sealed class WindowManager : INativeWindowManager
         _rect = new CGRect(0, 0, width, height);
         _nsView = new NSImageView(_rect.Value);
         _window = new NSWindow(_rect.Value);
+
         _window.ContentView.AddSubview(_nsView);
+        _window.MakeKeyAndOrderFront(IntPtr.Zero);
     }
 
     public void Dispose()
@@ -49,10 +51,7 @@ internal sealed class WindowManager : INativeWindowManager
         }
 
         using var delegateClass = new NSCustomClass(WindowWillClose);
-
         ObjectCRuntime.ObjCMsgSend(_window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
-
-        _window.MakeKeyAndOrderFront(IntPtr.Zero);
 
         var app = NSApplication.SharedApplication;
         app.ActivateIgnoringOtherApps(true);
