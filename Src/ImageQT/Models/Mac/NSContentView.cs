@@ -10,9 +10,7 @@ internal static class NSContentView
 {
     public static void AddSubview(this IntPtr contentView, NSImageView nsImageView)
     {
-        ObjectCRuntime.ObjCMsgSend(
-               contentView,
-               ObjectCRuntime.SelGetUid("addSubview:"),
-               nsImageView);
+        var selector = ObjectCRuntime.SelGetUid("addSubview:");
+        ObjectCRuntime.ObjCMsgSend(contentView, selector, nsImageView);
     }
 }

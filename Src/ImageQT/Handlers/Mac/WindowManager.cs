@@ -51,7 +51,7 @@ internal sealed class WindowManager : INativeWindowManager
         }
 
         using var delegateClass = new NSCustomClass(WindowWillClose);
-        ObjectCRuntime.ObjCMsgSend(_window, ObjectCRuntime.SelGetUid("setDelegate:"), delegateClass);
+        _window.SetDelegate(delegateClass);
 
         var app = NSApplication.SharedApplication;
         app.ActivateIgnoringOtherApps(true);

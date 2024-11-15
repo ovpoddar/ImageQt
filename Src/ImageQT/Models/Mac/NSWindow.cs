@@ -30,4 +30,10 @@ internal class NSWindow : SafeHandleBaseZeroInvalid
         var selector = ObjectCRuntime.SelGetUid("makeKeyAndOrderFront:");
         ObjectCRuntime.ObjCMsgSend(this, selector, sender);
     }
+
+    public void SetDelegate(NSCustomClass delegateClass)
+    {
+        var selector = ObjectCRuntime.SelGetUid("setDelegate:");
+        ObjectCRuntime.ObjCMsgSend(this, selector, delegateClass);
+    }
 }
