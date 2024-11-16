@@ -1,6 +1,5 @@
 ﻿#if DEBUG || OSX
 using ImageQT.DllInterop.Mac;
-using ImageQT.Models.ImagqQT;
 
 namespace ImageQT.Models.Mac;
 internal class SafeHandleBaseZeroInvalid : SafeHandleZeroInvalid

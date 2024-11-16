@@ -1,8 +1,6 @@
 ﻿#if DEBUG || OSX
 using ImageQT.DllInterop.Mac;
-using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Mac;
-using System.Runtime.InteropServices;
 
 namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager

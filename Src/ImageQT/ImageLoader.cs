@@ -1,6 +1,4 @@
-﻿using ImageQT.Models.ImagqQT;
-
-namespace ImageQT;
+﻿namespace ImageQT;
 public abstract class ImageLoader
 {
     public static Image LoadImage(int width, int height, ref int[] bytes)

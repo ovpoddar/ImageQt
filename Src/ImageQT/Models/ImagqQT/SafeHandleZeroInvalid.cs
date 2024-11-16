@@ -1,5 +1,4 @@
-﻿using ImageQT.Exceptions;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace ImageQT.Models.ImagqQT;
 internal class SafeHandleZeroInvalid : SafeHandle

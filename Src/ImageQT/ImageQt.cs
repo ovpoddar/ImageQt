@@ -1,7 +1,4 @@
-﻿using ImageQT.Exceptions;
-using ImageQT.Models.ImagqQT;
-
-namespace ImageQT;
+﻿namespace ImageQT;
 public class ImageQt
 {
     private bool _disposed;

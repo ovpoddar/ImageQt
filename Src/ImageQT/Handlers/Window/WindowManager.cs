@@ -1,6 +1,5 @@
 ﻿#if DEBUG || Windows
 using ImageQT.DllInterop.Windows;
-using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Windows;
 using System.Runtime.InteropServices;
 using static ImageQT.Models.Windows.WindowDelegate;

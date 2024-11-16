@@ -1,6 +1,5 @@
 ﻿#if DEBUG || Linux
 using ImageQT.DllInterop.Linux;
-using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Linux;
 using System.Diagnostics;
 using System.Runtime.InteropServices;

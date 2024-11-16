@@ -1,6 +1,5 @@
 ﻿#if DEBUG || Windows
 using ImageQT.DllInterop.Windows;
-using ImageQT.Models.ImagqQT;
 
 namespace ImageQT.Models.Windows;
 internal class WindowWrapper : SafeHandleZeroInvalid

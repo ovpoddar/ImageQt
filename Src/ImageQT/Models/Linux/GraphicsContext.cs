@@ -1,6 +1,5 @@
 ﻿#if DEBUG || Linux
 using ImageQT.DllInterop.Linux;
-using ImageQT.Models.ImagqQT;
 
 namespace ImageQT.Models.Linux;
 internal class GraphicsContext : SafeHandleZeroInvalid

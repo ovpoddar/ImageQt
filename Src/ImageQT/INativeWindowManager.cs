@@ -1,6 +1,4 @@
-﻿using ImageQT.Models.ImagqQT;
-
-namespace ImageQT;
+﻿namespace ImageQT;
 
 internal interface INativeWindowManager : IDisposable
 {
