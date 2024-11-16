@@ -2,10 +2,6 @@
 using ImageQT.DllInterop.Mac;
 using ImageQT.Models.ImagqQT;
 using ImageQT.Models.Mac;
-using ImageQT.Models.Windows;
-using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 
 namespace ImageQT.Handlers.Mac;
@@ -100,7 +96,7 @@ internal sealed class WindowManager : INativeWindowManager
         }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
         var rep = new NSBitmapImageRep([image.Id], image.Width, image.Height, 8, 4,
-            true, false, colorSpace, image.Width * Marshal.SizeOf<Pixels>(), 32);
+            true, false, colorSpace, image.Width * sizeof(byte) * 4, 32);
         var nsImage = new NSImage(_rect.Value.Size);
         nsImage.AddRepresentation(rep);
 

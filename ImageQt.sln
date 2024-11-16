@@ -15,6 +15,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F7592B6F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\ConsoleApp1\Tests.csproj", "{6D6A03A1-7739-403E-ADDB-37A9E20FCD82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageQT.Decoder", "Src\ImageQt.Decoder\ImageQT.Decoder.csproj", "{8C731F09-3ACC-4F31-ABD9-AF75682E45C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{6D6A03A1-7739-403E-ADDB-37A9E20FCD82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D6A03A1-7739-403E-ADDB-37A9E20FCD82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D6A03A1-7739-403E-ADDB-37A9E20FCD82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C731F09-3ACC-4F31-ABD9-AF75682E45C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C731F09-3ACC-4F31-ABD9-AF75682E45C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C731F09-3ACC-4F31-ABD9-AF75682E45C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C731F09-3ACC-4F31-ABD9-AF75682E45C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +47,7 @@ Global
 		{7331508A-70C2-46B0-BF43-99424497D05A} = {E09B6780-F2A2-4FFE-AB1C-4826B531A3DB}
 		{811B8D78-C793-457F-9B08-CBD91C0317DA} = {26BD0C5E-C17B-4954-9972-96F257F7D32C}
 		{6D6A03A1-7739-403E-ADDB-37A9E20FCD82} = {F7592B6F-1343-4D47-B8A1-1755805E3D9D}
+		{8C731F09-3ACC-4F31-ABD9-AF75682E45C6} = {26BD0C5E-C17B-4954-9972-96F257F7D32C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CDF35211-5FDA-4B6A-B981-026EA8885379}

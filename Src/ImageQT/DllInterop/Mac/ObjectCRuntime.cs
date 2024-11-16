@@ -1,6 +1,5 @@
 ﻿#if DEBUG || OSX
 using ImageQT.Models.Mac;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using static ImageQT.Models.Mac.WindowDelegate;
 

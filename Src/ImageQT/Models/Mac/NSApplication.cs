@@ -1,9 +1,5 @@
-﻿using ImageQT.DllInterop.Mac;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿#if DEBUG || OSX
+using ImageQT.DllInterop.Mac;
 
 namespace ImageQT.Models.Mac;
 internal sealed class NSApplication
@@ -18,7 +14,7 @@ internal sealed class NSApplication
         _handle = ObjectCRuntime.PointerObjCMsgSend(nsApplication, selector);
     }
 
-    public static NSApplication SharedApplication => 
+    public static NSApplication SharedApplication =>
         _instance ??= new NSApplication();
 
     public bool SetSetActivationPolicy(NSApplicationActivationPolicy value) =>
@@ -47,3 +43,4 @@ internal sealed class NSApplication
         }
     }
 }
+#endif

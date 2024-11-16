@@ -5,7 +5,7 @@ namespace ImageQT;
 public class ImageQt
 {
     private bool _disposed;
-    private INativeWindowManager _windowManager;
+    private readonly INativeWindowManager _windowManager;
 
     public ImageQt(Image image)
     {
