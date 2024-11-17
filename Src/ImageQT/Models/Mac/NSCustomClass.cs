@@ -16,7 +16,7 @@ internal class NSCustomClass : SafeHandleBaseZeroInvalid
             Debug.WriteLine("fail to create class.find a unique name for this class");
             Debug.Assert(nsObjectClass != IntPtr.Zero);
         }
-        var methodSelector = ObjectCRuntime.SelGetUid("WindowWillClose:");
+        var methodSelector = ObjectCRuntime.SelGetUid("windowWillClose:");
         ObjectCRuntime.ClassAddMethod(nsCustomClass, methodSelector, actionDelegate, "V@:@");
         ObjectCRuntime.ObjCRegisterClassPair(nsCustomClass);
 
