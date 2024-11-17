@@ -54,10 +54,6 @@ internal sealed class WindowManager : INativeWindowManager
         using var time = new NSDate();
         while (this._isRunning)
         {
-            if (closeTime != null && closeTime.Value < DateTime.Now)
-            {
-                _window.WindowClose();
-            }
             for (; ; )
             {
                 var evnt = ObjectCRuntime.PointerObjCMsgSend(
