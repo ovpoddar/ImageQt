@@ -12,7 +12,6 @@ namespace ImageQT.Handlers.Mac;
 internal sealed class WindowManager : INativeWindowManager
 {
     private bool _isRunning;
-    private CGRect? _rect;
     private NSImageView? _nsView;
     private NSWindow? _window;
 
@@ -25,9 +24,9 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void CreateWindow(uint height, uint width)
     {
-        _rect = new CGRect(0, 0, width, height);
-        _nsView = new NSImageView(_rect.Value);
-        _window = new NSWindow(_rect.Value);
+        var rect = new CGRect(0, 0, width, height);
+        _nsView = new NSImageView(rect);
+        _window = new NSWindow(rect);
 
         _window.ContentView.AddSubview(_nsView);
         _window.MakeKeyAndOrderFront(IntPtr.Zero);
@@ -90,14 +89,14 @@ internal sealed class WindowManager : INativeWindowManager
 
     public void SetUpImage(Image image)
     {
-        if (!_rect.HasValue || _nsView == null || _nsView.IsClosed || _nsView.IsInvalid)
+        if (_nsView == null || _nsView.IsClosed || _nsView.IsInvalid)
         {
             return;
         }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
         var rep = new NSBitmapImageRep([image.Id], image.Width, image.Height, 8, 4,
             true, false, colorSpace, image.Width * 4, 32);
-        var nsImage = new NSImage(_rect.Value.Size);
+        var nsImage = new NSImage(new CGSize(image.Width, image.Height));
         nsImage.AddRepresentation(rep);
 
         _nsView.SetImage(nsImage);
