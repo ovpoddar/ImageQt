@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Src\ImageQt.Decoder\ImageQt.Decoder.csproj" />
+    <ProjectReference Include="..\..\Src\ImageQt.Decoder\ImageQT.Decoder.csproj" />
 	  <TrimmerRootAssembly Include="ImageQt.Decoder"></TrimmerRootAssembly>
   </ItemGroup>
 
