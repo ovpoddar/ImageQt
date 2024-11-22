@@ -2,7 +2,6 @@
 using ImageQT.Decoder.Exceptions;
 using ImageQT.Decoder.Helpers;
 using System.Diagnostics;
-using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 
 namespace ImageQT.Decoder.BMP.Models;
