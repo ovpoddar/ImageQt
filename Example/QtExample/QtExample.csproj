@@ -5,10 +5,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<PublishAot>true</PublishAot>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\Src\ImageQt.Decoder\ImageQt.Decoder.csproj" />
+	  <TrimmerRootAssembly Include="ImageQt.Decoder"></TrimmerRootAssembly>
   </ItemGroup>
 
 </Project>

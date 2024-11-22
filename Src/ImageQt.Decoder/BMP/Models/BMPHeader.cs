@@ -2,6 +2,7 @@
 using ImageQT.Decoder.Exceptions;
 using ImageQT.Decoder.Helpers;
 using System.Diagnostics;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 
 namespace ImageQT.Decoder.BMP.Models;
@@ -19,66 +20,172 @@ internal struct BMPHeader
 
     public BMPHeader(Stream stream)
     {
-        var sizeofBMPHeaderType = Marshal.SizeOf(Enum.GetUnderlyingType(typeof(BMPHeaderType)));
+        var sizeofBMPHeaderType = Marshal.SizeOf<uint>();
         Span<byte> bmpHeaderType = stackalloc byte[sizeofBMPHeaderType];
         stream.Read(bmpHeaderType);
         this.Type = bmpHeaderType.ToStruct<BMPHeaderType>();
-        dynamic header = Type switch
+        switch (Type)
         {
-            BMPHeaderType.BitMapCore => stream.FromStream<BitMapCoreHeader>(-sizeofBMPHeaderType),
-            BMPHeaderType.OS22XBitMapSmall => stream.FromStream<Os22xBitMapHeaderSmall>(-sizeofBMPHeaderType),
-            BMPHeaderType.BitMapINFO => stream.FromStream<BitMapInfoHeader>(-sizeofBMPHeaderType),
-            BMPHeaderType.BitMapV2INFO => stream.FromStream<BitMapV2InfoHeader>(-sizeofBMPHeaderType),
-            BMPHeaderType.BitMapV3INFO => stream.FromStream<BitMapV3InfoHeader>(-sizeofBMPHeaderType),
-            BMPHeaderType.OS22XBitMap => stream.FromStream<Os22xBitMapHeader>(-sizeofBMPHeaderType),
-            BMPHeaderType.BitMapV4 => stream.FromStream<BitMapV4Header>(-sizeofBMPHeaderType),
-            BMPHeaderType.BitMapV5 => stream.FromStream<BitMapV5Header>(-sizeofBMPHeaderType),
-            _ => throw new BadImageException(),
-        };
+            case BMPHeaderType.BitMapCore:
+                var bitMapCore = stream.FromStream<BitMapCoreHeader>(-sizeofBMPHeaderType);
+                InitializedFields(bitMapCore);
+                break;
+            case BMPHeaderType.OS22XBitMapSmall:
+                var oS22XBitMapSmall = stream.FromStream<Os22xBitMapHeaderSmall>(-sizeofBMPHeaderType);
+                InitializedFields(oS22XBitMapSmall);
+                break;
+            case BMPHeaderType.BitMapINFO:
+                var bitMapINFO = stream.FromStream<BitMapInfoHeader>(-sizeofBMPHeaderType);
+                InitializedFields(bitMapINFO);
+                break;
+            case BMPHeaderType.BitMapV2INFO:
+                var bitMapV2INFO = stream.FromStream<BitMapV2InfoHeader>(-sizeofBMPHeaderType);
+                InitializedFields(bitMapV2INFO);
+                break;
+            case BMPHeaderType.BitMapV3INFO:
+                var bitMapV3INFO = stream.FromStream<BitMapV3InfoHeader>(-sizeofBMPHeaderType);
+                InitializedFields(bitMapV3INFO);
+                break;
+            case BMPHeaderType.OS22XBitMap:
+                var oS22XBitMap = stream.FromStream<Os22xBitMapHeader>(-sizeofBMPHeaderType);
+                InitializedFields(oS22XBitMap);
+                break;
+            case BMPHeaderType.BitMapV4:
+                var bitMapV4 = stream.FromStream<BitMapV4Header>(-sizeofBMPHeaderType);
+                InitializedFields(bitMapV4);
+                break;
+            case BMPHeaderType.BitMapV5:
+                var bitMapV5 = stream.FromStream<BitMapV5Header>(-sizeofBMPHeaderType);
+                InitializedFields(bitMapV5);
+                break;
+            default:
+                throw new BadImageException();
+        }
+    }
 
+    private void InitializedFields(BitMapCoreHeader header)
+    {
         this.BitDepth = header.BitDepth;
-        this.Width = (int)header.Width;
-        this.Height = (int)header.Height;
-        this.Compression = Type switch
-        {
-            BMPHeaderType.BitMapCore or BMPHeaderType.OS22XBitMapSmall => HeaderCompression.Rgb,
-            _ => header.Compression,
-        };
-
-        this.RedMask = Type switch
-        {
-            BMPHeaderType.BitMapV2INFO or BMPHeaderType.BitMapV3INFO => (uint)header.RedMask,
-            BMPHeaderType.BitMapV4 or BMPHeaderType.BitMapV5 => (uint)header.RedMask,
-            _ => this.Compression == HeaderCompression.BitFields
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = HeaderCompression.Rgb;
+        this.RedMask = this.Compression == HeaderCompression.BitFields
                 ? 0b1111100000000000u
-                : 0b0111110000000000u
-        };
-        this.GreenMask = Type switch
-        {
-            BMPHeaderType.BitMapV2INFO or BMPHeaderType.BitMapV3INFO => (uint)header.GreenMask,
-            BMPHeaderType.BitMapV4 or BMPHeaderType.BitMapV5 => (uint)header.GreenMask,
-            _ => this.Compression == HeaderCompression.BitFields
+                : 0b0111110000000000u;
+        this.GreenMask = this.Compression == HeaderCompression.BitFields
                 ? 0b0000011111100000u
-                : 0b0000001111100000u
-        };
-        this.BlueMask = Type switch
-        {
-            BMPHeaderType.BitMapV2INFO or BMPHeaderType.BitMapV3INFO => (uint)header.BlueMask,
-            BMPHeaderType.BitMapV4 or BMPHeaderType.BitMapV5 => (uint)header.BlueMask,
-            _ => this.Compression == HeaderCompression.BitFields
+                : 0b0000001111100000u;
+        this.BlueMask = this.Compression == HeaderCompression.BitFields
                 ? 0b0000000000011111u
-                : 0b0000000000011111u
-        };
+                : 0b0000000000011111u;
+        this.ColorUsed = 0;
+    }
+    private void InitializedFields(Os22xBitMapHeaderSmall header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = HeaderCompression.Rgb;
+        this.RedMask = this.Compression == HeaderCompression.BitFields
+              ? 0b1111100000000000u
+              : 0b0111110000000000u;
+        this.GreenMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000011111100000u
+                : 0b0000001111100000u;
+        this.BlueMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000000000011111u
+                : 0b0000000000011111u;
+        this.ColorUsed = 0;
+    }
 
-        this.ColorUsed = Type switch
-        {
-            BMPHeaderType.BitMapINFO
-            or BMPHeaderType.BitMapV2INFO
-            or BMPHeaderType.BitMapV3INFO
-            or BMPHeaderType.BitMapV4
-            or BMPHeaderType.BitMapV5 => (int)header.ColorUsed,
-            _ => 0
-        };
+    private void InitializedFields(BitMapInfoHeader header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = header.Compression;
+        this.RedMask = this.Compression == HeaderCompression.BitFields
+                ? 0b1111100000000000u
+                : 0b0111110000000000u;
+        this.GreenMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000011111100000u
+                : 0b0000001111100000u;
+        this.BlueMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000000000011111u
+                : 0b0000000000011111u;
+        this.ColorUsed = (int)header.ColorUsed;
+    }
+
+    private void InitializedFields(BitMapV2InfoHeader header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = header.Compression;
+        this.RedMask = header.RedMask;
+        this.GreenMask = header.GreenMask;
+        this.BlueMask = header.BlueMask;
+        this.ColorUsed = (int)header.ColorUsed;
+    }
+
+    private void InitializedFields(BitMapV3InfoHeader header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = header.Compression;
+        this.RedMask = this.Compression == HeaderCompression.BitFields
+                ? 0b1111100000000000u
+                : 0b0111110000000000u;
+        this.GreenMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000011111100000u
+                : 0b0000001111100000u;
+        this.BlueMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000000000011111u
+                : 0b0000000000011111u;
+        this.ColorUsed = (int)header.ColorUsed;
+    }
+
+    private void InitializedFields(Os22xBitMapHeader header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = header.Compression;
+        this.RedMask = this.Compression == HeaderCompression.BitFields
+                ? 0b1111100000000000u
+                : 0b0111110000000000u;
+        this.GreenMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000011111100000u
+                : 0b0000001111100000u;
+        this.BlueMask = this.Compression == HeaderCompression.BitFields
+                ? 0b0000000000011111u
+                : 0b0000000000011111u;
+        this.ColorUsed = 0;
+    }
+
+    private void InitializedFields(BitMapV4Header header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = header.Compression;
+        this.RedMask = header.RedMask;
+        this.GreenMask = header.GreenMask;
+        this.BlueMask = header.BlueMask;
+        this.ColorUsed = (int)header.ColorUsed;
+    }
+
+    private void InitializedFields(BitMapV5Header header)
+    {
+        this.BitDepth = header.BitDepth;
+        this.Width = header.Width;
+        this.Height = header.Height;
+        this.Compression = header.Compression;
+        this.RedMask = header.RedMask;
+        this.GreenMask = header.GreenMask;
+        this.BlueMask = header.BlueMask;
+        this.ColorUsed = (int)header.ColorUsed;
     }
 
     public int GetNormalizeHeight() =>
