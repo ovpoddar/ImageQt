@@ -47,7 +47,7 @@ internal static class GenericHelper
         long skip = 0,
         SeekOrigin origin = SeekOrigin.Current) where T : struct
     {
-        var size = Marshal.SizeOf(typeof(T));
+        var size = Marshal.SizeOf<T>();
         Span<byte> resultAsByte = stackalloc byte[size];
         stream.Seek(skip, origin);
 
