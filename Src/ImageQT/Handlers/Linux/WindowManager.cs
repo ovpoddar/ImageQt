@@ -100,7 +100,7 @@ internal class WindowManager : INativeWindowManager
             depth,
             ImageFormat.ZPixmap,
             0,
-            image.Id,
+            image.Id.AddrOfPinnedObject(),
             (uint)image.Width,
             (uint)image.Height,
             image.BitCount,

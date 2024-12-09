@@ -82,7 +82,7 @@ internal sealed class WindowManager : INativeWindowManager
             biBitCount = image.BitCount,
             biCompression = 0
         };
-        _imagePixelData = image.Id;
+        _imagePixelData = image.Id.AddrOfPinnedObject();
     }
 
     public Task Show(DateTime? closeTime = null)
@@ -91,9 +91,8 @@ internal sealed class WindowManager : INativeWindowManager
             return Task.CompletedTask;
 
         User32.ShowWindow(_window, 5);
-        var message = new LpMsg();
 
-        while (User32.GetMessage(out message, 0, 0, 0) != 0)
+        while (User32.GetMessage(out var message, 0, 0, 0) != 0)
         {
             if (_imagePixelData == IntPtr.Zero
                 || closeTime != null && closeTime.Value < DateTime.Now)

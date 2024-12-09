@@ -94,7 +94,7 @@ internal sealed class WindowManager : INativeWindowManager
             return;
         }
         using var colorSpace = new NSString("NSCalibratedRGBColorSpace");
-        var rep = new NSBitmapImageRep([image.Id], image.Width, image.Height, 8, 4,
+        var rep = new NSBitmapImageRep([image.Id.AddrOfPinnedObject()], image.Width, image.Height, 8, 4,
             true, false, colorSpace, image.Width * 4, 32);
         var nsImage = new NSImage(new CGSize(image.Width, image.Height));
         nsImage.AddRepresentation(rep);
