@@ -15,5 +15,5 @@ for (int y = 0; y < 5; y++)
     Console.WriteLine(y);
     Thread.Sleep(500);
 }
-
+image.Release();
 Console.ReadLine();
