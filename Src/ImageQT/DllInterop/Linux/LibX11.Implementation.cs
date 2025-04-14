@@ -1,11 +1,6 @@
-﻿using ImageQT.Models.Linux;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if DEBUG || Linux
+using ImageQT.Models.Linux;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ImageQT.DllInterop.Linux;
 internal unsafe partial class LibX11
@@ -21,3 +16,4 @@ internal unsafe partial class LibX11
     public static ulong XWhitePixel(IntPtr display, int screen) =>
         ScreenOfDisplay(display, screen)->white_pixel;
 }
+#endif

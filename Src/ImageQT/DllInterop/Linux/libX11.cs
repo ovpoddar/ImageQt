@@ -30,12 +30,6 @@ internal partial class LibX11
     public static partial ulong XRootWindow(IntPtr display, int screen);
 
     [LibraryImport(_dllName)]
-    public static partial ulong XBlackPixel(IntPtr display, int screen);
-
-    [LibraryImport(_dllName)]
-    public static partial ulong XWhitePixel(IntPtr display, int screen);
-
-    [LibraryImport(_dllName)]
     public static partial IntPtr XDefaultVisual(IntPtr display, int screen);
 
     [LibraryImport(_dllName)]
