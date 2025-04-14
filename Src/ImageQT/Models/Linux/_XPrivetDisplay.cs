@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 namespace ImageQT.Models.Linux;
 
 [StructLayout(LayoutKind.Sequential)]
-internal unsafe struct XPrivDisplay
+internal unsafe struct XPrivateDisplay
 {
     public IntPtr ext_data;               // XExtData*
     public IntPtr private1;              // struct _XPrivate*
