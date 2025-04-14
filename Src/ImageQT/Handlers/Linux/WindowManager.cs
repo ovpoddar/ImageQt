@@ -21,8 +21,18 @@ internal class WindowManager : INativeWindowManager
         _screen = LibX11.XDefaultScreen(_display);
     }
 
-    public void CreateWindow(uint height, uint width)
+    public unsafe void CreateWindow(uint height, uint width)
     {
+        //var c = LibX11.XBlackPixel(_display, _screen);
+        //var d = Marshal.PtrToStructure<XPrivDisplay>(_display);
+
+        //var e = (d.screens + _screen)->black_pixel;
+
+        var c = LibX11.XWhitePixel(_display, _screen);
+        var d = Marshal.PtrToStructure<XPrivDisplay>(_display);
+
+        var e = (d.screens + _screen)->white_pixel;
+
         _window = LibX11.XCreateSimpleWindow(_display,
            LibX11.XRootWindow(_display, _screen),
            0,
