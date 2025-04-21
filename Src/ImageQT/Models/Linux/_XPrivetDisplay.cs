@@ -22,7 +22,7 @@ internal unsafe struct XPrivateDisplay
     public ulong private4;               // XID
     public ulong private5;               // XID
     public int private6;
-    public IntPtr resource_alloc;        // XID (*resource_alloc)(struct _XDisplay*)
+    public delegate* unmanaged[Cdecl]<IntPtr, int> resource_alloc;        // XID (*ResourceAllocator)(struct Display*)
     public int byte_order;
     public int bitmap_unit;
     public int bitmap_pad;
@@ -42,7 +42,7 @@ internal unsafe struct XPrivateDisplay
     public IntPtr private14;
     public uint max_request_size;
     public IntPtr db;                    // struct _XrmHashBucketRec*
-    public IntPtr private15;             // int (*private15)(struct _XDisplay*)
+    public IntPtr private15;             // int (*private15)(struct Display*)
     public IntPtr display_name;          // char*
     public int default_screen;
     public int nscreens;

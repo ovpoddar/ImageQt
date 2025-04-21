@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace ImageQT.Models.Linux;
 [StructLayout(LayoutKind.Sequential)]
-internal unsafe struct Screen
+public unsafe struct Screen
 {
     public IntPtr ext_data;             // XExtData*
-    public IntPtr display;              // _XDisplay*
+    public IntPtr display;              // Display*
     public ulong root;                  // Window (XID, usually ulong)
     public int width;                   // screen width in pixels
     public int height;                  // screen height in pixels

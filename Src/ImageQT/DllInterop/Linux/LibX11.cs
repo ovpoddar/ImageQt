@@ -12,20 +12,6 @@ internal partial class LibX11
     public static partial IntPtr XOpenDisplay([MarshalAs(UnmanagedType.LPWStr)] string? displayName);
 
     [LibraryImport(_dllName)]
-    // /home/ayan/projects/libx11/src/CrWindow.c
-    public static partial ulong XCreateSimpleWindow(
-       IntPtr display,
-       ulong parentWindow,
-       int x,
-       int y,
-       uint width,
-       uint height,
-       uint borderWidth,
-       ulong border,
-       ulong background
-   );
-
-    [LibraryImport(_dllName)]
     // /home/ayan/projects/libx11/src/SelInput.c
     public static partial int XSelectInput(IntPtr display, ulong window, EventMask eventMask);
 
@@ -110,5 +96,8 @@ internal partial class LibX11
     [LibraryImport(_dllName)]
     // this is a wrapper for stdlib.h free call
     public static partial void XFree(IntPtr display);
+
+    [LibraryImport(_dllName)]
+    public static partial IntPtr _XGetRequest(IntPtr display, int reqType, int length);
 }
 #endif
