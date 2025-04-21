@@ -58,42 +58,33 @@ internal unsafe partial class LibX11
     {
         return (uint)((XPrivateDisplay*)display.ToPointer())->resource_alloc(display);
     }
-    /*
-    private static IntPtr _XGetRequest(IntPtr display, int reqType, int length)
+    
+    private static IntPtr _XGetRequest(IntPtr display, int requestType, int length)
     {
-        xReq* req;
+        _xRequest* req;
 
-        if (dpy->bufptr + len > dpy->bufmax)
-            _XFlush(dpy);
+        if (((XDisplay*)display.ToPointer())->BufferPointer + length > ((XDisplay*)display.ToPointer())->BufferMaximum)
+            _XFlush(display);
          //Request still too large, so do not allow it to overflow. 
-        if (dpy->bufptr + len > dpy->bufmax)
+        if (((XDisplay*)display.ToPointer())->BufferPointer + length > ((XDisplay*)display.ToPointer())->BufferMaximum)
         {
-            fprintf(stderr,
-                "Xlib: request %d length %zd would exceed buffer size.\n",
-                type, len);
-    //Changes failure condition from overflow to NULL dereference.
-            return NULL;
+            return IntPtr.Zero;
         }
 
-        if (len % 4)
-            fprintf(stderr,
-                "Xlib: request %d length %zd not a multiple of 4.\n",
-                type, len);
+        if (length % 4 == 0)
+            Console.WriteLine("Xlib: request {requestType} length {length} not a multiple of 4.\n");
 
-        dpy->last_req = dpy->bufptr;
+        ((XDisplay*)display.ToPointer())->LastRequest = ((XDisplay*)display.ToPointer())->BufferPointer;
 
-        req = (xReq*)dpy->bufptr;
-        *req = (xReq) {
-        .reqType = type,
-        .data = 0,
-        .length = len / 4
-        }
-        ;
-        dpy->bufptr += len;
-        X_DPY_REQUEST_INCREMENT(dpy);
-        return req;
+        req = (_xRequest*)((XDisplay*)display.ToPointer())->BufferPointer;
+        req->RequestType = (byte)requestType;
+        req->Length = (byte)(length / 4);
+        req->Data = 0;
+        ((XDisplay*)display.ToPointer())->BufferPointer += length;
+        ((XDisplay*)display.ToPointer())->Request++;
+        return (nint)req;
     }
-*/
+
     public static ulong XCreateSimpleWindow(IntPtr display, ulong parentWindow, int x, int y, uint width, uint height, uint borderWidth, ulong border, ulong background)
     {
         ulong window = 0;

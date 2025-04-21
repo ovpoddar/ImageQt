@@ -98,6 +98,6 @@ internal partial class LibX11
     public static partial void XFree(IntPtr display);
 
     [LibraryImport(_dllName)]
-    public static partial IntPtr _XGetRequest(IntPtr display, int reqType, int length);
+    public static partial void _XFlush(IntPtr display);
 }
 #endif
