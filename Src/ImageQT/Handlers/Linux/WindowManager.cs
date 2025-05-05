@@ -3,6 +3,8 @@ using ImageQT.DllInterop.Linux;
 using ImageQT.Models.Linux;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using ImageQT.Models.Linux.Display;
+using ImageQT.Models.Linux.Event;
 
 namespace ImageQT.Handlers.Linux;
 internal class WindowManager : INativeWindowManager
@@ -56,7 +58,7 @@ internal class WindowManager : INativeWindowManager
         GC.SuppressFinalize(this);
     }
 
-    public Task Show(DateTime? closeTime = null)
+    public unsafe Task Show(DateTime? closeTime = null)
     {
         if (!_window.HasValue || !_image.HasValue || !_pixmap.HasValue)
             return Task.CompletedTask;
@@ -64,26 +66,25 @@ internal class WindowManager : INativeWindowManager
         LibX11.XMapWindow(_display, _window.Value);
 
         var image = Marshal.PtrToStructure<XImage>(_image.Value);
-        var ev = Marshal.AllocHGlobal(192);
         using var graphicsContext = new GraphicsContext(_display, _window.Value);
-
+        var ev = new _XEvent();
         while (true)
         {
-            LibX11.XNextEvent(_display, ev);
-            var @event = new XEvent(ref ev);
-            if (@event.type == Event.Expose)
+            var pointer = &ev;
+            LibX11.XNextEvent(_display, pointer);
+            XEvent @event = ev;
+            if (@event.Type == EventType.Expose)
             {
-                Debug.Assert(_display == @event.xexpose.display);
+                Debug.Assert((XDisplay*)_display == @event.XExpose.Display);
                 LibX11.XPutImage(_display, _pixmap.Value, graphicsContext, _image.Value, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
                 LibX11.XCopyArea(_display, _pixmap.Value, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
                 continue;
             }
-            if (closeTime != null && closeTime.Value < DateTime.Now || @event.type == Event.ClientMessage && @event.xclient.data.l == (int)_atomDelete)
+            if (closeTime != null && closeTime.Value < DateTime.Now || @event.Type == EventType.ClientMessage && @event.XClient.Data.l[0] == (int)_atomDelete)
             {
                 break;
             }
         }
-        Marshal.FreeHGlobal(ev);
         return Task.CompletedTask;
     }
 
