@@ -10,7 +10,7 @@ public struct XGenericEvent
     public ulong serial;       /* # of last request processed */
     public bool send_event;   /* true if from SendEvent request */
     public IntPtr display;     /* Display the event was read from */
-    public int extension;    /* major opcode of extension that caused the event */
+    public int extension;    /* major opcode of Extension that caused the event */
     public int evtype;       /* actual event type. */
 }
 #endif

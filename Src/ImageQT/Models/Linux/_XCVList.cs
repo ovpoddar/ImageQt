@@ -6,10 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Models.Linux;
-public class X11Delegates
+
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct _XCVList
 {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ReturnSocket(IntPtr closure);
-
-
+    public IntPtr Cv;
+    public IntPtr buf;
+    public _XCVList* next;
 }

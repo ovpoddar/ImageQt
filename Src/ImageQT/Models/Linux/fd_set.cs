@@ -6,10 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Models.Linux;
-public class X11Delegates
+
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct fd_set
 {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ReturnSocket(IntPtr closure);
-
-
+    public fixed long bits[1024 / sizeof(long) * 8];
 }

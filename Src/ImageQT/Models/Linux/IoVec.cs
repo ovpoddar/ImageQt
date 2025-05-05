@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Models.Linux;
-public class X11Delegates
+
+[StructLayout(LayoutKind.Sequential)]
+public struct IoVec
 {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ReturnSocket(IntPtr closure);
-
-
+    public IntPtr IOVBase; // Pointer to data
+    public long IOVLength; // Length of data
 }

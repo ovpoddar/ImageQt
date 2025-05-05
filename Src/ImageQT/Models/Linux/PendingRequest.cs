@@ -6,10 +6,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace ImageQT.Models.Linux;
-public class X11Delegates
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct PendingRequest
 {
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void ReturnSocket(IntPtr closure);
-
-
+    public PendingRequest* Next;
+    public ulong Sequence;
+    public uint ReplyWaiter;
 }

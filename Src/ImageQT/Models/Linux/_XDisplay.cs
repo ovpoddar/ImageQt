@@ -1,9 +1,4 @@
-﻿using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using static System.Net.Mime.MediaTypeNames;
-using System.Runtime.Intrinsics.Arm;
-using System.Security.Cryptography;
+﻿using System.Runtime.InteropServices;
 using ImageQT.Models.Linux._private;
 
 namespace ImageQT.Models.Linux;
@@ -23,7 +18,7 @@ public unsafe struct XDisplay
     public string? GetDisplayName() =>
         Marshal.PtrToStringAnsi(DisplayName);
 
-    public IntPtr ExtensionData; /* hook for extension to hang data */
+    public IntPtr ExtensionData; /* hook for Extension to hang data */
     public IntPtr FreeFunctions; /* internal free functions */
     public int FileDescriptor;         /* Network socket. */
     public int ConnectionChecker;         /* ugly thing used by _XEventsQueued */
@@ -55,7 +50,7 @@ public unsafe struct XDisplay
     public IntPtr BufferMaximum;       /* Output buffer maximum+1 address. */
     public uint MaxRequestSize; /* maximum number 32 bit words in request*/
     public IntPtr db;
-    public delegate* unmanaged[Cdecl]<XDisplay*, int> SyncHandler; /* Synchronization handler */
+    public delegate* unmanaged[Cdecl]<XDisplay*, int> SyncHandler; /* Synchronization handler */ //
     public IntPtr DisplayName; /* "host:display" string used on this connect*/
     public int DefaultScreen; /* default screen for operations */
     public int NumberOfScreens;       /* number of screens on this server*/
@@ -70,20 +65,20 @@ public unsafe struct XDisplay
     public IntPtr XDefaults;    /* contents of defaults from server */
     public IntPtr ScratchBuffer;   /* place to hang scratch buffer */
     public ulong ScratchBufferLength;   /* length of scratch buffer */
-    public int ExtensionNumber;     /* extension number on this display */
-    public IntPtr ExtensionProcedures; /* extensions initialized on this display */
+    public int ExtensionNumber;     /* Extension number on this display */
+    public _XExtension* ExtensionProcedures; /* extensions initialized on this display */
 	/*
 	 * the following can be fixed size, as the protocol defines how
 	 * much address space is available.
-	 * While this could be done using the extension vector, there
-	 * may be MANY events processed, so a search through the extension
+	 * While this could be done using the Extension vector, there
+	 * may be MANY events processed, so a search through the Extension
 	 * list to find the right procedure for each event might be
 	 * expensive if many extensions are being used.
 	 */
     public EventVec EventVector;
     public WireVec WireVector;
     public long LockMeaning;       /* for XLookupString */
-    public IntPtr @lock;   /* multi-thread state, display lock */
+    public _XLockInfo* Lock;   /* multi-thread state, display Lock */
 	public IntPtr AsyncHandlers; /* for internal async */
 	public ulong BigRequestSize; /* max size of big requests */
     public _XLockPtrs* LockFns; /* pointers to threads functions */
@@ -103,8 +98,8 @@ public unsafe struct XDisplay
 	public IntPtr ImFilters;
 	public IntPtr QFree; /* unallocated event queue elements */
 	public ulong NextEventSerialNum; /* inserted into next queue elt */
-    public IntPtr Flushes; /* Flush hooks */
-	public IntPtr ImFdInfo; /* _XRegisterInternalConnection */
+    public _XExtension* Flushes; /* Flush hooks */
+	public _XConnectionInfo* ImFdInfo; /* _XRegisterInternalConnection */
 	public int ImFdLength;   /* number of ImFdInfo */
     public IntPtr ConnectionWatchers; /* XAddConnectionWatch */
 	public int WatcherCount;  /* number of ConnectionWatchers */
@@ -114,13 +109,13 @@ public unsafe struct XDisplay
     public int XCMiscOpcode;  /* major opcode for XC-MISC */
     public IntPtr XKBInfo; /* XKB info */
 	public IntPtr TransportConnection; /* transport connection object */
-	public IntPtr XCB; /* XCB glue private data */
+	public _X11XCBPrivate* XCB; /* XCB glue private data */
 
 	/* Generic event cookie handling */
 	public uint NextCookie; /* next event cookie */
-    /* vector for wire to generic event, index is (extension - 128) */
+    /* vector for wire to generic event, index is (Extension - 128) */
     public GenericEventVec GenericEventVec;
-    /* vector for event copy, index is (extension - 128) */
+    /* vector for event copy, index is (Extension - 128) */
     public GenericEventCopyVec GenericEventCopyVec;
 	public IntPtr CookieJar;  /* cookie events returned but not claimed */
 
