@@ -5,50 +5,49 @@ using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics.Arm;
-using System.Security.Cryptography;
-using System.Xml.Linq;
-using static System.Net.Mime.MediaTypeNames;
+using ImageQT.Models.Linux.Display;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using ImageQT.Models.Linux.Reply;
 
 namespace ImageQT.DllInterop.Linux;
 internal unsafe partial class LibX11
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Screen* ScreenOfDisplay(IntPtr display, int screen) =>
-        ((XPrivateDisplay*)display.ToPointer())->screens + screen;
+        (Screen*)(((XPrivateDisplay*)display.ToPointer())->screens + screen);
 
     public static ulong XBlackPixel(IntPtr display, int screen) =>
-        ScreenOfDisplay(display, screen)->black_pixel;
+        ScreenOfDisplay(display, screen)->BlackPixel;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong XWhitePixel(IntPtr display, int screen) =>
-        ScreenOfDisplay(display, screen)->white_pixel;
+        ScreenOfDisplay(display, screen)->WhitePixel;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int XDefaultScreen(IntPtr display) =>
         ((XPrivateDisplay*)display.ToPointer())->default_screen;
 
     public static ulong XRootWindow(IntPtr display, int screen) =>
-        ScreenOfDisplay(display, screen)->root;
+        ScreenOfDisplay(display, screen)->Root;
 
     public static IntPtr XDefaultVisual(IntPtr display, int screen) =>
-        ScreenOfDisplay(display, screen)->root_visual;
+        (IntPtr)ScreenOfDisplay(display, screen)->RootVisual;
 
     public static int XDefaultDepth(IntPtr display, int screen) =>
-        ScreenOfDisplay(display, screen)->root_depth;
+        ScreenOfDisplay(display, screen)->RootDepth;
 
     private static void LockDisplay(IntPtr display)
     {
         if (((XDisplay*)display.ToPointer())->LockFns == null)
             return;
-        ((XDisplay*)display.ToPointer())->LockFns->lock_display((XDisplay*)display, IntPtr.Zero, 0);
+        ((XDisplay*)display.ToPointer())->LockFns->LockDisplay((XDisplay*)display, IntPtr.Zero, 0);
     }
 
     private static void UnlockDisplay(XDisplay* display)
     {
         if (display->LockFns == null)
             return;
-        display->LockFns->unlock_display(display, IntPtr.Zero, 0);
+        display->LockFns->UnlockDisplay(display, IntPtr.Zero, 0);
     }
 
     private static void SyncHandle(XDisplay* display)
@@ -145,7 +144,7 @@ internal unsafe partial class LibX11
             return;
 
         var displayRequest = display->Request;
-        if (display->XCB->EventOwner != XEventQueueOwner.XLib || display->AsyncHandlers != IntPtr.Zero)
+        if (display->XCB->EventOwner != XEventQueueOwner.XLib || display->AsyncHandlers != null)
         {
             for (var i = display->XCB->LastFlushed; i < displayRequest; i++)
             {
@@ -270,14 +269,14 @@ internal unsafe partial class LibX11
         if ((display->Request - display->LastRequestRead) >= (ulong)(65535 - 2048 / Marshal.SizeOf<_xRequest>()))
         {
             var req = (_xRequest*)_XGetRequest((nint)display, 43, Marshal.SizeOf<_xRequest>());
-            _XReply(display, (xReply*)&rep, 0, true);
+            _XReply(display, (XReply*)&req, 0, true);
             SyncWhileLocked(display);
         }
         else if (SyncHazard(display))
             _XSetPrivSyncFunction(display);
     }
 
-    private static int _XReply(XDisplay* display, xReply* rep, int extra, bool discard)
+    private static int _XReply(XDisplay* display, XReply* rep, int extra, bool discard)
     {
        
     }

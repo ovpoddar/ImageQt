@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System;
 using System.Runtime.InteropServices;
+using ImageQT.Models.Linux.Display;
 
 namespace ImageQT.Models.Linux;
 

@@ -1,6 +1,9 @@
 ﻿#if DEBUG || Linux
 using ImageQT.Models.Linux;
 using System.Runtime.InteropServices;
+using static ImageQT.Models.Linux.X11Delegates;
+using ImageQT.Models.Linux.Event;
+using ImageQT.Models.Linux.Display;
 
 namespace ImageQT.DllInterop.Linux;
 internal partial class LibX11
@@ -25,7 +28,7 @@ internal partial class LibX11
 
     [LibraryImport(_dllName)]
     // /home/ayan/projects/libx11/src/NextEvent.c
-    public static partial int XNextEvent(IntPtr display, IntPtr xEvent);
+    public static unsafe partial int XNextEvent(IntPtr display, _XEvent* xEvent);
 
     [LibraryImport(_dllName)]
     // /home/ayan/projects/libx11/src/SetWMProto.c
@@ -98,6 +101,33 @@ internal partial class LibX11
     public static partial void XFree(IntPtr display);
 
     [LibraryImport(_dllName)]
-    public static partial void _XFlush(IntPtr display);
+    public static partial int _XEventsQueued(IntPtr display, int mode);
+
+    //[DllImport("libc", ExactSpelling = true)]
+    //public static extern int select(int __nfds, fd_set* __readfds, fd_set* __writefds, fd_set* __exceptfds, [NativeTypeName("struct timeval *")] timeval* __timeout);
+
+    [LibraryImport("libc")]
+    public static partial void FD_ZERO(IntPtr set);
+
+    [LibraryImport("libc")]
+    public static partial void FD_SET(int fd, IntPtr set);
+
+    [LibraryImport("libc")]
+    public static partial int FD_ISSET(int fd, IntPtr set);
+
+    [LibraryImport("libc")]
+    public static partial int select(int nfds, IntPtr readfds, IntPtr writefds, IntPtr exceptfds, IntPtr timeout);
+
+    // requir libxcb1-dev
+    public const string _dllName1 = "libxcb.so.1";
+
+    [LibraryImport(_dllName1)]
+    public static partial int xcb_take_socket(IntPtr connection, ReturnSocket returnSocket, IntPtr closure, XEventQueueOwner flags, out ulong sent);
+
+    [LibraryImport(_dllName1)]
+    public static partial int xcb_writev(IntPtr connection, IntPtr vector, int count, ulong request);
+
+    [LibraryImport(_dllName1)]
+    public static partial ulong xcb_generate_id(IntPtr connection);
 }
 #endif

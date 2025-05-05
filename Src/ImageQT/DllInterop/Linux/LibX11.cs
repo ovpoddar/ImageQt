@@ -2,6 +2,8 @@
 using ImageQT.Models.Linux;
 using System.Runtime.InteropServices;
 using static ImageQT.Models.Linux.X11Delegates;
+using ImageQT.Models.Linux.Event;
+using ImageQT.Models.Linux.Display;
 
 namespace ImageQT.DllInterop.Linux;
 internal partial class LibX11
@@ -26,7 +28,7 @@ internal partial class LibX11
 
     [LibraryImport(_dllName)]
     // /home/ayan/projects/libx11/src/NextEvent.c
-    public static partial int XNextEvent(IntPtr display, IntPtr xEvent);
+    public static unsafe partial int XNextEvent(IntPtr display, _XEvent* xEvent);
 
     [LibraryImport(_dllName)]
     // /home/ayan/projects/libx11/src/SetWMProto.c

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageQT.Models.Linux.Display;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
