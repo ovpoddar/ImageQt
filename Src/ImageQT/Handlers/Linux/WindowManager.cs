@@ -1,116 +1,87 @@
 ﻿#if DEBUG || Linux
-using ImageQT.DllInterop.Linux;
-using ImageQT.Models.Linux;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using ImageQT.Models.Linux.Display;
-using ImageQT.Models.Linux.Event;
+using Xcsb;
+using Xcsb.Masks;
+using Xcsb.Models;
+using Xcsb.Models.Event;
 
 namespace ImageQT.Handlers.Linux;
 internal class WindowManager : INativeWindowManager
 {
-    private readonly IntPtr _display;
-    private readonly int _screen;
-    private readonly ulong _atomDelete;
-    private ulong? _window;
-    private IntPtr? _image;
-    private ulong? _pixmap;
+    private readonly IXProto _xProto;
+    private readonly uint _windowId;
+    private readonly uint _gc;
+    private bool _connected;
+    private IntPtr _imagePtr;
+    private ushort _imgWidth;
+    private ushort _imgHeight;
 
     public WindowManager()
     {
-        _display = LibX11.XOpenDisplay(null);
-        _atomDelete = LibX11.XInternAtom(_display, "WM_DELETE_WINDOW", false);
-        _screen = LibX11.XDefaultScreen(_display);
+        _xProto = XcsbClient.Initialized();
+        _windowId = _xProto.NewId();
+        _gc = _xProto.NewId();
     }
 
     public unsafe void CreateWindow(uint height, uint width)
     {
-        _window = LibX11.XCreateSimpleWindow(_display,
-           LibX11.XRootWindow(_display, _screen),
-           0,
-           0,
-           width,
-           height,
-           0,
-           LibX11.XBlackPixel(_display, _screen),
-           LibX11.XWhitePixel(_display, _screen));
-
-        LibX11.XSelectInput(_display, _window.Value, EventMask.ExposureMask);
-
-        var atomPointer = Marshal.AllocHGlobal(IntPtr.Size);
-        Marshal.WriteIntPtr(atomPointer, (IntPtr)_atomDelete);
-        LibX11.XSetWMProtocols(_display, _window.Value, atomPointer, 1);
-        Marshal.FreeHGlobal(atomPointer);
+        var screen = _xProto.HandshakeSuccessResponseBody.Screens[0];
+        _xProto.BufferClient.CreateWindow(screen.RootDepth!.DepthValue,
+            _windowId,
+            screen.Root,
+            0, 0, (ushort)width, (ushort)height,
+            0, Xcsb.Models.ClassType.InputOutput,
+            screen.RootVisualId,
+            ValueMask.EventMask,
+            [(uint)(EventMask.ExposureMask)]);
+        _xProto.BufferClient.MapWindow(_windowId);
+        _xProto.BufferClient.CreateGC(_gc, _windowId, GCMask.Foreground | GCMask.GraphicsExposures, [screen.BlackPixel, 0]);
+        _xProto.BufferClient.FlushChecked();
     }
 
     public void Dispose()
     {
-        if (!_window.HasValue)
-            return;
-
-        if (_image.HasValue)
-            LibX11.XFree(_image.Value);
-
-        if (_pixmap.HasValue)
-            LibX11.XFreePixmap(_display, _pixmap.Value);
-
-        _ = LibX11.XCloseDisplay(_display);
-        GC.SuppressFinalize(this);
+        if (_connected)
+        {
+            _xProto.FreeGC(_gc);
+            _xProto.DestroyWindow(_windowId);
+        }
     }
 
     public unsafe Task Show(DateTime? closeTime = null)
     {
-        if (!_window.HasValue || !_image.HasValue || !_pixmap.HasValue)
-            return Task.CompletedTask;
-
-        LibX11.XMapWindow(_display, _window.Value);
-
-        var image = Marshal.PtrToStructure<XImage>(_image.Value);
-        using var graphicsContext = new GraphicsContext(_display, _window.Value);
-        var ev = new _XEvent();
+        var data = new Span<byte>((void*)_imagePtr, _imgWidth * _imgHeight * 4);
         while (true)
         {
-            var pointer = &ev;
-            LibX11.XNextEvent(_display, pointer);
-            XEvent @event = ev;
-            if (@event.Type == EventType.Expose)
+            var evnt = _xProto.GetEvent();
+            if (!evnt.HasValue || closeTime != null && closeTime.Value < DateTime.Now)
             {
-                Debug.Assert((XDisplay*)_display == @event.XExpose.Display);
-                LibX11.XPutImage(_display, _pixmap.Value, graphicsContext, _image.Value, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
-                LibX11.XCopyArea(_display, _pixmap.Value, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
-                continue;
-            }
-            if (closeTime != null && closeTime.Value < DateTime.Now || @event.Type == EventType.ClientMessage && @event.XClient.Data.l[0] == (int)_atomDelete)
-            {
+                _connected = false;
                 break;
             }
+            if (evnt.Value.EventType == EventType.Expose)
+            {
+                // todo: hack to big request or write it with lazy request
+                //_xProto.PutImageChecked(ImageFormat.ZPixmap,
+                //   _windowId,
+                //   _gc,
+                //   _imgWidth,
+                //   _imgHeight,
+                //   0, 0, 0,
+                //    _xProto.HandshakeSuccessResponseBody.Screens[0].RootDepth!.DepthValue,
+                //   data);
+
+            }
+            if (evnt.Value.EventType == EventType.Error)
+                break;
         }
         return Task.CompletedTask;
     }
 
     public void SetUpImage(Image image)
     {
-        if (!_window.HasValue)
-            return;
-
-        var visual = LibX11.XDefaultVisual(_display, _screen);
-        var depth = LibX11.XDefaultDepth(_display, _screen);
-
-        _image = LibX11.XCreateImage(_display,
-            visual,
-            depth,
-            ImageFormat.ZPixmap,
-            0,
-            image.Id.AddrOfPinnedObject(),
-            (uint)image.Width,
-            (uint)image.Height,
-            image.BitCount,
-            0);
-        _pixmap = LibX11.XCreatePixmap(_display,
-            _window.Value,
-            (uint)image.Width,
-            (uint)image.Height,
-            depth);
+        _imagePtr = image.Id.AddrOfPinnedObject();
+        _imgWidth = (ushort)image.Width;
+        _imgHeight = (ushort)image.Height;
     }
 }
 #endif

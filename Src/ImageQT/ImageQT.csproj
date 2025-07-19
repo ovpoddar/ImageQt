@@ -24,4 +24,8 @@
 			<_Parameter1>$(MSBuildProjectName).Decoder</_Parameter1>
 		</AssemblyAttribute>
 	</ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Xcsb" Version="1.0.0-beta4.1" />
+	</ItemGroup>
+	
 </Project>
