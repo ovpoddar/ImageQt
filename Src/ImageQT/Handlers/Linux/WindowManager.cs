@@ -33,6 +33,10 @@ internal class WindowManager : INativeWindowManager
             screen.RootVisualId,
             ValueMask.EventMask,
             [(uint)(EventMask.ExposureMask)]);
+        _xProto.BufferClient.CreateGC(_gc,
+            _windowId,
+            GCMask.Foreground | GCMask.GraphicsExposures,
+            [screen.BlackPixel, 0]);
         _xProto.BufferClient.MapWindow(_windowId);
         _xProto.BufferClient.CreateGC(_gc, _windowId, GCMask.Foreground | GCMask.GraphicsExposures, [screen.BlackPixel, 0]);
         _xProto.BufferClient.FlushChecked();
