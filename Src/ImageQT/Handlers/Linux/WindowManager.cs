@@ -1,115 +1,99 @@
-﻿#if DEBUG || Linux
-using ImageQT.DllInterop.Linux;
-using ImageQT.Models.Linux;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
+#if DEBUG || Linux
+using Xcsb.Connection;
+using Xcsb;
+using Xcsb.Connection.Models.Handshake;
+using Xcsb.Infrastructure;
+using Xcsb.Masks;
+using Xcsb.Models;
+using Xcsb.Models.TypeInfo;
+using Xcsb.Response.Event;
 
 namespace ImageQT.Handlers.Linux;
-internal class WindowManager : INativeWindowManager
+
+public class WindowManager : INativeWindowManager
 {
-    private readonly IntPtr _display;
-    private readonly int _screen;
-    private readonly ulong _atomDelete;
-    private ulong? _window;
-    private IntPtr? _image;
-    private ulong? _pixmap;
+    private readonly IXConnection _xConnection;
+    private readonly IXProto _xProto;
+    private readonly Screen _screen;
+
+    private uint _window;
+    private uint _gc;
+    private uint _pixmap;
 
     public WindowManager()
     {
-        _display = LibX11.XOpenDisplay(null);
-        _atomDelete = LibX11.XInternAtom(_display, "WM_DELETE_WINDOW", false);
-        _screen = LibX11.XDefaultScreen(_display);
+        _xConnection = XcsbClient.Connect();
+
+        if (_xConnection.HandshakeSuccessResponseBody == null)
+            throw new Exception(_xConnection.FailReason);
+
+        _xProto = _xConnection.Initialized();
+        _screen = _xConnection.HandshakeSuccessResponseBody.Screens[0];
     }
 
     public void CreateWindow(uint height, uint width)
     {
-        _window = LibX11.XCreateSimpleWindow(_display,
-           LibX11.XRootWindow(_display, _screen),
-           0,
-           0,
-           width,
-           height,
-           0,
-           LibX11.XBlackPixel(_display, _screen),
-           LibX11.XWhitePixel(_display, _screen));
-
-        LibX11.XSelectInput(_display, _window.Value, EventMask.ExposureMask);
-
-        var atomPointer = Marshal.AllocHGlobal(IntPtr.Size);
-        Marshal.WriteIntPtr(atomPointer, (IntPtr)_atomDelete);
-        LibX11.XSetWMProtocols(_display, _window.Value, atomPointer, 1);
-        Marshal.FreeHGlobal(atomPointer);
-    }
-
-    public void Dispose()
-    {
-        if (!_window.HasValue)
-            return;
-
-        if (_image.HasValue)
-            LibX11.XFree(_image.Value);
-
-        if (_pixmap.HasValue)
-            LibX11.XFreePixmap(_display, _pixmap.Value);
-
-        _ = LibX11.XCloseDisplay(_display);
-        GC.SuppressFinalize(this);
-    }
-
-    public Task Show(DateTime? closeTime = null)
-    {
-        if (!_window.HasValue || !_image.HasValue || !_pixmap.HasValue)
-            return Task.CompletedTask;
-
-        LibX11.XMapWindow(_display, _window.Value);
-
-        var image = Marshal.PtrToStructure<XImage>(_image.Value);
-        var ev = Marshal.AllocHGlobal(192);
-        using var graphicsContext = new GraphicsContext(_display, _window.Value);
-
-        while (true)
-        {
-            LibX11.XNextEvent(_display, ev);
-            var @event = new XEvent(ref ev);
-            if (@event.type == Event.Expose)
-            {
-                Debug.Assert(_display == @event.xexpose.display);
-                LibX11.XPutImage(_display, _pixmap.Value, graphicsContext, _image.Value, 0, 0, 0, 0, (uint)image.width, (uint)image.height);
-                LibX11.XCopyArea(_display, _pixmap.Value, _window.Value, graphicsContext, 0, 0, (uint)image.width, (uint)image.height, 0, 0);
-                continue;
-            }
-            if (closeTime != null && closeTime.Value < DateTime.Now || @event.type == Event.ClientMessage && @event.xclient.data.l == (int)_atomDelete)
-            {
-                break;
-            }
-        }
-        Marshal.FreeHGlobal(ev);
-        return Task.CompletedTask;
+        _window = _xConnection.NewId();
+        _xProto.CreateWindowChecked(
+            0,
+            _window,
+            _screen.Root,
+            0, 0, (ushort)width, (ushort)height, 0,
+            ClassType.InputOutput,
+            _screen.RootVisualId,
+            ValueMask.EventMask,
+            [(uint)EventMask.ExposureMask]
+        );
     }
 
     public void SetUpImage(Image image)
     {
-        if (!_window.HasValue)
-            return;
+        _gc = _xConnection.NewId();
+        _xProto.CreateGCChecked(_gc, _window, 0, []);
 
-        var visual = LibX11.XDefaultVisual(_display, _screen);
-        var depth = LibX11.XDefaultDepth(_display, _screen);
+        _pixmap = _xConnection.NewId();
+        _xProto.CreatePixmapChecked(_screen.RootDepth.DepthValue, _pixmap, _window, (ushort)image.Width,
+            (ushort)image.Height);
+        unsafe
+        {
+            var data = new Span<byte>((void*)image.Id.AddrOfPinnedObject(), (image.Width * image.Height * 4));
+            _xProto.PutImageChecked(ImageFormatBitmap.ZPixmap, _pixmap, _gc, (ushort)image.Width,
+                (ushort)image.Height, 0, 0, 0, _screen.RootDepth.DepthValue, data);
+        }
+    }
 
-        _image = LibX11.XCreateImage(_display,
-            visual,
-            depth,
-            ImageFormat.ZPixmap,
-            0,
-            image.Id.AddrOfPinnedObject(),
-            (uint)image.Width,
-            (uint)image.Height,
-            image.BitCount,
-            0);
-        _pixmap = LibX11.XCreatePixmap(_display,
-            _window.Value,
-            (uint)image.Width,
-            (uint)image.Height,
-            depth);
+    public Task Show(DateTime? closeTime = null)
+    {
+        _xProto.MapWindowChecked(_window);
+        while (true)
+        {
+            if (closeTime != null && closeTime.Value < DateTime.Now)
+                break;
+            var hasEventToProcesses = _xProto.IsEventAvailable();
+            if (hasEventToProcesses) continue;
+            var evnt = _xProto.GetEvent();
+            if (evnt.ReplyType == EventType.LastEvent) break;
+            if (evnt.ReplyType == EventType.Expose)
+            {
+                var expose = evnt.As<ExposeEvent>();
+                _xProto.CopyAreaChecked(_pixmap,
+                    _window,
+                    _gc,
+                    expose.X, expose.Y,
+                    expose.X, expose.Y,
+                    expose.Width, expose.Height);
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public void Dispose()
+    {
+        _xProto.FreePixmapChecked(_pixmap);
+        _xProto.FreeGCChecked(_gc);
+        _xProto.DestroyWindowChecked(_window);
+        _xConnection.Dispose();
     }
 }
 #endif
