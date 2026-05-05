@@ -1,7 +1,9 @@
 #if DEBUG || Linux
+using System.Runtime.InteropServices;
 using Xcsb.Connection;
 using Xcsb;
 using Xcsb.Connection.Models.Handshake;
+using Xcsb.Connection.Models.TypeInfo;
 using Xcsb.Infrastructure;
 using Xcsb.Masks;
 using Xcsb.Models;
@@ -19,6 +21,7 @@ public class WindowManager : INativeWindowManager
     private uint _window;
     private uint _gc;
     private uint _pixmap;
+    private uint _deleteWindow;
 
     public WindowManager()
     {
@@ -44,6 +47,16 @@ public class WindowManager : INativeWindowManager
             ValueMask.EventMask,
             [(uint)EventMask.ExposureMask]
         );
+        var protoR = _xProto.InternAtom(true, "WM_PROTOCOLS");
+        var deleteR = _xProto.InternAtom(false, "WM_DELETE_WINDOW");
+        _xProto.ChangePropertyChecked<uint>(
+            PropertyMode.Replace,
+            _window,
+            protoR.Atom,
+            ATOM.Atom,
+            [deleteR.Atom]
+        );
+        _deleteWindow = deleteR.Atom;
     }
 
     public void SetUpImage(Image image)
@@ -69,19 +82,40 @@ public class WindowManager : INativeWindowManager
         {
             if (closeTime != null && closeTime.Value < DateTime.Now)
                 break;
-            var hasEventToProcesses = _xProto.IsEventAvailable();
-            if (hasEventToProcesses) continue;
             var evnt = _xProto.GetEvent();
-            if (evnt.ReplyType == EventType.LastEvent) break;
-            if (evnt.ReplyType == EventType.Expose)
+            if (evnt.Error.HasValue)
             {
-                var expose = evnt.As<ExposeEvent>();
-                _xProto.CopyAreaChecked(_pixmap,
-                    _window,
-                    _gc,
-                    expose.X, expose.Y,
-                    expose.X, expose.Y,
-                    expose.Width, expose.Height);
+                Console.WriteLine(evnt.Error.Value.ToString());
+                break;
+            }
+
+            var replyType = evnt.ReplyType & ~0x80;
+            switch (replyType)
+            {
+                case 12: // Expose
+                {
+                    var expose = evnt.As<ExposeEvent>();
+                    _xProto.CopyAreaChecked(_pixmap,
+                        _window,
+                        _gc,
+                        expose.X, expose.Y,
+                        expose.X, expose.Y,
+                        expose.Width, expose.Height);
+                    break;
+                }
+                case 33: // clientMessage
+                {
+                    var clientMessage = evnt.As<ClientMessageEvent>();
+                    unsafe
+                    {
+                        var atom = new Span<int>(clientMessage.Data.Data32, 1)[0];
+                        if (atom == _deleteWindow) return Task.CompletedTask;
+                    }
+
+                    break;
+                }
+                default:
+                    break;
             }
         }
 
@@ -96,4 +130,5 @@ public class WindowManager : INativeWindowManager
         _xConnection.Dispose();
     }
 }
+
 #endif
